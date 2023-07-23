@@ -1,5 +1,5 @@
 -- Constants for the number of items per page
-local ITEMS_PER_PAGE = 10
+local ITEMS_PER_PAGE = 30
 
 -- Constants for the number of columns
 local COLUMNS = 2
@@ -116,7 +116,7 @@ function displayItems(monitorSide, peripheralSide)
     end
 
     -- Wait for the user to change the page or for the items to be updated
-    local event, key = os.pullEvent()
+    local event, key = os.pullEventTimeout(1)
     if event == "key" then
       if key == keys.right then
         currentPage = currentPage + 1
