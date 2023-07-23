@@ -1,5 +1,5 @@
 -- Constants for the number of items per page
-local ITEMS_PER_PAGE = 20
+local ITEMS_PER_PAGE = 10
 
 -- Constants for the number of columns
 local COLUMNS = 2
@@ -64,22 +64,13 @@ function displayItems(monitorSide, peripheralSide)
 
   -- Initialize the current page
   local currentPage = 1
-  local items = {}
-
-  -- Update items every second
-  local function updateItems()
-    while true do
-      items = interface.items()
-      sortItems(items)
-      sleep(1)
-    end
-  end
-
-  -- Create parallel process to update items
-  local updateProcess = parallel.waitForAny(updateItems, function() os.pullEvent("key") end)
 
   -- Continuously fetch and display the items
   while true do
+    -- Update items
+    local items = interface.items()
+    sortItems(items)
+
     -- Determine the number of pages
     local numPages = math.ceil(#items / ITEMS_PER_PAGE)
 
