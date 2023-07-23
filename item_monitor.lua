@@ -1,5 +1,8 @@
 -- Constants for the number of items per page
-local ITEMS_PER_PAGE = 10
+local ITEMS_PER_PAGE = 20
+
+-- Constants for the number of columns
+local COLUMNS = 2
 
 -- Function to check if a table contains a specific value
 function tableContains(table, element)
@@ -7,7 +10,6 @@ function tableContains(table, element)
     if value == element then
       return true
     end
-  end
   return false
 end
 
@@ -61,15 +63,22 @@ function displayItems(monitorSide, peripheralSide)
 
   -- Initialize the current page
   local currentPage = 1
+  local items = {}
+
+  -- Update items every second
+  local function updateItems()
+    while true do
+      items = interface.items()
+      sortItems(items)
+      sleep(1)
+    end
+  end
+
+  -- Create parallel process to update items
+  local updateProcess = parallel.waitForAny(updateItems, function() os.pullEvent("key") end)
 
   -- Continuously fetch and display the items
   while true do
-    -- Fetch the items
-    local items = interface.items()
-
-    -- Sort the items
-    sortItems(items)
-
     -- Determine the number of pages
     local numPages = math.ceil(#items / ITEMS_PER_PAGE)
 
@@ -100,20 +109,28 @@ function displayItems(monitorSide, peripheralSide)
       local item = items[i]
       local itemDisplay = string.format("%s %s", item.name, tostring(item.count))
       
-      -- Right-align the item count
-      monitor.setCursorPos(width - string.len(itemDisplay) + 1, line)
+      -- Determine the column to write to
+      local column = (i - startItem) % COLUMNS
+      local columnWidth = math.floor(width / COLUMNS)
+      
+      -- Right-align the item count within the column
+      monitor.setCursorPos(column * columnWidth + 1, line)
       monitor.write(itemDisplay)
 
       -- Increment the line number
-      line = line + 1
+      if column == COLUMNS - 1 then
+        line = line + 1
+      end
     end
 
-    -- Wait for the user to change the page
-    local event, key = os.pullEvent("key")
-    if key == keys.right then
-      currentPage = currentPage + 1
-    elseif key == keys.left then
-      currentPage = currentPage - 1
+    -- Wait for the user to change the page or for the items to be updated
+    local event, key = os.pullEvent()
+    if event == "key" then
+      if key == keys.right then
+        currentPage = currentPage + 1
+      elseif key == keys.left then
+        currentPage = currentPage - 1
+      end
     end
   end
 end
