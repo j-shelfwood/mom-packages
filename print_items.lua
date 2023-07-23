@@ -1,5 +1,15 @@
--- Function to fetch and print items from a peripheral
-function printItems(side)
+-- Function to check if a table contains a specific value
+function tableContains(table, element)
+    for _, value in pairs(table) do
+      if value == element then
+        return true
+      end
+    end
+    return false
+  end
+  
+  -- Function to fetch and print items from a peripheral
+  function printItems(side)
     -- Check if there is a peripheral connected on the given side
     if not peripheral.isPresent(side) then
       print("No peripheral present on the " .. side .. " side.")
@@ -8,7 +18,7 @@ function printItems(side)
     
     -- Check if the peripheral has an 'items' method
     local methods = peripheral.getMethods(side)
-    if not table.contains(methods, "items") then
+    if not tableContains(methods, "items") then
       print("The peripheral on the " .. side .. " side does not have an 'items' method.")
       return
     end
