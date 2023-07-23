@@ -10,6 +10,7 @@ function tableContains(table, element)
     if value == element then
       return true
     end
+  end
   return false
 end
 
