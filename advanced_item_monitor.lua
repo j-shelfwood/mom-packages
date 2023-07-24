@@ -26,7 +26,10 @@ end
 
 -- Function to display item information in a "powerpoint" style
 function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
-  -- ...same as before, but replace the display loop with...
+  -- Get a reference to the monitor and the peripheral
+  local monitor = peripheral.wrap(monitorSide)
+  local interface = peripheral.wrap(peripheralSide)
+
   
   -- Continuously fetch and display the items
   while true do
