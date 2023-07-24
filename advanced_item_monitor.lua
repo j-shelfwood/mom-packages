@@ -44,7 +44,7 @@ function displayItemInfo(monitorSide, peripheralSide, numItems, numColumns)
 
   -- Continuously fetch and display the items
   while true do
-    local items = interface.getItemsInNetwork()
+    local items = interface.items()
     sortItems(items)
 
     monitor.clear()
@@ -57,8 +57,8 @@ function displayItemInfo(monitorSide, peripheralSide, numItems, numColumns)
         end
 
         local item = items[index]
-        local itemName = item.label
-        local itemCount = item.size
+        local itemName = item.name
+        local itemCount = item.count
         local itemChange = (prevItems[itemName] or itemCount) - itemCount
 
         -- Save current count for next loop
