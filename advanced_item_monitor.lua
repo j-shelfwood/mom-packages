@@ -66,6 +66,7 @@ function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows, textS
 
   -- Continuously fetch and display the items
   while true do
+    print("Starting new iteration...")
     -- Clear the monitor
     monitor.clear()
 
@@ -80,7 +81,8 @@ function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows, textS
       local row = math.floor((i - 1) / numColumns) + 1
       local col = (i - 1) % numColumns + 1
       local item = items[i]
-      local itemNameLines = wordWrap(item.name, cellWidth)
+      -- local itemNameLines = wordWrap(item.name, cellWidth)
+      local itemNameLines = {item.name}
       local itemCount = item.count
       local itemChange = ""
 
@@ -101,7 +103,7 @@ function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows, textS
 
       -- Save the current count and change for the next update
       prevItems[item.name] = {count = itemCount, change = itemChange, noChangeCount = (prevItems[item.name] and prevItems[item.name].noChangeCount or 0)}
-
+      print("Displaying item:", item.name, itemCount, itemChange)
       -- Write the item name, count and change in their respective cell
       writeCentered(monitor, row, col, cellWidth, cellHeight, itemNameLines, 1)
       writeCentered(monitor, row, col, cellWidth, cellHeight, {tostring(itemCount) .. " " .. itemChange}, #itemNameLines + 1)
