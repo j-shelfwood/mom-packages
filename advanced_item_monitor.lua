@@ -29,12 +29,18 @@ end
 
 -- Function to display item information in a grid
 function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
+  print("Monitor side: " .. monitorSide)
+  print("Peripheral side: " .. peripheralSide)
+
   -- Get a reference to the monitor and the peripheral
   local monitor = peripheral.wrap(monitorSide)
   local interface = peripheral.wrap(peripheralSide)
 
   -- Get monitor dimensions and calculate cell dimensions
   local monitorWidth, monitorHeight = monitor.getSize()
+  print("Monitor width: " .. monitorWidth)
+  print("Monitor height: " .. monitorHeight)
+
   local cellWidth = math.floor(monitorWidth / numColumns)
   local cellHeight = math.floor(monitorHeight / numRows)
 
@@ -48,6 +54,7 @@ function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
 
     -- Get items
     local items = interface.items()
+    print("Fetched items")
 
     -- Sort items
     table.sort(items, function(a, b) return a.count > b.count end)
@@ -84,6 +91,8 @@ function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
       writeCentered(monitor, row, col, cellWidth, cellHeight, tostring(itemCount), 2)
       writeCentered(monitor, row, col, cellWidth, cellHeight, itemChange, 3)
     end
+    print("Items displayed")
+    sleep(1)  -- Wait a bit before updating again
   end
 end
 
