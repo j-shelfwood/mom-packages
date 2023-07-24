@@ -1,47 +1,22 @@
--- Function to check if a table contains a specific value
-function tableContains(table, element)
-  for _, value in pairs(table) do
-    if value == element then
-      return true
-    end
-  end
-  return false
-end
-
--- Function to sort items by count
-function sortItems(items)
-  table.sort(items, function(a, b) return a.count > b.count end)
-end
-
 -- Function to auto-detect peripherals
 function detectPeripherals()
-  local sides = {"left", "right", "front", "back", "top", "bottom"}
-  local monitorSide, peripheralSide
+  -- ...same as before...
+end
 
-  for _, side in pairs(sides) do
-    if peripheral.getType(side) == "monitor" then
-      monitorSide = side
-    elseif peripheral.getType(side) == "merequester:requester" then
-      peripheralSide = side
-    end
-  end
+-- Function to suggest display settings based on monitor size
+function suggestSettings(monitor)
+  local width, height = monitor.getSize()
+  -- We'll assume that each item needs a 2x2 space to display neatly
+  local suggestedColumns = math.floor(width / 2)
+  local suggestedRows = math.floor(height / 2)
   
-  return monitorSide, peripheralSide
+  return suggestedColumns, suggestedRows
 end
 
 -- Function to display item information in a "powerpoint" style
-function displayItemInfo(monitorSide, peripheralSide, numItems, numColumns)
-  local monitor = peripheral.wrap(monitorSide)
-  local interface = peripheral.wrap(peripheralSide)
-
-  local width, height = monitor.getSize()
-
-  local columnWidth = math.floor(width / numColumns)
-  local rows = math.ceil(numItems / numColumns)
+function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
+  -- ...same as before, but replace the display loop with...
   
-  -- previous state for change calculation
-  local prevItems = {}
-
   -- Continuously fetch and display the items
   while true do
     local items = interface.items()
@@ -49,24 +24,24 @@ function displayItemInfo(monitorSide, peripheralSide, numItems, numColumns)
 
     monitor.clear()
 
-    for row = 1, rows do
+    for row = 1, numRows do
       for column = 1, numColumns do
         local index = (row - 1) * numColumns + column
-        if index > numItems then
+        if index > #items then
           break
         end
 
         local item = items[index]
         local itemName = item.name
         local itemCount = item.count
-        local itemChange = (prevItems[itemName] or itemCount) - itemCount
 
-        -- Save current count for next loop
-        prevItems[itemName] = itemCount
+        -- Calculate positions based on row and column
+        local posX = (column - 1) * 2 + 1
+        local posY = (row - 1) * 2 + 1
 
         -- Print item data to screen
-        monitor.setCursorPos((column - 1) * columnWidth + 1, row)
-        monitor.write(string.format("%s: %d (%+d)", itemName, itemCount, itemChange))
+        monitor.setCursorPos(posX, posY)
+        monitor.write(string.format("%s: %d", itemName, itemCount))
       end
     end
 
@@ -81,12 +56,16 @@ if not monitorSide or not peripheralSide then
   error("Failed to detect necessary peripherals. Make sure they are connected.")
 end
 
--- Ask the user for the display parameters
-print("Enter the number of items to display:")
-local numItems = tonumber(read())
+-- Detect monitor and suggest settings
+local monitor = peripheral.wrap(monitorSide)
+local suggestedColumns, suggestedRows = suggestSettings(monitor)
 
-print("Enter the number of columns for the display grid:")
-local numColumns = tonumber(read())
+print("Suggested display settings: " .. suggestedColumns .. " columns, " .. suggestedRows .. " rows.")
+print("Enter the number of columns for the display grid (or press Enter to use the suggested setting):")
+local numColumns = tonumber(read()) or suggestedColumns
+
+print("Enter the number of rows for the display grid (or press Enter to use the suggested setting):")
+local numRows = tonumber(read()) or suggestedRows
 
 -- Call the function to display the item information
-displayItemInfo(monitorSide, peripheralSide, numItems, numColumns)
+displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
