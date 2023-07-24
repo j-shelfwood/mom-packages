@@ -1,22 +1,72 @@
-local args = {...}
-local side = args[1]
+local ae2_side = ""
+local monitor_side = ""
+local disk_drive_sides = {}
 
-local peripheral = peripheral.wrap(side)
-local items = peripheral.items()
+local sides = {"left", "right", "front", "back", "top", "bottom"}
 
-local itemCount = #items
+-- Helper function to clear monitor
+function clearMonitor(monitor)
+  monitor.clear()
+  monitor.setCursorPos(1,1)
+end
 
--- Size of one item entry in bytes. 
--- Consider: timestamp (20 bytes), item name (up to 64 bytes), count (up to 10 bytes), separators (4 bytes)
-local itemEntrySize = 20 + 64 + 10 + 4
+-- Detect peripherals
+for _, side in pairs(sides) do
+  if peripheral.getType(side) == "meBridge" then
+    ae2_side = side
+  elseif peripheral.getType(side) == "monitor" then
+    monitor_side = side
+  elseif peripheral.getType(side) == "drive" then
+    table.insert(disk_drive_sides, side)
+  end
+end
 
--- Total size of all items per snapshot
-local totalItemDataSize = itemCount * itemEntrySize
+-- Check for the required peripherals
+if ae2_side == "" then
+  error("No AE2 system detected. Please ensure the computer is connected to an AE2 system.")
+end
 
--- Calculate how many snapshots could be stored within the ComputerCraft file limit (1,000,000 bytes)
-local snapshotCount = math.floor(1000000 / totalItemDataSize)
+if monitor_side == "" then
+  print("No monitor detected. Output will be printed to the terminal.")
+end
 
--- Print results
-print("Total item types: " .. itemCount)
-print("Estimated size of data per snapshot: " .. totalItemDataSize .. " bytes")
-print("Estimated number of snapshots that can be stored: " .. snapshotCount)
+if #disk_drive_sides == 0 then
+  error("No disk drives detected. Please connect some disk drives.")
+end
+
+-- Get AE2 system and monitor peripherals
+local ae2 = peripheral.wrap(ae2_side)
+local monitor
+if monitor_side ~= "" then
+  monitor = peripheral.wrap(monitor_side)
+  clearMonitor(monitor)
+end
+
+local function printOutput(line)
+  print(line)
+  if monitor ~= nil then
+    monitor.write(line)
+    x,y = monitor.getCursorPos()
+    monitor.setCursorPos(1, y + 1)
+  end
+end
+
+-- Calculate statistics
+local items = ae2.listItems()
+local total_items = 0
+local total_size = 0
+
+for _, item in pairs(items) do
+  total_items = total_items + 1
+  total_size = total_size + #textutils.serialize(item)
+end
+
+local snapshot_size = total_size
+local disk_capacity = #disk_drive_sides * 128 * 1024
+local num_snapshots = disk_capacity / snapshot_size
+
+printOutput("Total item types: " .. total_items)
+printOutput("Estimated snapshot size (bytes): " .. snapshot_size)
+printOutput("Total disk drives: " .. #disk_drive_sides)
+printOutput("Total disk capacity (bytes): " .. disk_capacity)
+printOutput("Total estimated snapshots: " .. math.floor(num_snapshots))
