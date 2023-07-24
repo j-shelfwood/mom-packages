@@ -38,8 +38,14 @@ function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
   local cellWidth = math.floor(monitorWidth / numColumns)
   local cellHeight = math.floor(monitorHeight / numRows)
   
+  -- Initialize a render counter
+  local renderCount = 0
+  
   -- Continuously fetch and display the items
   while true do
+    -- Increment the render count
+    renderCount = renderCount + 1
+    
     -- Clear the monitor
     monitor.clear()
     
@@ -60,14 +66,16 @@ function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
       -- Write the item name, count and difference in their respective cell
       writeCentered(monitor, row, col, cellWidth, cellHeight, itemName, 1)
       writeCentered(monitor, row, col, cellWidth, cellHeight, tostring(itemCount), 2)
-      if item.lastCount then
-        writeCentered(monitor, row, col, cellWidth, cellHeight, "+" .. tostring(itemCount - item.lastCount), 3)
+      if renderCount % 4 == 0 then
+        if item.lastCount then
+          writeCentered(monitor, row, col, cellWidth, cellHeight, "+" .. tostring(itemCount - item.lastCount), 3)
+        end
+        item.lastCount = itemCount
       end
-      item.lastCount = itemCount
     end
     
     -- Sleep for a while before the next update
-    sleep(1)
+    sleep(0.1)
   end
 end
 
