@@ -44,43 +44,25 @@ function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
   local monitor = peripheral.wrap(monitorSide)
   local interface = peripheral.wrap(peripheralSide)
 
-  print("Monitor and interface wrapped")
-
   -- Get monitor dimensions and calculate cell dimensions
   local monitorWidth, monitorHeight = monitor.getSize()
   local cellWidth = math.floor(monitorWidth / numColumns)
   local cellHeight = math.floor(monitorHeight / numRows)
 
-  print("Monitor dimensions calculated")
-
-  -- Initialize the previous items table
+  -- Initialize the previous items table and current items table
   local prevItems = {}
-
-  print("Previous items table initialized")
+  local currItems = {}
 
   -- Continuously fetch and display the items
   while true do
-    print("Start of new iteration")
-
-    -- Clear the monitor
-    monitor.clear()
-
-    print("Monitor cleared")
-
     -- Get items
     local items = interface.items()
-
-    print("Items fetched")
 
     -- Sort items
     table.sort(items, function(a, b) return a.count > b.count end)
 
-    print("Items sorted")
-
     -- Display items in the grid
     for i = 1, math.min(#items, numColumns * numRows) do
-      print("Start of new item")
-
       local row = math.floor((i - 1) / numColumns) + 1
       local col = (i - 1) % numColumns + 1
       local item = items[i]
@@ -103,20 +85,26 @@ function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
         end
       end
 
-      print("Item change calculated")
-
       -- Save the current count and change for the next update
       prevItems[itemName] = {count = itemCount, change = itemChange, noChangeCount = (prevItems[itemName] and prevItems[itemName].noChangeCount or 0)}
 
-      print("Current item saved for next update")
+      -- Check if item's info has changed
+      if not currItems[i] or currItems[i].name ~= itemName or currItems[i].count ~= itemCount or currItems[i].change ~= itemChange then
+        -- Update current items table
+        currItems[i] = {name = itemName, count = itemCount, change = itemChange}
 
-      -- Write the item name, count and change in their respective cell
-      writeCentered(monitor, row, col, cellWidth, cellHeight, itemName, 1)
-      writeCentered(monitor, row, col, cellWidth, cellHeight, tostring(itemCount) .. " " .. itemChange, 2)
+        -- Clear cell
+        for line = 1, cellHeight do
+          writeCentered(monitor, row, col, cellWidth, cellHeight, string.rep(" ", cellWidth), line)
+        end
 
-      print("Item information written to monitor")
+        -- Write the item name, count and change in their respective cell
+        writeCentered(monitor, row, col, cellWidth, cellHeight, itemName, 1)
+        writeCentered(monitor, row, col, cellWidth, cellHeight, tostring(itemCount) .. " " .. itemChange, 2)
+      end
     end
-    sleep(0.25)
+
+    sleep(0.5)
   end
 end
 
