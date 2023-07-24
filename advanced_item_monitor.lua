@@ -1,6 +1,17 @@
 -- Function to auto-detect peripherals
 function detectPeripherals()
-  -- ...same as before...
+  local sides = {"left", "right", "front", "back", "top", "bottom"}
+  local monitorSide, peripheralSide
+
+  for _, side in pairs(sides) do
+    if peripheral.getType(side) == "monitor" then
+      monitorSide = side
+    elseif peripheral.getType(side) == "meBridge" then
+      peripheralSide = side
+    end
+  end
+
+  return monitorSide, peripheralSide
 end
 
 -- Function to suggest display settings based on monitor size
