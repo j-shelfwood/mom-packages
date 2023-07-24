@@ -44,7 +44,7 @@ function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
     monitor.clear()
     
     -- Get items
-    local items = interface.listItems()
+    local items = interface.items()
     
     -- Sort items
     table.sort(items, function(a, b) return a.count > b.count end)
