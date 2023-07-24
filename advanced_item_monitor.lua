@@ -20,9 +20,9 @@ function findPeripheralSide(name)
 end
 
 -- Function to write centered text in a cell
-function writeCentered(monitor, row, col, cellWidth, cellHeight, text)
+function writeCentered(monitor, row, col, cellWidth, cellHeight, text, line)
   local x = (col - 1) * cellWidth + math.floor((cellWidth - #text) / 2) + 1
-  local y = (row - 1) * cellHeight + math.floor(cellHeight / 2) + 1
+  local y = (row - 1) * cellHeight + line
   monitor.setCursorPos(x, y)
   monitor.write(text)
 end
@@ -58,10 +58,10 @@ function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
       local itemCount = item.count
       
       -- Write the item name, count and difference in their respective cell
-      writeCentered(monitor, row, col, cellWidth, cellHeight, itemName)
-      writeCentered(monitor, row + 1, col, cellWidth, cellHeight, tostring(itemCount))
+      writeCentered(monitor, row, col, cellWidth, cellHeight, itemName, 1)
+      writeCentered(monitor, row, col, cellWidth, cellHeight, tostring(itemCount), 2)
       if item.lastCount then
-        writeCentered(monitor, row + 2, col, cellWidth, cellHeight, "+" .. tostring(itemCount - item.lastCount))
+        writeCentered(monitor, row, col, cellWidth, cellHeight, "+" .. tostring(itemCount - item.lastCount), 3)
       end
       item.lastCount = itemCount
     end
@@ -70,6 +70,7 @@ function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
     sleep(1)
   end
 end
+
 
 -- Automatically find the sides
 local monitorSide = findPeripheralSide("monitor")
