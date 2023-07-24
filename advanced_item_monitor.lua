@@ -32,29 +32,26 @@ function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
   -- Get a reference to the monitor and the peripheral
   local monitor = peripheral.wrap(monitorSide)
   local interface = peripheral.wrap(peripheralSide)
-  
+
   -- Get monitor dimensions and calculate cell dimensions
   local monitorWidth, monitorHeight = monitor.getSize()
   local cellWidth = math.floor(monitorWidth / numColumns)
   local cellHeight = math.floor(monitorHeight / numRows)
-  
-  -- Initialize a render counter
-  local renderCount = 0
-  
+
+  -- Initialize the previous items table
+  local prevItems = {}
+
   -- Continuously fetch and display the items
   while true do
-    -- Increment the render count
-    renderCount = renderCount + 1
-    
     -- Clear the monitor
     monitor.clear()
-    
+
     -- Get items
     local items = interface.items()
-    
+
     -- Sort items
     table.sort(items, function(a, b) return a.count > b.count end)
-    
+
     -- Display items in the grid
     for i = 1, math.min(#items, numColumns * numRows) do
       local row = math.floor((i - 1) / numColumns) + 1
@@ -62,23 +59,33 @@ function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
       local item = items[i]
       local itemName = item.name
       local itemCount = item.count
-      
-      -- Write the item name, count and difference in their respective cell
+      local itemChange = ""
+
+      -- Calculate the change from the previous count
+      if prevItems[itemName] then
+        local change = itemCount - prevItems[itemName].count
+        if change > 0 then
+          itemChange = "+"
+          prevItems[itemName].noChangeCount = 0
+        elseif change < 0 then
+          itemChange = "-"
+          prevItems[itemName].noChangeCount = 0
+        elseif prevItems[itemName].noChangeCount < 10 then
+          itemChange = prevItems[itemName].change
+          prevItems[itemName].noChangeCount = prevItems[itemName].noChangeCount + 1
+        end
+      end
+
+      -- Save the current count and change for the next update
+      prevItems[itemName] = {count = itemCount, change = itemChange, noChangeCount = (prevItems[itemName] and prevItems[itemName].noChangeCount or 0)}
+
+      -- Write the item name, count and change in their respective cell
       writeCentered(monitor, row, col, cellWidth, cellHeight, itemName, 1)
       writeCentered(monitor, row, col, cellWidth, cellHeight, tostring(itemCount), 2)
-      if renderCount % 4 == 0 then
-        if item.lastCount then
-          writeCentered(monitor, row, col, cellWidth, cellHeight, "+" .. tostring(itemCount - item.lastCount), 3)
-        end
-        item.lastCount = itemCount
-      end
+      writeCentered(monitor, row, col, cellWidth, cellHeight, itemChange, 3)
     end
-    
-    -- Sleep for a while before the next update
-    sleep(0.1)
   end
 end
-
 
 -- Automatically find the sides
 local monitorSide = findPeripheralSide("monitor")
