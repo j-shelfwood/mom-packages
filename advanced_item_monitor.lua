@@ -115,6 +115,7 @@ function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
       writeCentered(monitor, row, col, cellWidth, cellHeight, tostring(itemCount) .. " " .. itemChange, 2)
 
       print("Item information written to monitor")
+      sleep(0.25)
     end
   end
 end
