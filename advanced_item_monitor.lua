@@ -1,85 +1,96 @@
--- Function to auto-detect peripherals
-function detectPeripherals()
-  local sides = {"left", "right", "front", "back", "top", "bottom"}
-  local monitorSide, peripheralSide
-
-  for _, side in pairs(sides) do
-    if peripheral.getType(side) == "monitor" then
-      monitorSide = side
-    elseif peripheral.getType(side) == "merequester:requester" then
-      peripheralSide = side
+-- Function to check if a table contains a specific value
+function tableContains(table, element)
+  for _, value in pairs(table) do
+    if value == element then
+      return true
     end
   end
-
-  return monitorSide, peripheralSide
+  return false
 end
 
--- Function to suggest display settings based on monitor size
-function suggestSettings(monitor)
-  local width, height = monitor.getSize()
-  -- We'll assume that each item needs a 2x2 space to display neatly
-  local suggestedColumns = math.floor(width / 2)
-  local suggestedRows = math.floor(height / 2)
-  
-  return suggestedColumns, suggestedRows
+-- Function to find peripheral side
+function findPeripheralSide(name)
+  local sides = {"top", "bottom", "left", "right", "front", "back"}
+  for _, side in ipairs(sides) do
+    if peripheral.isPresent(side) and peripheral.getType(side) == name then
+      return side
+    end
+  end
+  return nil
 end
 
--- Function to display item information in a "powerpoint" style
+-- Function to write centered text in a cell
+function writeCentered(monitor, row, col, cellWidth, cellHeight, text)
+  local x = (col - 1) * cellWidth + math.floor((cellWidth - #text) / 2) + 1
+  local y = (row - 1) * cellHeight + math.floor(cellHeight / 2) + 1
+  monitor.setCursorPos(x, y)
+  monitor.write(text)
+end
+
+-- Function to display item information in a grid
 function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
   -- Get a reference to the monitor and the peripheral
   local monitor = peripheral.wrap(monitorSide)
   local interface = peripheral.wrap(peripheralSide)
-
+  
+  -- Get monitor dimensions and calculate cell dimensions
+  local monitorWidth, monitorHeight = monitor.getSize()
+  local cellWidth = math.floor(monitorWidth / numColumns)
+  local cellHeight = math.floor(monitorHeight / numRows)
   
   -- Continuously fetch and display the items
   while true do
-    local items = interface.items()
-    sortItems(items)
-
+    -- Clear the monitor
     monitor.clear()
-
-    for row = 1, numRows do
-      for column = 1, numColumns do
-        local index = (row - 1) * numColumns + column
-        if index > #items then
-          break
-        end
-
-        local item = items[index]
-        local itemName = item.name
-        local itemCount = item.count
-
-        -- Calculate positions based on row and column
-        local posX = (column - 1) * 2 + 1
-        local posY = (row - 1) * 2 + 1
-
-        -- Print item data to screen
-        monitor.setCursorPos(posX, posY)
-        monitor.write(string.format("%s: %d", itemName, itemCount))
+    
+    -- Get items
+    local items = interface.listItems()
+    
+    -- Sort items
+    table.sort(items, function(a, b) return a.count > b.count end)
+    
+    -- Display items in the grid
+    for i = 1, math.min(#items, numColumns * numRows) do
+      local row = math.floor((i - 1) / numColumns) + 1
+      local col = (i - 1) % numColumns + 1
+      local item = items[i]
+      local itemName = item.name
+      local itemCount = item.count
+      
+      -- Write the item name, count and difference in their respective cell
+      writeCentered(monitor, row, col, cellWidth, cellHeight, itemName)
+      writeCentered(monitor, row + 1, col, cellWidth, cellHeight, tostring(itemCount))
+      if item.lastCount then
+        writeCentered(monitor, row + 2, col, cellWidth, cellHeight, "+" .. tostring(itemCount - item.lastCount))
       end
+      item.lastCount = itemCount
     end
-
-    sleep(10)
+    
+    -- Sleep for a while before the next update
+    sleep(1)
   end
 end
 
--- Auto-detect peripherals
-local monitorSide, peripheralSide = detectPeripherals()
+-- Automatically find the sides
+local monitorSide = findPeripheralSide("monitor")
+local peripheralSide = findPeripheralSide("merequester:requester")
 
-if not monitorSide or not peripheralSide then
-  error("Failed to detect necessary peripherals. Make sure they are connected.")
+if not monitorSide then
+  print("Monitor not found.")
+  return
 end
 
--- Detect monitor and suggest settings
-local monitor = peripheral.wrap(monitorSide)
-local suggestedColumns, suggestedRows = suggestSettings(monitor)
+if not peripheralSide then
+  print("ME Requester not found.")
+  return
+end
 
-print("Suggested display settings: " .. suggestedColumns .. " columns, " .. suggestedRows .. " rows.")
-print("Enter the number of columns for the display grid (or press Enter to use the suggested setting):")
-local numColumns = tonumber(read()) or suggestedColumns
+-- Ask for the number of columns and rows
+print("Enter the number of columns for the item grid:")
+local numColumns = tonumber(read())
 
-print("Enter the number of rows for the display grid (or press Enter to use the suggested setting):")
-local numRows = tonumber(read()) or suggestedRows
+print("Enter the number of rows for the item grid:")
+local numRows = tonumber(read())
 
 -- Call the function to display the item information
 displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
