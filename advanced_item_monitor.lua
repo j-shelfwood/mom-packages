@@ -21,7 +21,7 @@ function detectPeripherals()
   for _, side in pairs(sides) do
     if peripheral.getType(side) == "monitor" then
       monitorSide = side
-    elseif peripheral.getType(side) == "meBridge" then
+    elseif peripheral.getType(side) == "merequester:requester" then
       peripheralSide = side
     end
   end
