@@ -12,7 +12,7 @@ end
 
 -- Detect peripherals
 for _, side in pairs(sides) do
-  if peripheral.getType(side) == "meBridge" then
+  if peripheral.getType(side) == "merequester:requester" then
     ae2_side = side
   elseif peripheral.getType(side) == "monitor" then
     monitor_side = side
