@@ -1,4 +1,5 @@
 local generics = require("generics")
+local scale = tonumber(arg[1]) or 1
 
 -- Function to track input of items
 function trackInput(monitorSide, peripheralSide)
@@ -68,7 +69,7 @@ function trackInput(monitorSide, peripheralSide)
         end
 
         -- Display changes in the grid
-        generics.displayChangesInGrid(monitor, sortedChanges, numColumns, numRows, prevItems)
+        generics.displayChangesInGrid(monitor, sortedChanges, numColumns, numRows, scale)
 
         sleep(60)
     end

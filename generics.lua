@@ -22,11 +22,14 @@ function generics.shortenName(name, maxLength)
 end
 
 -- Function to display changes in a grid
-function generics.displayChangesInGrid(monitor, changes, numColumns, numRows)
+function generics.displayChangesInGrid(monitor, changes, numColumns, numRows, scale)
     -- Get monitor dimensions and calculate cell dimensions
     local monitorWidth, monitorHeight = monitor.getSize()
     local cellWidth = math.floor(monitorWidth / numColumns)
     local cellHeight = math.floor(monitorHeight / numRows)
+
+    -- Set text scale
+    monitor.setTextScale(scale)
 
     -- Clear the monitor and write title
     monitor.clear()
