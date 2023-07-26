@@ -25,16 +25,14 @@ function trackInput(monitorSide, peripheralSide)
             local itemName = generics.shortenName(item.name, math.floor(monitorWidth / numColumns)) -- Fixed operator
             local itemCount = item.count
 
-            -- Calculate the change from the previous count and update the changes table
-            if prevItems[itemName] then
-                local change = itemCount - prevItems[itemName]
-                changes[itemName] = change
-            else
-                changes[itemName] = 0
-            end
-
             -- Save the current count for the next update
+            local prevCount = prevItems[itemName] or 0
             prevItems[itemName] = itemCount
+
+            -- Calculate the change from the previous count and update the changes table
+            local change = itemCount - prevCount
+            changes[itemName] = change
+
         end
 
         -- Convert the changes table to a list and sort it by absolute value of change
