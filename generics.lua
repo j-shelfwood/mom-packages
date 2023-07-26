@@ -51,4 +51,29 @@ function generics.displayItemsInGrid(monitor, items, numColumns, numRows)
   end
 end
 
+-- Function to display changes in a grid
+function displayChangesInGrid(monitor, changes, numColumns, numRows)
+    -- Clear the monitor
+    monitor.clear()
+  
+    -- Write the changes in the grid
+    for i = 1, math.min(#changes, numColumns * numRows) do
+      local row = math.floor((i - 1) / numColumns) + 1
+      local col = (i - 1) % numColumns + 1
+      local change = changes[i]
+  
+      -- Write the item name, count, change and hourly average in their respective cell
+      local y = (row - 1) * 3 + 1
+      monitor.setCursorPos(col, y)
+      monitor.write(change.name)
+      monitor.setCursorPos(col, y + 1)
+      monitor.write("Count: " .. tostring(change.count))
+      monitor.setCursorPos(col, y + 2)
+      monitor.write("Last read: " .. (change.change >= 0 and "+" or "") .. tostring(change.change))
+      monitor.setCursorPos(col, y + 3)
+      monitor.write("Avg. hourly: " .. (change.hourlyAvg >= 0 and "+" or "") .. tostring(change.hourlyAvg))
+    end
+  end
+  
+
 return generics
