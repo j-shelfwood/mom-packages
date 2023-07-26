@@ -53,7 +53,6 @@ end
   
 
 -- Function to display changes in a grid
--- Function to display changes in a grid
 function generics.displayChangesInGrid(monitor, changes, numColumns, numRows)
     -- Get monitor dimensions and calculate cell dimensions
     local monitorWidth, monitorHeight = monitor.getSize()
@@ -70,16 +69,12 @@ function generics.displayChangesInGrid(monitor, changes, numColumns, numRows)
       local change = changes[i]
       local changeSign = change.change > 0 and "+" or ""
       local changeStr = changeSign .. tostring(change.change)
-      local hourlyAvgStr = tostring(change.hourlyAvg) .. " avg/hr"
+      local totalChangeStr = "(" .. changeSign .. tostring(math.abs(change.change)) .. " in the last X minutes)"
   
-      -- Write the item name, count, change and average in their respective cell
+      -- Write the item name, change and total change in their respective cell
       generics.writeCentered(monitor, row, col, cellWidth, cellHeight, change.name, 1)
-      generics.writeCentered(monitor, row, col, cellWidth, cellHeight, tostring(change.count), 2)
-      generics.writeCentered(monitor, row, col, cellWidth, cellHeight, changeStr, 3)
-      generics.writeCentered(monitor, row, col, cellWidth, cellHeight, hourlyAvgStr, 4)
+      generics.writeCentered(monitor, row, col, cellWidth, cellHeight, changeStr, 2)
+      generics.writeCentered(monitor, row, col, cellWidth, cellHeight, totalChangeStr, 3)
     end
   end
   
-  
-
-return generics
