@@ -80,3 +80,5 @@ function generics.displayChangesInGrid(monitor, changes, numColumns, numRows, pr
             changeColor) -- Updated line number
     end
 end
+
+return generics
