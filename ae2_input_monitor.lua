@@ -31,7 +31,7 @@ while true do
     -- Calculate changes from the previous update
     local changes = {}
     for _, item in pairs(items) do
-        local itemName = generics.shortenName(item.label, math.floor(monitorWidth / numColumns))
+        local itemName = generics.shortenName(item.name, math.floor(monitorWidth / numColumns))
         local itemCount = item.count
 
         -- Calculate the change from the previous count
