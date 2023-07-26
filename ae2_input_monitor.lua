@@ -29,6 +29,8 @@ function trackInput(monitorSide, peripheralSide)
             if prevItems[itemName] then
                 local change = itemCount - prevItems[itemName]
                 changes[itemName] = change
+            else
+                changes[itemName] = 0
             end
 
             -- Save the current count for the next update
