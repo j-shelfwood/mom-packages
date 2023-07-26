@@ -14,25 +14,34 @@ function trackInput(monitorSide, peripheralSide)
 
     -- Initialize the previous items table and the changes table
     local prevItems = {}
-    local changes = {}
 
     -- Continuously fetch and display the items
     while true do
         -- Get items
         local items = interface.items()
 
+        -- Initialize the changes table
+        local changes = {}
+
         for _, item in ipairs(items) do
-            local itemName = generics.shortenName(item.name, math.floor(monitorWidth / numColumns)) -- Fixed operator
+            local itemName = generics.shortenName(item.name, math.floor(monitorWidth / numColumns))
             local itemCount = item.count
 
+            -- If the item was already present, calculate the change, otherwise the change is the current count
+            local change
+            if prevItems[itemName] then
+                change = itemCount - prevItems[itemName]
+            else
+                change = itemCount
+            end
+
+            -- If there was a change, store it
+            if change ~= 0 then
+                changes[itemName] = change
+            end
+
             -- Save the current count for the next update
-            local prevCount = prevItems[itemName] or 0
             prevItems[itemName] = itemCount
-
-            -- Calculate the change from the previous count and update the changes table
-            local change = itemCount - prevCount
-            changes[itemName] = change
-
         end
 
         -- Convert the changes table to a list and sort it by absolute value of change
@@ -53,7 +62,7 @@ function trackInput(monitorSide, peripheralSide)
         end
 
         -- Display changes in the grid
-        generics.displayChangesInGrid(monitor, sortedChanges, numColumns, numRows, prevItems) -- Added prevItems
+        generics.displayChangesInGrid(monitor, sortedChanges, numColumns, numRows, prevItems)
 
         sleep(60)
     end
