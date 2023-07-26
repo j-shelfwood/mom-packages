@@ -15,6 +15,9 @@ function trackInput(monitorSide, peripheralSide)
     -- Initialize the previous items table and the changes table
     local prevItems = {}
 
+    -- Initialize the flag for the first run
+    local isFirstRun = true
+
     -- Continuously fetch and display the items
     while true do
         -- Get items
@@ -27,42 +30,45 @@ function trackInput(monitorSide, peripheralSide)
             local itemName = generics.shortenName(item.name, math.floor(monitorWidth / numColumns))
             local itemCount = item.count
 
-            -- If the item was already present, calculate the change, otherwise the change is the current count
-            local change
-            if prevItems[itemName] then
-                change = itemCount - prevItems[itemName]
-            else
-                change = itemCount
-            end
+            -- If not the first run and the item was already present, calculate the change
+            if not isFirstRun and prevItems[itemName] then
+                local change = itemCount - prevItems[itemName]
 
-            -- If there was a change, store it
-            if change ~= 0 then
-                changes[itemName] = change
+                -- If there was a change, store it
+                if change ~= 0 then
+                    changes[itemName] = change
+                end
             end
 
             -- Save the current count for the next update
             prevItems[itemName] = itemCount
         end
 
-        -- Convert the changes table to a list and sort it by absolute value of change
-        local sortedChanges = {}
-        for itemName, change in pairs(changes) do
-            table.insert(sortedChanges, {
-                name = itemName,
-                change = change
-            })
-        end
-        table.sort(sortedChanges, function(a, b)
-            return math.abs(a.change) > math.abs(b.change)
-        end)
+        -- If not the first run, sort and display the changes
+        if not isFirstRun then
+            -- Convert the changes table to a list and sort it by absolute value of change
+            local sortedChanges = {}
+            for itemName, change in pairs(changes) do
+                table.insert(sortedChanges, {
+                    name = itemName,
+                    change = change
+                })
+            end
+            table.sort(sortedChanges, function(a, b)
+                return math.abs(a.change) > math.abs(b.change)
+            end)
 
-        -- Keep only the top X changes
-        while #sortedChanges > numColumns * numRows do
-            table.remove(sortedChanges)
+            -- Keep only the top X changes
+            while #sortedChanges > numColumns * numRows do
+                table.remove(sortedChanges)
+            end
+
+            -- Display changes in the grid
+            generics.displayChangesInGrid(monitor, sortedChanges, numColumns, numRows, prevItems)
         end
 
-        -- Display changes in the grid
-        generics.displayChangesInGrid(monitor, sortedChanges, numColumns, numRows, prevItems)
+        -- After the first run, set the flag to false
+        isFirstRun = false
 
         sleep(60)
     end
