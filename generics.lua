@@ -52,7 +52,7 @@ function generics.displayItemsInGrid(monitor, items, numColumns, numRows)
 end
 
 -- Function to display changes in a grid
-function displayChangesInGrid(monitor, changes, numColumns, numRows)
+function generics.displayChangesInGrid(monitor, changes, numColumns, numRows)
     -- Clear the monitor
     monitor.clear()
   
