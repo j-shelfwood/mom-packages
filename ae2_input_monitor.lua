@@ -36,7 +36,10 @@ function trackInput(monitorSide, peripheralSide)
 
                 -- If there was a change, store it
                 if change ~= 0 then
-                    changes[itemName] = change
+                    changes[itemName] = {
+                        change = math.abs(change),
+                        sign = change > 0 and "+" or "-"
+                    }
                 end
             end
 
@@ -48,14 +51,15 @@ function trackInput(monitorSide, peripheralSide)
         if not isFirstRun then
             -- Convert the changes table to a list and sort it by absolute value of change
             local sortedChanges = {}
-            for itemName, change in pairs(changes) do
+            for itemName, changeData in pairs(changes) do
                 table.insert(sortedChanges, {
                     name = itemName,
-                    change = change
+                    change = changeData.change,
+                    sign = changeData.sign
                 })
             end
             table.sort(sortedChanges, function(a, b)
-                return math.abs(a.change) > math.abs(b.change)
+                return a.change > b.change
             end)
 
             -- Keep only the top X changes
