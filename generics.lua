@@ -21,8 +21,6 @@ function generics.shortenName(name, maxLength)
     end
 end
 
-local generics = {}
-
 -- Function to write centered text in a cell
 function generics.writeCentered(monitor, row, col, cellWidth, cellHeight, text, line)
     local x = (col - 1) * cellWidth + math.floor((cellWidth - #text) / 2) + 1
