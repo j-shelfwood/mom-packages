@@ -2,11 +2,16 @@
 local generics = require("generics")
 
 -- Function to track input of items
-function trackInput(monitorSide, peripheralSide, numColumns, numRows)
+function trackInput(monitorSide, peripheralSide)
   -- Get a reference to the monitor and the peripheral
   local monitor = peripheral.wrap(monitorSide)
   local interface = peripheral.wrap(peripheralSide)
 
+  -- Get the monitor dimensions and calculate the number of columns and rows
+  local monitorWidth, monitorHeight = monitor.getSize()
+  local numColumns = monitorWidth // 15
+  local numRows = monitorHeight // 3
+  
   -- Initialize the previous items table and the changes table
   local prevItems = {}
   local changes = {}
@@ -17,17 +22,13 @@ function trackInput(monitorSide, peripheralSide, numColumns, numRows)
     local items = interface.items()
 
     for _, item in ipairs(items) do
-      local itemName = generics.shortenName(item.name)
+      local itemName = generics.shortenName(item.name, monitorWidth // numColumns)
       local itemCount = item.count
 
       -- Calculate the change from the previous count and update the changes table
       if prevItems[itemName] then
         local change = itemCount - prevItems[itemName]
-        if changes[itemName] then
-          changes[itemName] = changes[itemName] + change
-        else
-          changes[itemName] = change
-        end
+        changes[itemName] = change
       end
 
       -- Save the current count for the next update
@@ -67,12 +68,31 @@ if not peripheralSide then
   return
 end
 
--- Ask for the number of columns and rows
-print("Enter the number of columns for the item grid:")
-local numColumns = tonumber(read())
-
-print("Enter the number of rows for the item grid:")
-local numRows = tonumber(read())
-
 -- Call the function to track the input of items
-trackInput(monitorSide, peripheralSide, numColumns, numRows)
+trackInput(monitorSide, peripheralSide)
+
+-- Function to display changes in a grid
+function generics.displayChangesInGrid(monitor, changes, numColumns, numRows)
+  -- Get monitor dimensions and calculate cell dimensions
+  local monitorWidth, monitorHeight = monitor.getSize()
+  local cellWidth = math.floor(monitorWidth / numColumns)
+  local cellHeight = math.floor(monitorHeight / numRows)
+
+  -- Clear the monitor and write title
+  monitor.clear()
+  generics.writeCentered(monitor, 1, monitorWidth // 2, monitorWidth, 1, "ME SYSTEM INPUT", 1)
+
+  -- Display changes in the grid
+  for i = 1, math.min(#changes, numColumns * numRows) do
+    local row = math.floor((i - 1) / numColumns) + 1 + 1 -- Add 1 to account for title
+    local col = (i - 1) % numColumns + 1
+    local change = changes[i]
+    local changeSign = change.change > 0 and "+" or ""
+    local changeColor = change.change > 0 and colors.green or colors.red
+
+    -- Write the item name, change and total change in their respective cell
+    generics.writeCentered(monitor, row, col, cellWidth, cellHeight, change.name, 1)
+    generics.writeCentered(monitor, row, col, cellWidth, cellHeight, tostring(prevItems[change.name]), 2)
+    generics.writeWithColor(monitor, row, col, cellWidth, cellHeight, changeSign .. tostring(change.change), 3, changeColor)
+  end
+end
