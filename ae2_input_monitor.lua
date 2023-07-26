@@ -26,7 +26,7 @@ monitor.setTextScale(1)
 -- Continuously fetch and display the items
 while true do
     -- Get items
-    local items = requester.listItems()
+    local items = requester.items()
 
     -- Calculate changes from the previous update
     local changes = {}
@@ -57,5 +57,5 @@ while true do
     -- Display changes in the grid
     generics.displayChangesInGrid(monitor, changes, numColumns, numRows)
 
-    sleep(60)
+    sleep(10)
 end
