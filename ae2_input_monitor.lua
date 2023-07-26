@@ -22,11 +22,11 @@ function trackInput(monitorSide, peripheralSide, scale)
     -- Continuously fetch and display the items
     while true do
         -- Get items
-        local items = interface.getAllStacks(false)
+        local items = interface.items()
 
         for _, item in ipairs(items) do
-            local itemName = generics.shortenName(item.display_name, math.floor(monitorWidth / numColumns))
-            local itemCount = item.qty
+            local itemName = generics.shortenName(item.name, math.floor(monitorWidth / numColumns))
+            local itemCount = item.count
 
             -- Save the current count for the next update
             local prevCount = prevItems[itemName] or 0
@@ -57,7 +57,7 @@ if not monitorSide then
 end
 
 if not peripheralSide then
-    print("ME Interface not found.")
+    print("ME Requester not found.")
     return
 end
 
