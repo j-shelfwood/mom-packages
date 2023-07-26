@@ -21,20 +21,12 @@ function generics.shortenName(name, maxLength)
     end
 end
 
--- Function to write centered text in a cell
-function generics.writeCentered(monitor, row, col, cellWidth, cellHeight, text, line)
-    local x = (col - 1) * cellWidth + math.floor((cellWidth - #text) / 2) + 1
-    local y = (row - 1) * cellHeight + line
-    monitor.setCursorPos(x, y)
-    monitor.write(text)
-end
-
 -- Function to display changes in a grid
 function generics.displayChangesInGrid(monitor, changes, numColumns, numRows)
     -- Get monitor dimensions and calculate cell dimensions
     local monitorWidth, monitorHeight = monitor.getSize()
-    local cellWidth = math.floor(monitorWidth / numColumns) -- Changed to math.floor
-    local cellHeight = math.floor(monitorHeight / numRows) -- Changed to math.floor
+    local cellWidth = math.floor(monitorWidth / numColumns)
+    local cellHeight = math.floor(monitorHeight / numRows)
 
     -- Clear the monitor and write title
     monitor.clear()
@@ -44,15 +36,22 @@ function generics.displayChangesInGrid(monitor, changes, numColumns, numRows)
     for i, change in ipairs(changes) do
         local row = math.floor((i - 1) / numColumns) + 2
         local col = (i - 1) % numColumns + 1
-        local changeColor = change.change >= 0 and colors.green or colors.white
+        local changeColor = change.sign == "+" and colors.green or colors.white
 
         -- Write the item name, change, and total in their respective cell
         monitor.setTextColor(changeColor)
         generics.writeCentered(monitor, row, col, cellWidth, cellHeight, change.name, 1)
-        generics.writeCentered(monitor, row, col, cellWidth, cellHeight,
-            change.symbol .. tostring(math.abs(change.change)), 2)
+        generics.writeCentered(monitor, row, col, cellWidth, cellHeight, change.sign .. tostring(change.change), 2)
         monitor.setTextColor(colors.white)
     end
+end
+
+-- Function to write centered text in a cell
+function generics.writeCentered(monitor, row, col, cellWidth, cellHeight, text, line)
+    local x = (col - 1) * cellWidth + math.floor((cellWidth - #text) / 2) + 1
+    local y = (row - 1) * cellHeight + line
+    monitor.setCursorPos(x, y)
+    monitor.write(text)
 end
 
 return generics
