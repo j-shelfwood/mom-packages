@@ -37,10 +37,13 @@ function generics.displayChangesInGrid(monitor, changes, numColumns, numRows)
         local row = math.floor((i - 1) / numColumns) + 2
         local col = (i - 1) % numColumns + 1
         local changeColor = change.sign == "+" and colors.green or colors.white
+        if change.sign == "-" then
+            changeColor = colors.red
+        end
 
         -- Write the item name, change, and total in their respective cell
-        monitor.setTextColor(changeColor)
         generics.writeCentered(monitor, row, col, cellWidth, cellHeight, change.name, 1)
+        monitor.setTextColor(changeColor)
         generics.writeCentered(monitor, row, col, cellWidth, cellHeight, change.sign .. tostring(change.change), 2)
         monitor.setTextColor(colors.white)
     end
