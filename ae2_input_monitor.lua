@@ -24,7 +24,7 @@ function trackInput(monitorSide, peripheralSide)
         local currentItems = {}
 
         for _, item in ipairs(items) do
-            local itemName = generics.shortenName(item.label, math.floor(monitorWidth / numColumns))
+            local itemName = generics.shortenName(item.name, math.floor(monitorWidth / numColumns)) -- changed from item.label to item.name
             local itemCount = item.count
 
             -- Save the current count for calculating the change
@@ -70,7 +70,7 @@ function trackInput(monitorSide, peripheralSide)
         -- Display changes in the grid
         generics.displayChangesInGrid(monitor, sortedChanges, numColumns, numRows, prevItems)
 
-        sleep(10)
+        sleep(60)
     end
 end
 
