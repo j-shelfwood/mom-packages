@@ -50,6 +50,7 @@ function generics.displayItemsInGrid(monitor, items, numColumns, numRows)
     generics.writeCentered(monitor, row, col, cellWidth, cellHeight, tostring(itemCount), 2)
   end
 end
+  
 
 -- Function to display changes in a grid
 -- Function to display changes in a grid
@@ -72,10 +73,10 @@ function generics.displayChangesInGrid(monitor, changes, numColumns, numRows)
       local hourlyAvgStr = tostring(change.hourlyAvg) .. " avg/hr"
   
       -- Write the item name, count, change and average in their respective cell
-      writeCentered(monitor, row, col, cellWidth, cellHeight, change.name, 1)
-      writeCentered(monitor, row, col, cellWidth, cellHeight, tostring(change.count), 2)
-      writeCentered(monitor, row, col, cellWidth, cellHeight, changeStr, 3)
-      writeCentered(monitor, row, col, cellWidth, cellHeight, hourlyAvgStr, 4)
+      generics.writeCentered(monitor, row, col, cellWidth, cellHeight, change.name, 1)
+      generics.writeCentered(monitor, row, col, cellWidth, cellHeight, tostring(change.count), 2)
+      generics.writeCentered(monitor, row, col, cellWidth, cellHeight, changeStr, 3)
+      generics.writeCentered(monitor, row, col, cellWidth, cellHeight, hourlyAvgStr, 4)
     end
   end
   
