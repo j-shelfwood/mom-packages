@@ -33,7 +33,7 @@ function generics.displayChangesInGrid(monitor, changes, numColumns, numRows)
     generics.writeCentered(monitor, 1, 1, monitorWidth, 1, "ME SYSTEM INPUT", 1)
 
     -- Display changes in the grid
-    for i, change in pairs(changes) do
+    for i, change in ipairs(changes) do
         local row = math.floor((i - 1) / numColumns) + 2
         local col = (i - 1) % numColumns + 1
 

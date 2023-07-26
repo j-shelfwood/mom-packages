@@ -24,6 +24,9 @@ function trackInput(monitorSide, peripheralSide, scale)
         -- Get items
         local items = interface.items()
 
+        -- Clear changes for the new update
+        changes = {}
+
         for _, item in ipairs(items) do
             local itemName = generics.shortenName(item.name, math.floor(monitorWidth / numColumns))
             local itemCount = item.count
@@ -32,12 +35,13 @@ function trackInput(monitorSide, peripheralSide, scale)
             local prevCount = prevItems[itemName] or 0
             prevItems[itemName] = itemCount
 
-            -- Calculate the change from the previous count and update the changes table
+            -- Calculate the change from the previous count and add to the changes table
             local change = itemCount - prevCount
-            changes[itemName] = {
+            table.insert(changes, {
+                name = itemName,
                 change = change,
                 symbol = change >= 0 and "+" or "-"
-            }
+            })
         end
 
         -- Display changes in the grid
