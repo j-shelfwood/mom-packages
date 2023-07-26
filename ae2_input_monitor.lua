@@ -1,5 +1,5 @@
 -- Import monitor API
-os.loadAPI("generics.lua")
+local generics = require("generics")
 
 -- Function to track input of items
 function trackInput(monitorSide, peripheralSide, numColumns, numRows)
