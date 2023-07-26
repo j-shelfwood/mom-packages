@@ -49,7 +49,7 @@ end
 
 -- Automatically find the sides
 local monitorSide = generics.findPeripheralSide("monitor")
-local peripheralSide = generics.findPeripheralSide("me_interface")
+local peripheralSide = generics.findPeripheralSide("merequester:requester")
 
 if not monitorSide then
     print("Monitor not found.")
