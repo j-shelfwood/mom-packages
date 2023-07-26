@@ -16,6 +16,71 @@ function trackInput(monitorSide, peripheralSide, numColumns, numRows)
       -- Get items
       local items = interface.items()
   
+      -- Calculate changes and averages, and store them in a separate table
+      local changes = {}
+  
+      for _, item in ipairs(items) do
+        local itemName = monitor_api.shortenName(item.name)
+        local itemCount = item.count
+        local change = 0
+        local hourlyAvg = 0
+  
+        -- Calculate the change from the previous count
+        if prevItems[itemName] then
+          change = itemCount - prevItems[itemName].count
+  
+          -- Update the hourly counts table and calculate the hourly average
+          if not hourlyCounts[itemName] then
+            hourlyCounts[itemName] = {counts = {}, total = 0, count = 0}
+          end
+          table.insert(hourlyCounts[itemName].counts, change)
+          hourlyCounts[itemName].total = hourlyCounts[itemName].total + change
+          hourlyCounts[itemName].count = hourlyCounts[itemName].count + 1
+          if hourlyCounts[itemName].count > 60 then
+            local oldestCount = table.remove(hourlyCounts[itemName].counts, 1)
+            hourlyCounts[itemName].total = hourlyCounts[itemName].total - oldestCount
+            hourlyCounts[itemName].count = hourlyCounts[itemName].count - 1
+          end
+          hourlyAvg = math.floor(hourlyCounts[itemName].total / hourlyCounts[itemName].count)
+        end
+  
+        -- Save the current count for the next update
+        prevItems[itemName] = {count = itemCount}
+  
+        -- Store the changes and averages
+        if change ~= 0 then
+          table.insert(changes, {name = itemName, count = itemCount, change = change, hourlyAvg = hourlyAvg})
+        end
+      end
+  
+      -- Sort the changes by absolute value of change
+      table.sort(changes, function(a, b) return math.abs(a.change) > math.abs(b.change) end)
+  
+      -- Keep only the top X changes
+      while #changes > numColumns * numRows do
+        table.remove(changes)
+      end
+  
+      -- Display changes in the grid
+      monitor_api.displayChangesInGrid(monitor, changes, numColumns, numRows)
+  
+      sleep(60)
+    end
+  end
+  
+    -- Get a reference to the monitor and the peripheral
+    local monitor = peripheral.wrap(monitorSide)
+    local interface = peripheral.wrap(peripheralSide)
+  
+    -- Initialize the previous items table and the hourly counts table
+    local prevItems = {}
+    local hourlyCounts = {}
+  
+    -- Continuously fetch and display the items
+    while true do
+      -- Get items
+      local items = interface.items()
+  
       -- Sort items
       table.sort(items, function(a, b) return a.count > b.count end)
   
