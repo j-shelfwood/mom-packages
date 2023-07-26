@@ -55,30 +55,28 @@ function generics.printGridLines(monitor, numColumns, numRows, cellWidth, cellHe
 end
 
 -- Function to display changes in a grid
-function generics.displayChangesInGrid(monitor, changes, numColumns, numRows)
+function generics.displayChangesInGrid(monitor, changes, numColumns, numRows, prevItems) -- Added prevItems
     -- Get monitor dimensions and calculate cell dimensions
     local monitorWidth, monitorHeight = monitor.getSize()
-    local cellWidth = math.floor((monitorWidth - numColumns + 1) / numColumns) -- Adjusted for grid lines
-    local cellHeight = math.floor((monitorHeight - numRows + 1) / numRows) -- Adjusted for grid lines
+    local cellWidth = math.floor(monitorWidth / numColumns)
+    local cellHeight = math.floor(monitorHeight / numRows)
 
-    -- Clear the monitor
+    -- Clear the monitor and write title
     monitor.clear()
-
-    -- Print grid lines
-    generics.printGridLines(monitor, numColumns, numRows, cellWidth, cellHeight)
+    generics.writeCentered(monitor, 1, math.floor(monitorWidth / 2), monitorWidth, 1, "ME SYSTEM INPUT", 1) -- Fixed operator
 
     -- Display changes in the grid
     for i = 1, math.min(#changes, numColumns * numRows) do
-        local row = math.floor((i - 1) / numColumns) + 1
+        local row = math.floor((i - 1) / numColumns) + 1 + 1 -- Add 1 to account for title
         local col = (i - 1) % numColumns + 1
         local change = changes[i]
-        local changeSign = change.change > 0 and "+" or "-"
-        local changeStr = changeSign .. tostring(change.change)
-        local itemCount = change.count
-        local displayStr = itemCount .. " " .. changeStr
+        local changeSign = change.change > 0 and "+" or ""
+        local changeColor = change.change > 0 and colors.green or colors.red
 
         -- Write the item name, change and total change in their respective cell
-        generics.writeCentered(monitor, row, col, cellWidth, cellHeight, change.name, 2)
-        generics.writeCentered(monitor, row, col, cellWidth, cellHeight, displayStr, 3)
+        generics.writeCentered(monitor, row, col, cellWidth, cellHeight, change.name, 2) -- Updated line number
+        generics.writeCentered(monitor, row, col, cellWidth, cellHeight, tostring(prevItems[change.name]), 3) -- Updated line number
+        generics.writeWithColor(monitor, row, col, cellWidth, cellHeight, changeSign .. tostring(change.change), 4,
+            changeColor) -- Updated line number
     end
 end
