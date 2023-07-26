@@ -2,15 +2,18 @@
 local generics = require("generics")
 
 -- Function to track input of items
-function trackInput(monitorSide, peripheralSide)
+function trackInput(monitorSide, peripheralSide, scale)
     -- Get a reference to the monitor and the peripheral
     local monitor = peripheral.wrap(monitorSide)
     local interface = peripheral.wrap(peripheralSide)
 
+    -- Set text scale
+    monitor.setTextScale(scale or 1)
+
     -- Get the monitor dimensions and calculate the number of columns and rows
     local monitorWidth, monitorHeight = monitor.getSize()
-    local numColumns = math.floor(monitorWidth / 15)
-    local numRows = math.floor(monitorHeight / 3)
+    local numColumns = math.ceil(monitorWidth / 15)
+    local numRows = math.ceil(monitorHeight / 3)
 
     -- Initialize the previous items table and the changes table
     local prevItems = {}
@@ -19,57 +22,26 @@ function trackInput(monitorSide, peripheralSide)
     -- Continuously fetch and display the items
     while true do
         -- Get items
-        local items = interface.items()
-
-        -- Initialize the current items table
-        local currentItems = {}
+        local items = interface.getAllStacks(false)
 
         for _, item in ipairs(items) do
-            local itemName = generics.shortenName(item.name, math.floor(monitorWidth / numColumns))
-            local itemCount = item.count
+            local itemName = generics.shortenName(item.display_name, math.floor(monitorWidth / numColumns))
+            local itemCount = item.qty
 
-            -- Save the current count for calculating the change
-            currentItems[itemName] = itemCount
+            -- Save the current count for the next update
+            local prevCount = prevItems[itemName] or 0
+            prevItems[itemName] = itemCount
 
-            -- If the item was already present, calculate the change
-            if prevItems[itemName] then
-                local change = itemCount - prevItems[itemName]
-
-                -- If there was a change, store it
-                if change ~= 0 then
-                    changes[itemName] = {
-                        change = math.abs(change),
-                        sign = change > 0 and "+" or "-"
-                    }
-                else
-                    changes[itemName] = nil
-                end
-            end
-        end
-
-        -- Update the previous items table
-        prevItems = currentItems
-
-        -- Convert the changes table to a list and sort it by absolute value of change
-        local sortedChanges = {}
-        for itemName, changeData in pairs(changes) do
-            table.insert(sortedChanges, {
-                name = itemName,
-                change = changeData and changeData.change or 0,
-                sign = changeData and changeData.sign or "+"
-            })
-        end
-        table.sort(sortedChanges, function(a, b)
-            return a.change > b.change
-        end)
-
-        -- Keep only the top X changes
-        while #sortedChanges > numColumns * numRows do
-            table.remove(sortedChanges)
+            -- Calculate the change from the previous count and update the changes table
+            local change = itemCount - prevCount
+            changes[itemName] = {
+                change = change,
+                symbol = change >= 0 and "+" or "-"
+            }
         end
 
         -- Display changes in the grid
-        generics.displayChangesInGrid(monitor, sortedChanges, numColumns, numRows, prevItems)
+        generics.displayChangesInGrid(monitor, changes, numColumns, numRows)
 
         sleep(60)
     end
@@ -77,7 +49,7 @@ end
 
 -- Automatically find the sides
 local monitorSide = generics.findPeripheralSide("monitor")
-local peripheralSide = generics.findPeripheralSide("merequester:requester")
+local peripheralSide = generics.findPeripheralSide("me_interface")
 
 if not monitorSide then
     print("Monitor not found.")
@@ -85,9 +57,9 @@ if not monitorSide then
 end
 
 if not peripheralSide then
-    print("ME Requester not found.")
+    print("ME Interface not found.")
     return
 end
 
 -- Call the function to track the input of items
-trackInput(monitorSide, peripheralSide)
+trackInput(monitorSide, peripheralSide, 0.5) -- last parameter is text scale, default to 1 if not provided
