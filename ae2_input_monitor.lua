@@ -23,7 +23,7 @@ function trackInput(monitorSide, peripheralSide)
         local currentItems = {}
 
         for _, item in ipairs(items) do
-            local itemName = generics.shortenName(item.name, 13)
+            local itemName = generics.shortenName(item.name, 15) -- change the second parameter
             local itemCount = item.count
 
             -- Save the current count for calculating the change
@@ -66,10 +66,9 @@ function trackInput(monitorSide, peripheralSide)
             table.remove(sortedChanges)
         end
 
-        -- Clear the monitor and redraw the grid
+        -- Clear the monitor, redraw the grid, and display data
         gm:clearGrid()
-
-        -- Display changes in the grid
+        gm:drawGrid()
         gm:displayData(sortedChanges, function(item)
             return item.name .. "\n" .. item.sign .. " " .. tostring(item.change)
         end)
