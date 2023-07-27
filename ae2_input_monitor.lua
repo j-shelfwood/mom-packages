@@ -1,16 +1,13 @@
 local generics = require("generics")
+local GridMonitor = require("GridMonitor") -- require the GridMonitor module
+
 local scale = tonumber(arg[1]) or 1
 
 -- Function to track input of items
 function trackInput(monitorSide, peripheralSide)
     -- Get a reference to the monitor and the peripheral
-    local monitor = peripheral.wrap(monitorSide)
-    local requester = peripheral.wrap(peripheralSide)
-
-    -- Get the monitor dimensions and calculate the number of columns and rows
-    local monitorWidth, monitorHeight = monitor.getSize()
-    local numColumns = math.floor(monitorWidth / 15)
-    local numRows = math.floor(monitorHeight / 3)
+    local gm = GridMonitor.new(peripheral.wrap(monitorSide), scale) -- use GridMonitor
+    gm:debugInfo() -- print debug information
 
     -- Initialize the previous items table and the changes table
     local prevItems = {}
@@ -25,7 +22,7 @@ function trackInput(monitorSide, peripheralSide)
         local currentItems = {}
 
         for _, item in ipairs(items) do
-            local itemName = generics.shortenName(item.name, math.floor(monitorWidth / numColumns)) -- changed from item.label to item.name
+            local itemName = generics.shortenName(item.name, gm.numColumns) -- change the second parameter
             local itemCount = item.count
 
             -- Save the current count for calculating the change
@@ -64,12 +61,18 @@ function trackInput(monitorSide, peripheralSide)
         end)
 
         -- Keep only the top X changes
-        while #sortedChanges > numColumns * numRows do
+        while #sortedChanges > gm.numColumns * gm.numRows do
             table.remove(sortedChanges)
         end
 
+        -- Clear the monitor and redraw the grid
+        gm:clearGrid()
+        gm:drawGrid()
+
         -- Display changes in the grid
-        generics.displayChangesInGrid(monitor, sortedChanges, numColumns, numRows, scale)
+        gm:displayData(sortedChanges, function(item)
+            return item.name .. " " .. item.sign .. " " .. tostring(item.change)
+        end)
 
         sleep(30)
     end
