@@ -1,8 +1,3 @@
-local generics = require("generics")
-local GridMonitor = require("grid_monitor") -- require the GridMonitor module
-
-local scale = tonumber(arg[1]) or 1
-
 -- Function to track input of items
 function trackInput(monitorSide, peripheralSide)
     -- Get a reference to the monitor and the peripheral
@@ -66,30 +61,12 @@ function trackInput(monitorSide, peripheralSide)
             table.remove(sortedChanges)
         end
 
-        -- Clear the monitor, redraw the grid, and display data
+        -- Clear the monitor and display data
         gm:clearGrid()
-        gm:drawGrid()
         gm:displayData(sortedChanges, function(item)
             return item.name .. "\n" .. item.sign .. " " .. tostring(item.change)
         end)
 
-        sleep(10)
+        sleep(30)
     end
 end
-
--- Automatically find the sides
-local monitorSide = generics.findPeripheralSide("monitor")
-local peripheralSide = generics.findPeripheralSide("merequester:requester")
-
-if not monitorSide then
-    print("Monitor not found.")
-    return
-end
-
-if not peripheralSide then
-    print("ME Requester not found.")
-    return
-end
-
--- Call the function to track the input of items
-trackInput(monitorSide, peripheralSide)
