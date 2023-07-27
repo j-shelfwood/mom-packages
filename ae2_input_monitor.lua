@@ -125,6 +125,10 @@ function displayItemInfo(monitorSide, peripheralSide)
         local cellWidth = math.floor(monitorWidth / numColumns)
         local cellHeight = math.floor(monitorHeight / numRows)
 
+        -- Debugging output
+        print("Text scale: " .. textScale)
+        print("Grid dimensions: " .. numRows .. " rows, " .. numColumns .. " columns")
+
         -- Display items in the grid
         for i = 1, #items do
             local row = math.floor((i - 1) / numColumns) + 1
@@ -156,7 +160,7 @@ function displayItemInfo(monitorSide, peripheralSide)
             end
         end
 
-        sleep(0.5)
+        sleep(5)
     end
 end
 
