@@ -36,8 +36,6 @@ function GridMonitor:initializeGrid()
     local windowWidth = math.floor(self.monitorWidth / self.numColumns)
     local windowHeight = math.floor(self.monitorHeight / self.numRows)
 
-    local colors = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768}
-
     for row = 1, self.numRows do
         for column = 1, self.numColumns do
             local x = (column - 1) * windowWidth + 1
@@ -45,7 +43,7 @@ function GridMonitor:initializeGrid()
 
             -- Create window on the wrapped monitor
             local window = window.create(self.monitor, x, y, windowWidth, windowHeight, false)
-            window.setBackgroundColor(colors[(row - 1) * self.numColumns + column % #colors + 1])
+            window.setBackgroundColor(1)
             table.insert(self.windows, window)
         end
     end
