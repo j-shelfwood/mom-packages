@@ -1,4 +1,4 @@
-local cobalt = require("cobalt.cobalt")
+local cobalt = require("cobalt")
 local generics = require("generics")
 local peripheralSide = generics.findPeripheralSide("merequester:requester")
 
