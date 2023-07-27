@@ -53,12 +53,10 @@ function generics.displayChangesInGrid(monitor, changes, numColumns, numRows, sc
 end
 
 -- Function to write centered text in a cell
-function generics.writeCentered(monitor, row, cellWidth, text)
+function generics.writeCentered(monitor, y, totalWidth, text)
+    local textScale = monitor.getTextScale()
     local textLength = #text
-    local monitorWidth = monitor.getSize()
-    local cellWidthAdjusted = cellWidth -- as the cell width is already calculated according to the scale, no need to adjust
-    local x = math.floor((cellWidthAdjusted - textLength) / 2) + 1
-    local y = row
+    local x = math.floor((totalWidth * textScale - textLength) / 2) + 1
     monitor.setCursorPos(x, y)
     monitor.write(text)
 end
