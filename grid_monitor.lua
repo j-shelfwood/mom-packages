@@ -36,9 +36,6 @@ function GridMonitor:initializeGrid()
     local windowWidth = math.floor(self.monitorWidth / self.numColumns)
     local windowHeight = math.floor(self.monitorHeight / self.numRows)
 
-    -- Use the peripheral.wrap to wrap the monitor before creating windows
-    local monitor = peripheral.wrap(self.monitor)
-
     local colors = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768}
 
     for row = 1, self.numRows do
@@ -46,13 +43,15 @@ function GridMonitor:initializeGrid()
             local x = (column - 1) * windowWidth + 1
             local y = (row - 1) * windowHeight + 1
 
-            -- Create window on the monitor, not term.native()
-            local window = window.create(monitor, x, y, windowWidth, windowHeight, true)
+            -- Create window on the wrapped monitor
+            local window = window.create(self.monitor, x, y, windowWidth, windowHeight, false)
             window.setBackgroundColor(colors[(row - 1) * self.numColumns + column % #colors + 1])
-            window.clear()
             table.insert(self.windows, window)
         end
     end
+
+    -- Clear the monitor, not the individual windows
+    self.monitor.clear()
 end
 
 -- Clear all grid windows
