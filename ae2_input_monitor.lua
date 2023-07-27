@@ -69,7 +69,15 @@ function displayItemInfo(monitorSide, peripheralSide)
     -- Continuously fetch and display the items
     while true do
         -- Get items
-        local items = interface.items()
+        local allItems = interface.items()
+
+        -- Filter items with change
+        local items = {}
+        for _, item in ipairs(allItems) do
+            if not prevItems[item.name] or item.count ~= prevItems[item.name].count then
+                table.insert(items, item)
+            end
+        end
 
         -- Calculate change for each item and store it in the item table
         for _, item in ipairs(items) do
