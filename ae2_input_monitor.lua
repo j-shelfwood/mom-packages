@@ -72,7 +72,7 @@ function trackInput(monitorSide, peripheralSide)
             return item.name .. "\n" .. item.sign .. " " .. tostring(item.change)
         end)
 
-        sleep(30)
+        sleep(10)
     end
 end
 
