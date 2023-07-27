@@ -50,21 +50,24 @@ while true do
         prevItems[itemName] = itemCount
 
         -- Display the changes
-        local x = (_ - 1) % 7 * cellWidth + 2
-        local y = math.floor((_ - 1) / 7) * cellHeight + 2
+        local x = (_ - 1) % 7 * cellWidth + 2 -- Add margin of 1 pixel
+        local y = math.floor((_ - 1) / 7) * cellHeight + 2 -- Add margin of 1 pixel
 
-        monitor.setCursorPos(x, y)
-        monitor.setTextColor(colors.white)
-        monitor.write(itemName)
+        -- Make sure we're not writing on the grid lines
+        if x % cellWidth ~= 1 and y % cellHeight ~= 1 then
+            monitor.setCursorPos(x, y)
+            monitor.setTextColor(colors.white)
+            monitor.write(itemName)
 
-        -- Write change with color
-        monitor.setCursorPos(x, y + 1)
-        if change < 0 then
-            monitor.setTextColor(colors.red)
-            monitor.write("-" .. tostring(math.abs(change)))
-        else
-            monitor.setTextColor(colors.green)
-            monitor.write("+" .. tostring(change))
+            -- Write change with color
+            monitor.setCursorPos(x, y + 1)
+            if change < 0 then
+                monitor.setTextColor(colors.red)
+                monitor.write("-" .. tostring(math.abs(change)))
+            else
+                monitor.setTextColor(colors.green)
+                monitor.write("+" .. tostring(change))
+            end
         end
     end
 
