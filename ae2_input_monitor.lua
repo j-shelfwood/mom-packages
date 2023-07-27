@@ -25,6 +25,7 @@ end
 while true do
     -- Get items
     local items = peripheral.wrap(peripheralSide).items()
+    local changes = {}
 
     -- Calculate changes and sort items
     for _, item in ipairs(items) do
@@ -42,8 +43,13 @@ while true do
 
         -- Add change to item
         item.change = change
+
+        -- Add item to changes if change is not zero
+        if change ~= 0 then
+            table.insert(changes, item)
+        end
     end
-    table.sort(items, sortItemsByChange)
+    table.sort(changes, sortItemsByChange)
 
     -- Save previous terminal and redirect to monitor
     local prevTerm = term.redirect(monitor)
@@ -56,7 +62,7 @@ while true do
     paintutils.drawBox(1, 1, monitorWidth, monitorHeight, colors.white)
 
     -- Handle each item
-    for _, item in ipairs(items) do
+    for _, item in ipairs(changes) do
         local itemName = generics.shortenName(item.name, 15)
         local change = item.change
 
