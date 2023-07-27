@@ -1,4 +1,3 @@
--- A CC:Tweaked Computercraft script to show the input of items into an AE2 network
 local generics = require("generics")
 local peripheralSide = generics.findPeripheralSide("merequester:requester")
 local monitorSide = generics.findPeripheralSide("monitor")
@@ -23,12 +22,18 @@ while true do
     local items = peripheral.wrap(peripheralSide).items()
     local changes = {}
 
+    -- Save previous terminal and redirect to monitor
+    local prevTerm = term.redirect(monitor)
+
     -- Clear the monitor
     monitor.setBackgroundColor(colors.black)
     monitor.clear()
 
     -- Draw grid
     paintutils.drawBox(1, 1, monitorWidth, monitorHeight, colors.white)
+
+    -- Restore original terminal
+    term.redirect(prevTerm)
 
     -- Handle each item
     for _, item in ipairs(items) do
