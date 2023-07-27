@@ -8,6 +8,7 @@ function trackInput(monitorSide, peripheralSide)
     -- Get a reference to the monitor and the peripheral
     local gm = GridMonitor.new(peripheral.wrap(monitorSide), scale) -- use GridMonitor
     gm:debugInfo() -- print debug information
+    local requester = peripheral.wrap(peripheralSide)
 
     -- Initialize the previous items table and the changes table
     local prevItems = {}
