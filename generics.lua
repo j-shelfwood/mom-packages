@@ -53,12 +53,12 @@ function generics.displayChangesInGrid(monitor, changes, numColumns, numRows, sc
 end
 
 -- Function to write centered text in a cell
-function generics.writeCentered(monitor, row, col, cellWidth, cellHeight, text, line)
+function generics.writeCentered(monitor, row, cellWidth, text)
     local textLength = #text
-    local monitorTextScale = monitor.getTextScale() -- this may not exist in your version of ComputerCraft
-    local cellWidthAdjusted = cellWidth / monitorTextScale -- adjust cell width for text scale
-    local x = (col - 1) * cellWidthAdjusted + math.floor((cellWidthAdjusted - textLength) / 2) + 1
-    local y = (row - 1) * cellHeight + line
+    local monitorWidth = monitor.getSize()
+    local cellWidthAdjusted = cellWidth -- as the cell width is already calculated according to the scale, no need to adjust
+    local x = math.floor((cellWidthAdjusted - textLength) / 2) + 1
+    local y = row
     monitor.setCursorPos(x, y)
     monitor.write(text)
 end
