@@ -6,9 +6,12 @@ local monitorSide = generics.findPeripheralSide("monitor")
 local monitor = peripheral.wrap(monitorSide)
 monitor.setTextScale(0.7)
 
--- Dimensions for a 5x7 monitor
-local cellWidth = math.floor(monitor.getWidth() / 7)
-local cellHeight = math.floor(monitor.getHeight() / 5)
+-- Get monitor dimensions
+local monitorWidth, monitorHeight = monitor.getSize()
+
+-- Calculate cell dimensions for a 5x7 grid
+local cellWidth = math.floor(monitorWidth / 7)
+local cellHeight = math.floor(monitorHeight / 5)
 
 -- Store previous items
 local prevItems = {}
@@ -24,7 +27,7 @@ while true do
     monitor.clear()
 
     -- Draw grid
-    paintutils.drawBox(1, 1, monitor.getWidth(), monitor.getHeight(), colors.white)
+    paintutils.drawBox(1, 1, monitorWidth, monitorHeight, colors.white)
 
     -- Handle each item
     for _, item in ipairs(items) do
