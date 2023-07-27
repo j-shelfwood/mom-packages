@@ -36,6 +36,8 @@ function GridMonitor:initializeGrid()
     local windowWidth = math.floor(self.monitorWidth / self.numColumns)
     local windowHeight = math.floor(self.monitorHeight / self.numRows)
 
+    -- Save the original terminal and redirect output to the monitor
+    local originalTerm = term.current()
     term.redirect(self.monitor)
 
     for row = 1, self.numRows do
@@ -47,6 +49,9 @@ function GridMonitor:initializeGrid()
             table.insert(self.windows, window)
         end
     end
+
+    -- Restore the original terminal
+    term.redirect(originalTerm)
 end
 
 -- Clear all grid windows
