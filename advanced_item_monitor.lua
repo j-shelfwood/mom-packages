@@ -44,9 +44,43 @@ function displayItemInfo(monitorSide, peripheralSide)
         -- Get items
         local items = interface.items()
 
-        -- Sort items
+        -- Calculate change for each item and store it in the item table
+        for _, item in ipairs(items) do
+            local itemName = item.name
+            local itemCount = item.count
+            local itemChangeMagnitude = 0
+            local itemChangeSign = "+"
+
+            -- Calculate the change from the previous count
+            if prevItems[itemName] then
+                local change = itemCount - prevItems[itemName].count
+                itemChangeMagnitude = math.abs(change)
+                if change > 0 then
+                    itemChangeSign = "+"
+                elseif change < 0 then
+                    itemChangeSign = "-"
+                end
+            end
+
+            -- Save the current count and change for the next update
+            prevItems[itemName] = {
+                count = itemCount,
+                changeMagnitude = itemChangeMagnitude,
+                changeSign = itemChangeSign
+            }
+
+            -- Add change info to item table
+            item.changeMagnitude = itemChangeMagnitude
+            item.changeSign = itemChangeSign
+        end
+
+        -- Sort items by change magnitude and sign
         table.sort(items, function(a, b)
-            return a.count > b.count
+            if a.changeMagnitude == b.changeMagnitude then
+                return a.changeSign > b.changeSign -- Positive change comes first
+            else
+                return a.changeMagnitude > b.changeMagnitude
+            end
         end)
 
         -- Get monitor dimensions and calculate cell dimensions
@@ -57,35 +91,13 @@ function displayItemInfo(monitorSide, peripheralSide)
         local cellHeight = math.floor(monitorHeight / numRows)
 
         -- Display items in the grid
-        for i = 1, math.min(#items, numColumns * numRows) do
+        for i = 1, #items do
             local row = math.floor((i - 1) / numColumns) + 1
             local col = (i - 1) % numColumns + 1
             local item = items[i]
             local itemName = shortenName(item.name)
             local itemCount = item.count
-            local itemChange = ""
-
-            -- Calculate the change from the previous count
-            if prevItems[itemName] then
-                local change = itemCount - prevItems[itemName].count
-                if change > 0 then
-                    itemChange = "+"
-                    prevItems[itemName].noChangeCount = 0
-                elseif change < 0 then
-                    itemChange = "-"
-                    prevItems[itemName].noChangeCount = 0
-                elseif prevItems[itemName].noChangeCount < 10 then
-                    itemChange = prevItems[itemName].change
-                    prevItems[itemName].noChangeCount = prevItems[itemName].noChangeCount + 1
-                end
-            end
-
-            -- Save the current count and change for the next update
-            prevItems[itemName] = {
-                count = itemCount,
-                change = itemChange,
-                noChangeCount = (prevItems[itemName] and prevItems[itemName].noChangeCount or 0)
-            }
+            local itemChange = item.changeSign .. tostring(item.changeMagnitude)
 
             -- Check if item's info has changed
             if not currItems[i] or currItems[i].name ~= itemName or currItems[i].count ~= itemCount or
@@ -104,8 +116,8 @@ function displayItemInfo(monitorSide, peripheralSide)
 
                 -- Write the item name, count and change in their respective cell
                 writeCell(monitor, row, col, cellWidth, cellHeight, itemName, 1, colors.white)
-                writeCell(monitor, row, col, cellWidth, cellHeight, tostring(itemCount) .. " " .. itemChange, 2,
-                    colors.white)
+                writeCell(monitor, row, col, cellWidth, cellHeight, tostring(itemCount), 2, colors.white)
+                writeCell(monitor, row, col, cellWidth, cellHeight, itemChange, 3, colors.white)
             end
         end
 
