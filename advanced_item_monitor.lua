@@ -19,6 +19,33 @@ function findPeripheralSide(name)
     return nil
 end
 
+-- Function to calculate the text scale
+function calculate_text_scale(num_items, monitor_width, monitor_height)
+    local num_scales = 4 -- 0.5, 1, 1.5, 2
+    local scale_factors = {2, 1, 2 / 3, 0.5}
+
+    for i = num_scales, 1, -1 do
+        local scale_factor = scale_factors[i]
+        local max_cells = (monitor_width * scale_factor) * (monitor_height * scale_factor) / (15 * 3) -- 15 and 3 are cell width and height at text scale 0.5
+        if max_cells >= num_items then
+            return 0.5 * i -- text scale is 0.5 times the index
+        end
+    end
+
+    return nil -- return nil if there's no appropriate text scale
+end
+
+-- Function to calculate the grid dimensions
+function calculate_grid_dimensions(num_items, monitor_width, monitor_height, text_scale)
+    local cell_width, cell_height = 15 / text_scale, 3 / text_scale -- cell width and height at the given text scale
+    local num_columns = math.floor(monitor_width / cell_width)
+    local num_rows = math.floor(num_items / num_columns)
+    if num_items % num_columns ~= 0 then
+        num_rows = num_rows + 1
+    end
+    return num_rows, num_columns
+end
+
 -- Function to write centered text in a cell
 function writeCentered(monitor, row, col, cellWidth, cellHeight, text, line)
     local x = (col - 1) * cellWidth + math.floor((cellWidth - #text) / 2) + 1
