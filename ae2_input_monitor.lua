@@ -1,136 +1,143 @@
-local generics = require("generics")
-local peripheralSide = generics.findPeripheralSide("merequester:requester")
-local monitorSide = generics.findPeripheralSide("monitor")
+-- Function to find peripheral side
+function findPeripheralSide(name)
+    local sides = {"top", "bottom", "left", "right", "front", "back"}
+    for _, side in ipairs(sides) do
+        if peripheral.isPresent(side) and peripheral.getType(side) == name then
+            return side
+        end
+    end
+    return nil
+end
 
--- Set up monitor
-local monitor = peripheral.wrap(monitorSide)
-monitor.setTextScale(0.7)
+-- Function to write text in a cell
+function writeCell(monitor, row, col, cellWidth, cellHeight, text, line, color)
+    local x = (col - 1) * cellWidth + math.floor((cellWidth - #text) / 2) + 1
+    local y = (row - 1) * cellHeight + line
+    monitor.setCursorPos(x, y)
+    monitor.setTextColor(color)
+    monitor.write(text)
+end
 
--- Get monitor dimensions
-local monitorWidth, monitorHeight = monitor.getSize()
+-- Function to shorten item names if they're too long
+function shortenName(name)
+    if #name <= 18 then
+        return name
+    elseif #name > 30 then
+        return name:sub(1, 10) .. "..." .. name:sub(-10, -1)
+    else
+        return name:sub(1, 18) .. "..."
+    end
+end
 
--- Calculate cell dimensions for a 7x12 grid
-local cellWidth = monitorWidth / 7
-local cellHeight = monitorHeight / 12
+-- Function to display item information in a grid
+function displayItemInfo(monitorSide, peripheralSide)
+    -- Get a reference to the monitor and the peripheral
+    local monitor = peripheral.wrap(monitorSide)
+    local interface = peripheral.wrap(peripheralSide)
 
--- Store previous items
-local prevItems = {}
+    -- Initialize the previous items table and current items table
+    local prevItems = {}
+    local currItems = {}
 
--- Keep track of changes history
-local changesHistory = {}
+    -- Continuously fetch and display the items
+    while true do
+        -- Get items
+        local items = interface.items()
 
--- Set sleep seconds
-local sleepSeconds = 30
+        -- Calculate change for each item and store it in the item table
+        for _, item in ipairs(items) do
+            local itemName = item.name
+            local itemCount = item.count
+            local itemChangeMagnitude = 0
+            local itemChangeSign = "+"
 
--- Initialize the iteration number
-local iteration = 0
+            -- Calculate the change from the previous count
+            if prevItems[itemName] then
+                local change = itemCount - prevItems[itemName].count
+                itemChangeMagnitude = math.abs(change)
+                if change > 0 then
+                    itemChangeSign = "+"
+                elseif change < 0 then
+                    itemChangeSign = "-"
+                end
+            end
 
-while true do
-    -- Increment the iteration number
-    iteration = iteration + 1
+            -- Save the current count and change for the next update
+            prevItems[itemName] = {
+                count = itemCount,
+                changeMagnitude = itemChangeMagnitude,
+                changeSign = itemChangeSign
+            }
 
-    -- Get items
-    local items = peripheral.wrap(peripheralSide).items()
-    local currentItems = {}
+            -- Add change info to item table
+            item.changeMagnitude = itemChangeMagnitude
+            item.changeSign = itemChangeSign
+        end
 
-    for _, item in ipairs(items) do
-        local itemName = generics.shortenName(item.name, 15)
-        local itemCount = item.count
+        -- Sort items by change magnitude and sign
+        table.sort(items, function(a, b)
+            if a.changeMagnitude == b.changeMagnitude then
+                return a.changeSign > b.changeSign -- Positive change comes first
+            else
+                return a.changeMagnitude > b.changeMagnitude
+            end
+        end)
 
-        -- Save the current count for calculating the change
-        currentItems[itemName] = itemCount
+        -- Get monitor dimensions and calculate cell dimensions
+        local monitorWidth, monitorHeight = monitor.getSize()
+        local textScale = calculate_text_scale(#items, monitorWidth, monitorHeight)
+        local numRows, numColumns = calculate_grid_dimensions(#items, monitorWidth, monitorHeight, textScale)
+        local cellWidth = math.floor(monitorWidth / numColumns)
+        local cellHeight = math.floor(monitorHeight / numRows)
 
-        -- If the item was already present, calculate the change
-        if prevItems[itemName] then
-            local change = itemCount - prevItems[itemName]
+        -- Display items in the grid
+        for i = 1, #items do
+            local row = math.floor((i - 1) / numColumns) + 1
+            local col = (i - 1) % numColumns + 1
+            local item = items[i]
+            local itemName = shortenName(item.name)
+            local itemCount = item.count
+            local itemChange = item.changeSign .. tostring(item.changeMagnitude)
 
-            -- If there was a change, store it
-            if change ~= 0 then
-                changesHistory[itemName] = {
-                    change = math.abs(change),
-                    sign = change > 0 and "+" or "-",
-                    iteration = iteration,
-                    timestamp = os.time()
+            -- Check if item's info has changed
+            if not currItems[i] or currItems[i].name ~= itemName or currItems[i].count ~= itemCount or
+                currItems[i].change ~= itemChange then
+                -- Update current items table
+                currItems[i] = {
+                    name = itemName,
+                    count = itemCount,
+                    change = itemChange
                 }
+
+                -- Clear cell
+                for line = 1, cellHeight do
+                    writeCell(monitor, row, col, cellWidth, cellHeight, string.rep(" ", cellWidth), line, colors.white)
+                end
+
+                -- Write the item name, count and change in their respective cell
+                writeCell(monitor, row, col, cellWidth, cellHeight, itemName, 1, colors.white)
+                writeCell(monitor, row, col, cellWidth, cellHeight, tostring(itemCount), 2, colors.white)
+                writeCell(monitor, row, col, cellWidth, cellHeight, itemChange, 3, colors.white)
             end
         end
+
+        sleep(0.5)
     end
-
-    -- Update the previous items table
-    prevItems = currentItems
-
-    -- Sort changes history by iteration and change
-    local sortedChanges = {}
-    for itemName, changeData in pairs(changesHistory) do
-        table.insert(sortedChanges, {
-            name = itemName,
-            change = changeData.change,
-            sign = changeData.sign,
-            iteration = changeData.iteration,
-            timestamp = changeData.timestamp
-        })
-    end
-    table.sort(sortedChanges, function(a, b)
-        if a.iteration == b.iteration then
-            return a.change > b.change
-        else
-            return a.iteration > b.iteration
-        end
-    end)
-
-    -- Prune changes history to keep only the top 84 changes
-    changesHistory = {}
-    for i = 1, math.min(#sortedChanges, 84) do
-        changesHistory[sortedChanges[i].name] = sortedChanges[i]
-    end
-
-    -- Display changes in the monitor
-    local prevTerm = term.redirect(monitor)
-    monitor.setBackgroundColor(colors.black)
-    monitor.clear()
-    paintutils.drawBox(1, 1, monitorWidth, monitorHeight, colors.white)
-
-    for i, item in ipairs(sortedChanges) do
-        if i > 84 then
-            break
-        end
-        local itemName = item.name
-        local change = item.change
-        local sign = item.sign
-        local secondsAgo = (iteration - item.iteration) * sleepSeconds
-
-        -- Calculate center of each cell for text placement
-        local x = (i - 1) % 7 * cellWidth + math.ceil(cellWidth / 2)
-        local y = math.floor((i - 1) / 7) * cellHeight + math.ceil(cellHeight / 2)
-
-        -- Write item name centered
-        monitor.setCursorPos(x - math.floor(#itemName / 2), y)
-        monitor.setTextColor(colors.white)
-        monitor.setBackgroundColor(colors.black)
-        monitor.write(itemName)
-
-        -- Write change with color centered
-        local changeStr = sign .. tostring(change)
-        monitor.setCursorPos(x - math.floor(#changeStr / 2), y + 1)
-        if sign == "-" then
-            monitor.setTextColor(colors.red)
-        else
-            monitor.setTextColor(colors.green)
-        end
-        monitor.setBackgroundColor(colors.black)
-        monitor.write(changeStr)
-
-        -- Write seconds ago
-        local secondsAgoStr = tostring(secondsAgo) .. " sec. ago"
-        monitor.setCursorPos(x - math.floor(#secondsAgoStr / 2), y + 2)
-        monitor.setTextColor(colors.yellow)
-        monitor.setBackgroundColor(colors.black)
-        monitor.write(secondsAgoStr)
-    end
-
-    -- Restore original terminal
-    term.redirect(prevTerm)
-
-    -- Wait before next iteration
-    sleep(sleepSeconds)
 end
+
+-- Automatically find the sides
+local monitorSide = findPeripheralSide("monitor")
+local peripheralSide = findPeripheralSide("merequester:requester")
+
+if not monitorSide then
+    print("Monitor not found.")
+    return
+end
+
+if not peripheralSide then
+    print("ME Requester not found.")
+    return
+end
+
+-- Call the function to display the item information
+displayItemInfo(monitorSide, peripheralSide)
