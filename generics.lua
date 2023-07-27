@@ -54,7 +54,10 @@ end
 
 -- Function to write centered text in a cell
 function generics.writeCentered(monitor, row, col, cellWidth, cellHeight, text, line)
-    local x = (col - 1) * cellWidth + math.floor((cellWidth - #text) / 2) + 1
+    local textLength = #text
+    local monitorTextScale = monitor.getTextScale() -- this may not exist in your version of ComputerCraft
+    local cellWidthAdjusted = cellWidth / monitorTextScale -- adjust cell width for text scale
+    local x = (col - 1) * cellWidthAdjusted + math.floor((cellWidthAdjusted - textLength) / 2) + 1
     local y = (row - 1) * cellHeight + line
     monitor.setCursorPos(x, y)
     monitor.write(text)
