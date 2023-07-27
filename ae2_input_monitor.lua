@@ -54,6 +54,7 @@ while true do
         -- Write item name centered
         monitor.setCursorPos(x - math.floor(#itemName / 2), y)
         monitor.setTextColor(colors.white)
+        monitor.setBackgroundColor(colors.black) -- Reset the background color before writing
         monitor.write(itemName)
 
         -- Write change with color centered
@@ -64,6 +65,7 @@ while true do
         else
             monitor.setTextColor(colors.green)
         end
+        monitor.setBackgroundColor(colors.black) -- Reset the background color before writing
         monitor.write(changeStr)
     end
 
