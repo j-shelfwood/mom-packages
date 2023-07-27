@@ -1,67 +1,95 @@
-local GridMonitor = {}
+local GridMonitor = {
+    scale = 1,
+    monitor = nil,
+    windows = {},
+    numColumns = 0,
+    numRows = 0
+}
 
--- Constructor
+-- Constructor for GridMonitor
 function GridMonitor.new(monitor, scale)
     local self = setmetatable({}, {
         __index = GridMonitor
     })
 
     self.monitor = monitor
-    self.scale = scale or 1
+    self.scale = scale or self.scale
+    self.monitor.setTextScale(self.scale)
 
-    monitor.setTextScale(scale)
-    local monitorWidth, monitorHeight = monitor.getSize()
+    self.monitorWidth, self.monitorHeight = self.monitor.getSize()
 
-    self.numColumns = math.floor(monitorWidth / 15)
-    self.numRows = math.floor(monitorHeight / 3)
-    self.cellWidth = 15
-    self.cellHeight = 3
+    self.numColumns = math.floor(self.monitorWidth / 15)
+    self.numRows = math.floor(self.monitorHeight / 3)
 
-    -- Create windows for each cell
-    self.windows = {}
-    for i = 1, self.numRows do
-        self.windows[i] = {}
-        for j = 1, self.numColumns do
-            self.windows[i][j] = window.create(self.monitor, (j - 1) * self.cellWidth + 1,
-                (i - 1) * self.cellHeight + 1, self.cellWidth, self.cellHeight, false -- invisible by default
-            )
-        end
-    end
+    self:initializeGrid()
 
     return self
 end
 
--- Print debug information
-function GridMonitor:debugInfo()
-    print("Monitor scale: " .. self.scale)
-    print("Monitor size: " .. self.monitor.getSize())
-    print("Number of cells: " .. self.numColumns .. "x" .. self.numRows)
-    print("Cell size: " .. self.cellWidth .. "x" .. self.cellHeight)
-end
+-- Initialize the grid of windows
+function GridMonitor:initializeGrid()
+    self.windows = {}
 
--- Clear the grid
-function GridMonitor:clearGrid()
-    self.monitor.clear()
-    for i = 1, self.numRows do
-        for j = 1, self.numColumns do
-            self.windows[i][j].setVisible(false)
+    local windowWidth = self.monitorWidth / self.numColumns
+    local windowHeight = self.monitorHeight / self.numRows
+
+    for row = 1, self.numRows do
+        for column = 1, self.numColumns do
+            local x = (column - 1) * windowWidth
+            local y = (row - 1) * windowHeight
+
+            local window = window.create(self.monitor, x + 1, y + 1, windowWidth, windowHeight, false)
+            window.setTextScale(self.scale)
+            table.insert(self.windows, window)
         end
     end
 end
 
--- Display data
-function GridMonitor:displayData(data, convertToString)
-    self:clearGrid()
-
-    for i, item in ipairs(data) do
-        local row = math.floor((i - 1) / self.numColumns) + 1
-        local col = (i - 1) % self.numColumns + 1
-        local win = self.windows[row][col]
-        win.clear()
-        win.setCursorPos(1, 1)
-        win.write(convertToString(item))
-        win.setVisible(true)
+-- Clear all grid windows
+function GridMonitor:clearGrid()
+    for _, window in ipairs(self.windows) do
+        window.clear()
     end
+end
+
+-- Display data in the grid
+function GridMonitor:displayData(data, formatFunction)
+    for i, item in ipairs(data) do
+        local window = self.windows[i]
+
+        if window then
+            window.clear()
+
+            local output = formatFunction(item)
+            local lines = split(output, "\n")
+
+            for lineIndex, line in ipairs(lines) do
+                window.setCursorPos(1, lineIndex)
+                window.write(line)
+            end
+
+            window.redraw()
+        end
+    end
+end
+
+-- Print debug information
+function GridMonitor:debugInfo()
+    print("Scale: " .. self.scale)
+    print("Monitor Size: " .. self.monitorWidth .. "x" .. self.monitorHeight)
+    print("Number of Cells: " .. self.numColumns .. "x" .. self.numRows)
+end
+
+-- Utility function to split string by separator
+function split(input, separator)
+    local output = {}
+    local pattern = "([^" .. separator .. "]+)"
+
+    for substring in input:gmatch(pattern) do
+        table.insert(output, substring)
+    end
+
+    return output
 end
 
 return GridMonitor

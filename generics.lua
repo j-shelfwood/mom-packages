@@ -21,37 +21,6 @@ function generics.shortenName(name, maxLength)
     end
 end
 
--- Function to display changes in a grid
-function generics.displayChangesInGrid(monitor, changes, numColumns, numRows, scale)
-    -- Get monitor dimensions and calculate cell dimensions
-    local monitorWidth, monitorHeight = monitor.getSize()
-    local cellWidth = math.floor(monitorWidth / numColumns)
-    local cellHeight = math.floor(monitorHeight / numRows)
-
-    -- Set text scale
-    monitor.setTextScale(scale)
-
-    -- Clear the monitor and write title
-    monitor.clear()
-    generics.writeCentered(monitor, 1, 1, monitorWidth, 1, "ME SYSTEM INPUT", 1)
-
-    -- Display changes in the grid
-    for i, change in ipairs(changes) do
-        local row = math.floor((i - 1) / numColumns) + 2
-        local col = (i - 1) % numColumns + 1
-        local changeColor = change.sign == "+" and colors.green or colors.white
-        if change.sign == "-" then
-            changeColor = colors.red
-        end
-
-        -- Write the item name, change, and total in their respective cell
-        generics.writeCentered(monitor, row, col, cellWidth, cellHeight, change.name, 1)
-        monitor.setTextColor(changeColor)
-        generics.writeCentered(monitor, row, col, cellWidth, cellHeight, change.sign .. tostring(change.change), 2)
-        monitor.setTextColor(colors.white)
-    end
-end
-
 -- Function to write centered text in a cell
 function generics.writeCentered(monitor, y, totalWidth, text)
     local textScale = monitor.getTextScale()
