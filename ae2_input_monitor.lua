@@ -11,7 +11,7 @@ local monitorWidth, monitorHeight = monitor.getSize()
 
 -- Calculate cell dimensions for a 5x7 grid
 local cellWidth = math.floor(monitorWidth / 7)
-local cellHeight = math.floor(monitorHeight / 5)
+local cellHeight = math.floor(monitorHeight / 15)
 
 -- Store previous items
 local prevItems = {}
