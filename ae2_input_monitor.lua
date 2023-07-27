@@ -18,6 +18,10 @@ local prevItems = {}
 
 -- Store previous changes and timestamps
 local changes = {}
+local changeTimestamps = {}
+
+-- Maximum changes to display
+local maxChanges = 7 * 12
 
 -- Function to track input of items
 while true do
@@ -41,9 +45,14 @@ while true do
             if change ~= 0 then
                 changes[itemName] = {
                     change = math.abs(change),
-                    sign = change > 0 and "+" or "-",
-                    time = os.time()
+                    sign = change > 0 and "+" or "-"
                 }
+                -- Update the timestamp only if the count changes
+                changeTimestamps[itemName] = os.time()
+            elseif changes[itemName] then
+                -- If no change, but item exists in changes, remove it
+                changes[itemName] = nil
+                changeTimestamps[itemName] = nil
             end
         end
     end
@@ -51,19 +60,42 @@ while true do
     -- Update the previous items table
     prevItems = currentItems
 
-    -- Convert the changes table to a list and sort it by timestamp
+    -- Convert the changes table to a list and sort it by absolute value of change
     local sortedChanges = {}
     for itemName, changeData in pairs(changes) do
         table.insert(sortedChanges, {
             name = itemName,
             change = changeData.change,
             sign = changeData.sign,
-            time = changeData.time
+            time = changeTimestamps[itemName]
         })
     end
+
+    -- Sort by change (desc) and time (desc)
     table.sort(sortedChanges, function(a, b)
-        return a.time > b.time
+        if a.change == b.change then
+            return a.time > b.time
+        else
+            return a.change > b.change
+        end
     end)
+
+    -- If fewer changes than display slots, fill with non-changed items
+    if #sortedChanges < maxChanges then
+        for itemName, itemCount in pairs(currentItems) do
+            if not changes[itemName] then
+                table.insert(sortedChanges, {
+                    name = itemName,
+                    change = 0,
+                    sign = "+",
+                    time = changeTimestamps[itemName] or 0
+                })
+                if #sortedChanges >= maxChanges then
+                    break
+                end
+            end
+        end
+    end
 
     -- Save previous terminal and redirect to monitor
     local prevTerm = term.redirect(monitor)
@@ -104,11 +136,13 @@ while true do
         monitor.write(changeStr)
 
         -- Write time since change
-        local timeStr = os.time() - time .. " sec. ago"
-        monitor.setCursorPos(x - math.floor(#timeStr / 2), y + 2)
-        monitor.setTextColor(colors.gray)
-        monitor.setBackgroundColor(colors.black) -- Reset the background color before writing
-        monitor.write(timeStr)
+        if change ~= 0 then
+            local timeStr = os.time() - time .. " sec. ago"
+            monitor.setCursorPos(x - math.floor(#timeStr / 2), y + 2)
+            monitor.setTextColor(colors.gray)
+            monitor.setBackgroundColor(colors.black) -- Reset the background color before writing
+            monitor.write(timeStr)
+        end
     end
 
     -- Restore original terminal
