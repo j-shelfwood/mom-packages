@@ -1,5 +1,5 @@
 local generics = require("generics")
-local GridMonitor = require("GridMonitor") -- require the GridMonitor module
+local GridMonitor = require("grid_monitor") -- require the GridMonitor module
 
 local scale = tonumber(arg[1]) or 1
 
