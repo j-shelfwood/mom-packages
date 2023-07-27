@@ -16,40 +16,52 @@ local cellHeight = monitorHeight / 5
 -- Store previous items
 local prevItems = {}
 
--- Function to sort items by change
-local function sortItemsByChange(a, b)
-    return a.change > b.change
-end
-
 -- Function to track input of items
 while true do
     -- Get items
     local items = peripheral.wrap(peripheralSide).items()
+    local currentItems = {}
     local changes = {}
 
     -- Calculate changes and sort items
     for _, item in ipairs(items) do
         local itemName = generics.shortenName(item.name, 15)
         local itemCount = item.count
-        local change = 0
+
+        -- Save the current count for calculating the change
+        currentItems[itemName] = itemCount
 
         -- If the item was already present, calculate the change
         if prevItems[itemName] then
-            change = itemCount - prevItems[itemName]
-        end
+            local change = itemCount - prevItems[itemName]
 
-        -- Save the current count for next iteration
-        prevItems[itemName] = itemCount
-
-        -- Add change to item
-        item.change = change
-
-        -- Add item to changes if change is not zero
-        if change ~= 0 then
-            table.insert(changes, item)
+            -- If there was a change, store it
+            if change ~= 0 then
+                changes[itemName] = {
+                    change = math.abs(change),
+                    sign = change > 0 and "+" or "-"
+                }
+            else
+                changes[itemName] = nil
+            end
         end
     end
-    table.sort(changes, sortItemsByChange)
+
+    -- Update the previous items table
+    prevItems = currentItems
+
+    -- Convert the changes table to a list and sort it by absolute value of change
+    local sortedChanges = {}
+    for itemName, changeData in pairs(changes) do
+        table.insert(sortedChanges, {
+            name = itemName,
+            change = changeData and changeData.change or 0,
+            sign = changeData and changeData.sign or "+"
+        })
+    end
+    table.sort(sortedChanges, function(a, b)
+        return a.change > b.change
+    end)
 
     -- Save previous terminal and redirect to monitor
     local prevTerm = term.redirect(monitor)
@@ -62,9 +74,10 @@ while true do
     paintutils.drawBox(1, 1, monitorWidth, monitorHeight, colors.white)
 
     -- Handle each item
-    for _, item in ipairs(changes) do
-        local itemName = generics.shortenName(item.name, 15)
+    for _, item in ipairs(sortedChanges) do
+        local itemName = item.name
         local change = item.change
+        local sign = item.sign
 
         -- Calculate center of each cell for text placement
         local x = (_ - 1) % 7 * cellWidth + math.ceil(cellWidth / 2)
@@ -77,9 +90,9 @@ while true do
         monitor.write(itemName)
 
         -- Write change with color centered
-        local changeStr = change < 0 and "-" .. tostring(math.abs(change)) or "+" .. tostring(change)
+        local changeStr = sign .. tostring(change)
         monitor.setCursorPos(x - math.floor(#changeStr / 2), y + 1)
-        if change < 0 then
+        if sign == "-" then
             monitor.setTextColor(colors.red)
         else
             monitor.setTextColor(colors.green)
