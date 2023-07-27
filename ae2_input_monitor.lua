@@ -3,7 +3,6 @@ local GridMonitor = require("grid_monitor") -- require the GridMonitor module
 
 local scale = tonumber(arg[1]) or 1
 
--- Function to track input of items
 function trackInput(monitorSide, peripheralSide)
     -- Get a reference to the monitor and the peripheral
     local gm = GridMonitor.new(peripheral.wrap(monitorSide), scale) -- use GridMonitor
@@ -66,13 +65,9 @@ function trackInput(monitorSide, peripheralSide)
             table.remove(sortedChanges)
         end
 
-        -- Clear the monitor and redraw the grid
-        gm:clearGrid()
-        gm:drawGrid()
-
         -- Display changes in the grid
         gm:displayData(sortedChanges, function(item)
-            return item.name .. " " .. item.sign .. " " .. tostring(item.change)
+            return item.name .. "\n" .. item.sign .. " " .. tostring(item.change)
         end)
 
         sleep(30)
