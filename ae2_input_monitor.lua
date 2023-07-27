@@ -136,7 +136,7 @@ while true do
         monitor.write(changeStr)
 
         -- Write time since change
-        if change ~= 0 then
+        if time then
             local timeStr = os.time() - time .. " sec. ago"
             monitor.setCursorPos(x - math.floor(#timeStr / 2), y + 2)
             monitor.setTextColor(colors.gray)
