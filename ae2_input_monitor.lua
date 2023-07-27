@@ -71,7 +71,7 @@ function trackInput(monitorSide, peripheralSide)
         -- Display changes in the grid
         generics.displayChangesInGrid(monitor, sortedChanges, numColumns, numRows, scale)
 
-        sleep(60)
+        sleep(30)
     end
 end
 
