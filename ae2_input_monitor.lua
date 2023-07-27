@@ -31,7 +31,7 @@ function calculate_text_scale(num_items, monitor_width, monitor_height)
         end
     end
 
-    return nil -- return nil if there's no appropriate text scale
+    return 0.5 -- return the smallest available text scale as a default
 end
 
 -- Function to calculate the grid dimensions
