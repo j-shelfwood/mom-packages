@@ -1,3 +1,4 @@
+-- A CC:Tweaked Computercraft script to show the input of items into an AE2 network
 local generics = require("generics")
 local peripheralSide = generics.findPeripheralSide("merequester:requester")
 local monitorSide = generics.findPeripheralSide("monitor")
