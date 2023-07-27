@@ -30,16 +30,15 @@ end
 function GridMonitor:initializeGrid()
     self.windows = {}
 
-    local windowWidth = self.monitorWidth / self.numColumns
-    local windowHeight = self.monitorHeight / self.numRows
+    local windowWidth = math.floor(self.monitorWidth / self.numColumns)
+    local windowHeight = math.floor(self.monitorHeight / self.numRows)
 
     for row = 1, self.numRows do
         for column = 1, self.numColumns do
-            local x = (column - 1) * windowWidth
-            local y = (row - 1) * windowHeight
+            local x = (column - 1) * windowWidth + 1
+            local y = (row - 1) * windowHeight + 1
 
-            local window = window.create(self.monitor, x + 1, y + 1, windowWidth, windowHeight, false)
-            window.setTextScale(self.scale)
+            local window = window.create(self.monitor, x, y, windowWidth, windowHeight, false)
             table.insert(self.windows, window)
         end
     end
