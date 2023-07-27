@@ -32,9 +32,6 @@ while true do
     -- Draw grid
     paintutils.drawBox(1, 1, monitorWidth, monitorHeight, colors.white)
 
-    -- Restore original terminal
-    term.redirect(prevTerm)
-
     -- Handle each item
     for _, item in ipairs(items) do
         local itemName = generics.shortenName(item.name, 15)
@@ -50,26 +47,27 @@ while true do
         prevItems[itemName] = itemCount
 
         -- Display the changes
-        local x = (_ - 1) % 7 * cellWidth + 2 -- Add margin of 1 pixel
-        local y = math.floor((_ - 1) / 7) * cellHeight + 2 -- Add margin of 1 pixel
+        local x = (_ - 1) % 7 * cellWidth + 1 + math.floor(cellWidth * 0.1) -- Add margin of 10% of cell width
+        local y = math.floor((_ - 1) / 7) * cellHeight + 1 + math.floor(cellHeight * 0.1) -- Add margin of 10% of cell height
 
-        -- Make sure we're not writing on the grid lines
-        if x % cellWidth ~= 1 and y % cellHeight ~= 1 then
-            monitor.setCursorPos(x, y)
-            monitor.setTextColor(colors.white)
-            monitor.write(itemName)
+        -- Write item name and change
+        monitor.setCursorPos(x, y)
+        monitor.setTextColor(colors.white)
+        monitor.write(itemName)
 
-            -- Write change with color
-            monitor.setCursorPos(x, y + 1)
-            if change < 0 then
-                monitor.setTextColor(colors.red)
-                monitor.write("-" .. tostring(math.abs(change)))
-            else
-                monitor.setTextColor(colors.green)
-                monitor.write("+" .. tostring(change))
-            end
+        -- Write change with color
+        monitor.setCursorPos(x, y + 1)
+        if change < 0 then
+            monitor.setTextColor(colors.red)
+            monitor.write("-" .. tostring(math.abs(change)))
+        else
+            monitor.setTextColor(colors.green)
+            monitor.write("+" .. tostring(change))
         end
     end
+
+    -- Restore original terminal
+    term.redirect(prevTerm)
 
     -- Wait before next iteration
     sleep(10)
