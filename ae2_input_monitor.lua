@@ -11,7 +11,7 @@ local monitorWidth, monitorHeight = monitor.getSize()
 
 -- Calculate cell dimensions for a 5x7 grid
 local cellWidth = monitorWidth / 7
-local cellHeight = monitorHeight / 5
+local cellHeight = monitorHeight / 12
 
 -- Store previous items
 local prevItems = {}
@@ -105,5 +105,5 @@ while true do
     term.redirect(prevTerm)
 
     -- Wait before next iteration
-    sleep(10)
+    sleep(30)
 end
