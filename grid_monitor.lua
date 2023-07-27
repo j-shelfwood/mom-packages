@@ -38,14 +38,18 @@ function GridMonitor:initializeGrid()
 
     -- Save the original terminal and redirect output to the monitor
     local originalTerm = term.current()
-    term.redirect(self.monitor)
+    term.redirect(term.native())
+
+    local colors = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768}
 
     for row = 1, self.numRows do
         for column = 1, self.numColumns do
             local x = (column - 1) * windowWidth + 1
             local y = (row - 1) * windowHeight + 1
 
-            local window = window.create(self.monitor, x, y, windowWidth, windowHeight, false)
+            local window = window.create(term.native(), x, y, windowWidth, windowHeight, true)
+            window.setTextColour(colors[(row - 1) * self.numColumns + column])
+            window.clear()
             table.insert(self.windows, window)
         end
     end
