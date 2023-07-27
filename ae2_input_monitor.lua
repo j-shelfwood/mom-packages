@@ -16,20 +16,23 @@ local cellHeight = monitorHeight / 12
 -- Store previous items
 local prevItems = {}
 
--- Store previous changes and timestamps
-local changes = {}
-local changeTimestamps = {}
+-- Keep track of changes history
+local changesHistory = {}
 
--- Maximum changes to display
-local maxChanges = 7 * 12
+-- Set sleep seconds
+local sleepSeconds = 30
 
--- Function to track input of items
+-- Initialize the iteration number
+local iteration = 0
+
 while true do
+    -- Increment the iteration number
+    iteration = iteration + 1
+
     -- Get items
     local items = peripheral.wrap(peripheralSide).items()
     local currentItems = {}
 
-    -- Calculate changes and sort items
     for _, item in ipairs(items) do
         local itemName = generics.shortenName(item.name, 15)
         local itemCount = item.count
@@ -41,18 +44,14 @@ while true do
         if prevItems[itemName] then
             local change = itemCount - prevItems[itemName]
 
-            -- If there was a change, store it and update the timestamp
+            -- If there was a change, store it
             if change ~= 0 then
-                changes[itemName] = {
+                changesHistory[itemName] = {
                     change = math.abs(change),
-                    sign = change > 0 and "+" or "-"
+                    sign = change > 0 and "+" or "-",
+                    iteration = iteration,
+                    timestamp = os.time()
                 }
-                -- Update the timestamp only if the count changes
-                changeTimestamps[itemName] = os.time()
-            elseif changes[itemName] then
-                -- If no change, but item exists in changes, remove it
-                changes[itemName] = nil
-                changeTimestamps[itemName] = nil
             end
         end
     end
@@ -60,68 +59,54 @@ while true do
     -- Update the previous items table
     prevItems = currentItems
 
-    -- Convert the changes table to a list and sort it by absolute value of change
+    -- Sort changes history by iteration and change
     local sortedChanges = {}
-    for itemName, changeData in pairs(changes) do
+    for itemName, changeData in pairs(changesHistory) do
         table.insert(sortedChanges, {
             name = itemName,
             change = changeData.change,
             sign = changeData.sign,
-            time = changeTimestamps[itemName]
+            iteration = changeData.iteration,
+            timestamp = changeData.timestamp
         })
     end
-
-    -- Sort by change (desc) and time (desc)
     table.sort(sortedChanges, function(a, b)
-        if a.change == b.change then
-            return a.time > b.time
-        else
+        if a.iteration == b.iteration then
             return a.change > b.change
+        else
+            return a.iteration > b.iteration
         end
     end)
 
-    -- If fewer changes than display slots, fill with non-changed items
-    if #sortedChanges < maxChanges then
-        for itemName, itemCount in pairs(currentItems) do
-            if not changes[itemName] then
-                table.insert(sortedChanges, {
-                    name = itemName,
-                    change = 0,
-                    sign = "+",
-                    time = changeTimestamps[itemName] or 0
-                })
-                if #sortedChanges >= maxChanges then
-                    break
-                end
-            end
-        end
+    -- Prune changes history to keep only the top 84 changes
+    changesHistory = {}
+    for i = 1, math.min(#sortedChanges, 84) do
+        changesHistory[sortedChanges[i].name] = sortedChanges[i]
     end
 
-    -- Save previous terminal and redirect to monitor
+    -- Display changes in the monitor
     local prevTerm = term.redirect(monitor)
-
-    -- Clear the monitor
     monitor.setBackgroundColor(colors.black)
     monitor.clear()
-
-    -- Draw grid
     paintutils.drawBox(1, 1, monitorWidth, monitorHeight, colors.white)
 
-    -- Handle each item
-    for _, item in ipairs(sortedChanges) do
+    for i, item in ipairs(sortedChanges) do
+        if i > 84 then
+            break
+        end
         local itemName = item.name
         local change = item.change
         local sign = item.sign
-        local time = item.time
+        local secondsAgo = (iteration - item.iteration) * sleepSeconds
 
         -- Calculate center of each cell for text placement
-        local x = (_ - 1) % 7 * cellWidth + math.ceil(cellWidth / 2)
-        local y = math.floor((_ - 1) / 7) * cellHeight + math.ceil(cellHeight / 2)
+        local x = (i - 1) % 7 * cellWidth + math.ceil(cellWidth / 2)
+        local y = math.floor((i - 1) / 7) * cellHeight + math.ceil(cellHeight / 2)
 
         -- Write item name centered
         monitor.setCursorPos(x - math.floor(#itemName / 2), y)
         monitor.setTextColor(colors.white)
-        monitor.setBackgroundColor(colors.black) -- Reset the background color before writing
+        monitor.setBackgroundColor(colors.black)
         monitor.write(itemName)
 
         -- Write change with color centered
@@ -132,22 +117,20 @@ while true do
         else
             monitor.setTextColor(colors.green)
         end
-        monitor.setBackgroundColor(colors.black) -- Reset the background color before writing
+        monitor.setBackgroundColor(colors.black)
         monitor.write(changeStr)
 
-        -- Write time since change
-        if time then
-            local timeStr = os.time() - time .. " sec. ago"
-            monitor.setCursorPos(x - math.floor(#timeStr / 2), y + 2)
-            monitor.setTextColor(colors.gray)
-            monitor.setBackgroundColor(colors.black) -- Reset the background color before writing
-            monitor.write(timeStr)
-        end
+        -- Write seconds ago
+        local secondsAgoStr = tostring(secondsAgo) .. " sec. ago"
+        monitor.setCursorPos(x - math.floor(#secondsAgoStr / 2), y + 2)
+        monitor.setTextColor(colors.yellow)
+        monitor.setBackgroundColor(colors.black)
+        monitor.write(secondsAgoStr)
     end
 
     -- Restore original terminal
     term.redirect(prevTerm)
 
     -- Wait before next iteration
-    sleep(30)
+    sleep(sleepSeconds)
 end
