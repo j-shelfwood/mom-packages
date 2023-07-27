@@ -10,17 +10,40 @@ monitor.setTextScale(0.7)
 local monitorWidth, monitorHeight = monitor.getSize()
 
 -- Calculate cell dimensions for a 5x7 grid
-local cellWidth = math.floor(monitorWidth / 7)
-local cellHeight = math.floor(monitorHeight / 12)
+local cellWidth = monitorWidth / 7
+local cellHeight = monitorHeight / 5
 
 -- Store previous items
 local prevItems = {}
+
+-- Function to sort items by change
+local function sortItemsByChange(a, b)
+    return a.change > b.change
+end
 
 -- Function to track input of items
 while true do
     -- Get items
     local items = peripheral.wrap(peripheralSide).items()
-    local changes = {}
+
+    -- Calculate changes and sort items
+    for _, item in ipairs(items) do
+        local itemName = generics.shortenName(item.name, 15)
+        local itemCount = item.count
+        local change = 0
+
+        -- If the item was already present, calculate the change
+        if prevItems[itemName] then
+            change = itemCount - prevItems[itemName]
+        end
+
+        -- Save the current count for next iteration
+        prevItems[itemName] = itemCount
+
+        -- Add change to item
+        item.change = change
+    end
+    table.sort(items, sortItemsByChange)
 
     -- Save previous terminal and redirect to monitor
     local prevTerm = term.redirect(monitor)
@@ -35,21 +58,11 @@ while true do
     -- Handle each item
     for _, item in ipairs(items) do
         local itemName = generics.shortenName(item.name, 15)
-        local itemCount = item.count
-        local change = 0
+        local change = item.change
 
-        -- If the item was already present, calculate the change
-        if prevItems[itemName] then
-            change = itemCount - prevItems[itemName]
-        end
-
-        -- Save the current count for next iteration
-        prevItems[itemName] = itemCount
-
-        -- Display the changes
         -- Calculate center of each cell for text placement
-        local x = (_ - 1) % 7 * cellWidth + math.floor(cellWidth / 2)
-        local y = math.floor((_ - 1) / 7) * cellHeight + math.floor(cellHeight / 2)
+        local x = (_ - 1) % 7 * cellWidth + math.ceil(cellWidth / 2)
+        local y = math.floor((_ - 1) / 7) * cellHeight + math.ceil(cellHeight / 2)
 
         -- Write item name centered
         monitor.setCursorPos(x - math.floor(#itemName / 2), y)
