@@ -1,41 +1,34 @@
 local generics = require("generics")
 
--- This is a test function to print out values
-function testFunction(monitorSide)
-    local monitor = peripheral.wrap(monitorSide)
+-- Function to display test data in a grid
+function displayTestData(monitor, textScale)
+    -- Set text scale
+    monitor.setTextScale(textScale)
+
+    -- Get monitor dimensions and calculate the number of columns and rows
     local monitorWidth, monitorHeight = monitor.getSize()
-
-    print("Monitor width:", monitorWidth)
-    print("Monitor height:", monitorHeight)
-
     local numColumns = math.floor(monitorWidth / 15)
     local numRows = math.floor(monitorHeight / 3)
 
-    print("Num columns:", numColumns)
-    print("Num rows:", numRows)
+    -- Clear the monitor and write title
+    monitor.clear()
+    generics.writeCentered(monitor, 1, monitorWidth, "ME SYSTEM INPUT")
 
-    -- Test text scaling and monitor size
-    for scale = 0.5, 2, 0.5 do
-        monitor.setTextScale(scale)
-        monitorWidth, monitorHeight = monitor.getSize()
-        print("Monitor width at scale ", scale, ":", monitorWidth)
-        print("Monitor height at scale ", scale, ":", monitorHeight)
+    -- Display test data in the grid
+    for i = 1, numColumns * numRows do
+        local row = math.floor((i - 1) / numColumns) + 2
+        local col = (i - 1) % numColumns + 1
+        local cellWidth = math.floor(monitorWidth / numColumns)
+        local cellHeight = math.floor(monitorHeight / numRows)
 
-        local numColumns = math.floor(monitorWidth / 15)
-        local numRows = math.floor(monitorHeight / 3)
-
-        print("Num columns at scale ", scale, ":", numColumns)
-        print("Num rows at scale ", scale, ":", numRows)
-    end
-
-    -- Test centering of title
-    for scale = 0.5, 2, 0.5 do
-        monitor.setTextScale(scale)
-        generics.writeCentered(monitor, 1, 1, monitorWidth, 1, "ME SYSTEM INPUT", 1)
+        -- Write some test data in each cell
+        for line = 1, cellHeight do
+            generics.writeCentered(monitor, (row - 1) * cellHeight + line, cellWidth, "Test data " .. i)
+        end
     end
 end
 
--- Automatically find the sides
+-- Automatically find the monitor
 local monitorSide = generics.findPeripheralSide("monitor")
 
 if not monitorSide then
@@ -43,4 +36,13 @@ if not monitorSide then
     return
 end
 
-testFunction(monitorSide)
+local monitor = peripheral.wrap(monitorSide)
+
+-- Cycle through different text scales and display test data
+local textScales = {0.5, 1, 1.5, 2}
+while true do
+    for _, textScale in ipairs(textScales) do
+        displayTestData(monitor, textScale)
+        sleep(5)
+    end
+end
