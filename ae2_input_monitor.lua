@@ -47,23 +47,24 @@ while true do
         prevItems[itemName] = itemCount
 
         -- Display the changes
-        local x = (_ - 1) % 7 * cellWidth + 1 + math.floor(cellWidth * 0.1) -- Add margin of 10% of cell width
-        local y = math.floor((_ - 1) / 7) * cellHeight + 1 + math.floor(cellHeight * 0.1) -- Add margin of 10% of cell height
+        -- Calculate center of each cell for text placement
+        local x = (_ - 1) % 7 * cellWidth + math.floor(cellWidth / 2)
+        local y = math.floor((_ - 1) / 7) * cellHeight + math.floor(cellHeight / 2)
 
-        -- Write item name and change
-        monitor.setCursorPos(x, y)
+        -- Write item name centered
+        monitor.setCursorPos(x - math.floor(#itemName / 2), y)
         monitor.setTextColor(colors.white)
         monitor.write(itemName)
 
-        -- Write change with color
-        monitor.setCursorPos(x, y + 1)
+        -- Write change with color centered
+        local changeStr = change < 0 and "-" .. tostring(math.abs(change)) or "+" .. tostring(change)
+        monitor.setCursorPos(x - math.floor(#changeStr / 2), y + 1)
         if change < 0 then
             monitor.setTextColor(colors.red)
-            monitor.write("-" .. tostring(math.abs(change)))
         else
             monitor.setTextColor(colors.green)
-            monitor.write("+" .. tostring(change))
         end
+        monitor.write(changeStr)
     end
 
     -- Restore original terminal
