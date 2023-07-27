@@ -14,7 +14,10 @@ function GridMonitor.new(monitor, scale)
 
     self.monitor = monitor
     self.scale = scale or self.scale
-    self.monitor.setTextScale(self.scale)
+
+    pcall(function()
+        self.monitor.setTextScale(self.scale)
+    end)
 
     self.monitorWidth, self.monitorHeight = self.monitor.getSize()
 
@@ -32,6 +35,8 @@ function GridMonitor:initializeGrid()
 
     local windowWidth = math.floor(self.monitorWidth / self.numColumns)
     local windowHeight = math.floor(self.monitorHeight / self.numRows)
+
+    term.redirect(self.monitor)
 
     for row = 1, self.numRows do
         for column = 1, self.numColumns do
