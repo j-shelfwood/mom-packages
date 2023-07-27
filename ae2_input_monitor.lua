@@ -66,11 +66,28 @@ function trackInput(monitorSide, peripheralSide)
             table.remove(sortedChanges)
         end
 
-        -- Clear the monitor and display data
+        -- Clear the monitor
         gm:clearGrid()
-        gm:displayData(sortedChanges, function(item)
-            return item.name .. "\n" .. item.sign .. " " .. tostring(item.change)
-        end)
+
+        -- If there are no changes, create an empty grid
+        if #sortedChanges == 0 then
+            for i = 1, gm.numColumns do
+                for j = 1, gm.numRows do
+                    gm:displayData({{
+                        name = "...",
+                        sign = "",
+                        change = "0"
+                    }}, function(item)
+                        return item.name .. "\n" .. item.sign .. " " .. tostring(item.change)
+                    end, i, j)
+                end
+            end
+        else
+            -- Display changes in the grid
+            gm:displayData(sortedChanges, function(item)
+                return item.name .. "\n" .. item.sign .. " " .. tostring(item.change)
+            end)
+        end
 
         sleep(10)
     end
