@@ -78,23 +78,26 @@ function displayItemInfo(monitorSide, peripheralSide)
         for _, item in ipairs(allItems) do
             local itemName = item.name
             local itemCount = item.count
-            local itemChangeMagnitude = 0
-            local itemChangeSign = "+"
 
             -- Calculate the change from the previous count
-            if prevItems[itemName] then
+            if prevItems[itemName] and prevItems[itemName] ~= itemCount then
                 local change = itemCount - prevItems[itemName]
-                itemChangeMagnitude = math.abs(change)
+                local itemChangeMagnitude = math.abs(change)
+                local itemChangeSign = "+"
+
                 if change > 0 then
                     itemChangeSign = "+"
                 elseif change < 0 then
                     itemChangeSign = "-"
                 end
-            end
 
-            -- Add change info to item table
-            item.changeMagnitude = itemChangeMagnitude
-            item.changeSign = itemChangeSign
+                -- Add change info to item table
+                item.changeMagnitude = itemChangeMagnitude
+                item.changeSign = itemChangeSign
+
+                -- Add item to the items table
+                table.insert(items, item)
+            end
         end
 
         -- Filter items with change
