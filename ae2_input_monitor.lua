@@ -55,7 +55,6 @@ function shortenName(name)
         return name:sub(1, 18) .. "..."
     end
 end
-
 -- Function to display item information in a grid
 function displayItemInfo(monitorSide, peripheralSide)
     -- Get a reference to the monitor and the peripheral
@@ -68,6 +67,7 @@ function displayItemInfo(monitorSide, peripheralSide)
 
     -- Continuously fetch and display the items
     while true do
+        ::continue::
         -- Get items
         local allItems = interface.items()
 
@@ -169,7 +169,6 @@ function displayItemInfo(monitorSide, peripheralSide)
             end
         end
 
-        ::continue::
         sleep(10)
     end
 end
