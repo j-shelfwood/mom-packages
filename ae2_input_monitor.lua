@@ -74,9 +74,18 @@ function displayItemInfo(monitorSide, peripheralSide)
         -- Filter items with change
         local items = {}
         for _, item in ipairs(allItems) do
-            if not prevItems[item.name] or item.count ~= prevItems[item.name].count then
+            if prevItems[item.name] and item.count ~= prevItems[item.name].count then
                 table.insert(items, item)
             end
+        end
+
+        -- If there are no changes, display a loading message
+        if #items == 0 then
+            local monitorWidth, monitorHeight = monitor.getSize()
+            monitor.setCursorPos(math.floor(monitorWidth / 2), math.floor(monitorHeight / 2))
+            monitor.write("Loading first change...")
+            sleep(10)
+            goto continue
         end
 
         -- Calculate change for each item and store it in the item table
@@ -160,7 +169,8 @@ function displayItemInfo(monitorSide, peripheralSide)
             end
         end
 
-        sleep(5)
+        ::continue::
+        sleep(10)
     end
 end
 
