@@ -55,6 +55,7 @@ function shortenName(name)
         return name:sub(1, 18) .. "..."
     end
 end
+
 -- Function to display item information in a grid
 function displayItemInfo(monitorSide, peripheralSide)
     -- Get a reference to the monitor and the peripheral
@@ -67,7 +68,6 @@ function displayItemInfo(monitorSide, peripheralSide)
 
     -- Continuously fetch and display the items
     while true do
-        ::continue::
         -- Get items
         local allItems = interface.items()
 
@@ -79,97 +79,97 @@ function displayItemInfo(monitorSide, peripheralSide)
             end
         end
 
-        -- If there are no changes, display a loading message
+        -- If there are no changes, display a loading message and skip to the next iteration
         if #items == 0 then
             local monitorWidth, monitorHeight = monitor.getSize()
             monitor.setCursorPos(math.floor(monitorWidth / 2), math.floor(monitorHeight / 2))
             monitor.write("Loading first change...")
             sleep(10)
-            goto continue
-        end
+        else
+            -- Calculate change for each item and store it in the item table
+            for _, item in ipairs(items) do
+                local itemName = item.name
+                local itemCount = item.count
+                local itemChangeMagnitude = 0
+                local itemChangeSign = "+"
 
-        -- Calculate change for each item and store it in the item table
-        for _, item in ipairs(items) do
-            local itemName = item.name
-            local itemCount = item.count
-            local itemChangeMagnitude = 0
-            local itemChangeSign = "+"
-
-            -- Calculate the change from the previous count
-            if prevItems[itemName] then
-                local change = itemCount - prevItems[itemName].count
-                itemChangeMagnitude = math.abs(change)
-                if change > 0 then
-                    itemChangeSign = "+"
-                elseif change < 0 then
-                    itemChangeSign = "-"
+                -- Calculate the change from the previous count
+                if prevItems[itemName] then
+                    local change = itemCount - prevItems[itemName].count
+                    itemChangeMagnitude = math.abs(change)
+                    if change > 0 then
+                        itemChangeSign = "+"
+                    elseif change < 0 then
+                        itemChangeSign = "-"
+                    end
                 end
-            end
 
-            -- Save the current count and change for the next update
-            prevItems[itemName] = {
-                count = itemCount,
-                changeMagnitude = itemChangeMagnitude,
-                changeSign = itemChangeSign
-            }
-
-            -- Add change info to item table
-            item.changeMagnitude = itemChangeMagnitude
-            item.changeSign = itemChangeSign
-        end
-
-        -- Sort items by change magnitude and sign
-        table.sort(items, function(a, b)
-            if a.changeMagnitude == b.changeMagnitude then
-                return a.changeSign > b.changeSign -- Positive change comes first
-            else
-                return a.changeMagnitude > b.changeMagnitude
-            end
-        end)
-
-        -- Get monitor dimensions and calculate cell dimensions
-        local monitorWidth, monitorHeight = monitor.getSize()
-        local textScale = calculate_text_scale(#items, monitorWidth, monitorHeight)
-        local numRows, numColumns = calculate_grid_dimensions(#items, monitorWidth, monitorHeight, textScale)
-        local cellWidth = math.floor(monitorWidth / numColumns)
-        local cellHeight = math.floor(monitorHeight / numRows)
-
-        -- Debugging output
-        print("Text scale: " .. textScale)
-        print("Grid dimensions: " .. numRows .. " rows, " .. numColumns .. " columns")
-
-        -- Display items in the grid
-        for i = 1, #items do
-            local row = math.floor((i - 1) / numColumns) + 1
-            local col = (i - 1) % numColumns + 1
-            local item = items[i]
-            local itemName = shortenName(item.name)
-            local itemCount = item.count
-            local itemChange = item.changeSign .. tostring(item.changeMagnitude)
-
-            -- Check if item's info has changed
-            if not currItems[i] or currItems[i].name ~= itemName or currItems[i].count ~= itemCount or
-                currItems[i].change ~= itemChange then
-                -- Update current items table
-                currItems[i] = {
-                    name = itemName,
+                -- Save the current count and change for the next update
+                prevItems[itemName] = {
                     count = itemCount,
-                    change = itemChange
+                    changeMagnitude = itemChangeMagnitude,
+                    changeSign = itemChangeSign
                 }
 
-                -- Clear cell
-                for line = 1, cellHeight do
-                    writeCell(monitor, row, col, cellWidth, cellHeight, string.rep(" ", cellWidth), line, colors.white)
-                end
-
-                -- Write the item name, count and change in their respective cell
-                writeCell(monitor, row, col, cellWidth, cellHeight, itemName, 1, colors.white)
-                writeCell(monitor, row, col, cellWidth, cellHeight, tostring(itemCount), 2, colors.white)
-                writeCell(monitor, row, col, cellWidth, cellHeight, itemChange, 3, colors.white)
+                -- Add change info to item table
+                item.changeMagnitude = itemChangeMagnitude
+                item.changeSign = itemChangeSign
             end
-        end
 
-        sleep(10)
+            -- Sort items by change magnitude and sign
+            table.sort(items, function(a, b)
+                if a.changeMagnitude == b.changeMagnitude then
+                    return a.changeSign > b.changeSign -- Positive change comes first
+                else
+                    return a.changeMagnitude > b.changeMagnitude
+                end
+            end)
+
+            -- Get monitor dimensions and calculate cell dimensions
+            local monitorWidth, monitorHeight = monitor.getSize()
+            local textScale = calculate_text_scale(#items, monitorWidth, monitorHeight)
+            local numRows, numColumns = calculate_grid_dimensions(#items, monitorWidth, monitorHeight, textScale)
+            local cellWidth = math.floor(monitorWidth / numColumns)
+            local cellHeight = math.floor(monitorHeight / numRows)
+
+            -- Debugging output
+            print("Text scale: " .. textScale)
+            print("Grid dimensions: " .. numRows .. " rows, " .. numColumns .. " columns")
+
+            -- Display items in the grid
+            for i = 1, #items do
+                local row = math.floor((i - 1) / numColumns) + 1
+                local col = (i - 1) % numColumns + 1
+                local item = items[i]
+                local itemName = shortenName(item.name)
+                local itemCount = item.count
+                local itemChange = item.changeSign .. tostring(item.changeMagnitude)
+
+                -- Check if item's info has changed
+                if not currItems[i] or currItems[i].name ~= itemName or currItems[i].count ~= itemCount or
+                    currItems[i].change ~= itemChange then
+                    -- Update current items table
+                    currItems[i] = {
+                        name = itemName,
+                        count = itemCount,
+                        change = itemChange
+                    }
+
+                    -- Clear cell
+                    for line = 1, cellHeight do
+                        writeCell(monitor, row, col, cellWidth, cellHeight, string.rep(" ", cellWidth), line,
+                            colors.white)
+                    end
+
+                    -- Write the item name, count and change in their respective cell
+                    writeCell(monitor, row, col, cellWidth, cellHeight, itemName, 1, colors.white)
+                    writeCell(monitor, row, col, cellWidth, cellHeight, tostring(itemCount), 2, colors.white)
+                    writeCell(monitor, row, col, cellWidth, cellHeight, itemChange, 3, colors.white)
+                end
+            end
+
+            sleep(10)
+        end
     end
 end
 
