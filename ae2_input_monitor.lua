@@ -66,6 +66,16 @@ function displayItemInfo(monitorSide, peripheralSide)
     local prevItems = {}
     local currItems = {}
 
+    -- Add initial items to prevItems
+    local allItems = interface.items()
+    for _, item in ipairs(allItems) do
+        prevItems[item.name] = {
+            count = item.count,
+            changeMagnitude = 0,
+            changeSign = "+"
+        }
+    end
+
     -- Continuously fetch and display the items
     while true do
         -- Get items
