@@ -74,6 +74,9 @@ function displayItemInfo(monitorSide, peripheralSide)
         -- Get items
         local allItems = interface.items()
 
+        -- Filter items with change
+        local items = {}
+
         -- Calculate change for each item and store it in the item table
         for _, item in ipairs(allItems) do
             local itemName = item.name
@@ -100,70 +103,69 @@ function displayItemInfo(monitorSide, peripheralSide)
             end
         end
 
-        -- Filter items with change
-        local items = {}
-        for _, item in ipairs(allItems) do
-            if item.changeMagnitude > 0 then
-                table.insert(items, item)
-            end
-        end
+        if #items > 0 then
+            -- Sort items by change magnitude and sign
+            table.sort(items, function(a, b)
+                if a.changeMagnitude == b.changeMagnitude then
+                    return a.changeSign < b.changeSign -- Positive change comes first
+                else
+                    return a.changeMagnitude < b.changeMagnitude -- Biggest change comes first
+                end
+            end)
 
-        -- Sort items by change magnitude and sign
-        table.sort(items, function(a, b)
-            if a.changeMagnitude == b.changeMagnitude then
-                return a.changeSign < b.changeSign -- Positive change comes first
-            else
-                return a.changeMagnitude < b.changeMagnitude -- Biggest change comes first
-            end
-        end)
+            -- Get monitor dimensions and calculate cell dimensions
+            local monitorWidth, monitorHeight = monitor.getSize()
+            local textScale = calculate_text_scale(#items, monitorWidth, monitorHeight)
+            local numRows, numColumns = calculate_grid_dimensions(#items, monitorWidth, monitorHeight, textScale)
+            local cellWidth = math.floor(monitorWidth / numColumns)
+            local cellHeight = math.floor(monitorHeight / numRows)
 
-        -- Get monitor dimensions and calculate cell dimensions
-        local monitorWidth, monitorHeight = monitor.getSize()
-        local textScale = calculate_text_scale(#items, monitorWidth, monitorHeight)
-        local numRows, numColumns = calculate_grid_dimensions(#items, monitorWidth, monitorHeight, textScale)
-        local cellWidth = math.floor(monitorWidth / numColumns)
-        local cellHeight = math.floor(monitorHeight / numRows)
+            -- Debugging output
+            print("Text scale: " .. textScale)
+            print("Grid dimensions: " .. numRows .. " rows, " .. numColumns .. " columns")
 
-        -- Debugging output
-        print("Text scale: " .. textScale)
-        print("Grid dimensions: " .. numRows .. " rows, " .. numColumns .. " columns")
-
-        -- Display items in the grid
-        for i = 1, #items do
-            local row = math.ceil(i / numColumns)
-            local col = i % numColumns
-            if col == 0 then
-                col = numColumns
-            end
-            local item = items[i]
-            local itemName = shortenName(item.name)
-            local itemCount = item.count
-            local itemChange = item.changeSign .. tostring(item.changeMagnitude)
-
-            -- Check if item's info has changed
-            if not currItems[i] or currItems[i].name ~= itemName or currItems[i].count ~= itemCount or
-                currItems[i].change ~= itemChange then
-                -- Update current items table
-                currItems[i] = {
-                    name = itemName,
-                    count = itemCount,
-                    change = itemChange
-                }
+            -- Display items in the grid
+            for i = 1, #items do
+                local row = math.ceil(i / numColumns)
+                local col = i % numColumns
+                if col == 0 then
+                    col = numColumns
+                end
                 local actualRow = (row - 1) * cellHeight
                 local actualCol = (col - 1) * cellWidth + 1
+                local item = items[i]
+                local itemName = shortenName(item.name)
+                local itemCount = item.count
+                local itemChange = item.changeSign .. tostring(item.changeMagnitude)
 
-                -- Clear cell
-                for line = 1, cellHeight do
-                    writeCell(monitor, actualRow + line, actualCol, cellWidth, cellHeight, string.rep(" ", cellWidth),
+                -- Check if item's info has changed
+                if not currItems[i] or currItems[i].name ~= itemName or currItems[i].count ~= itemCount or
+                    currItems[i].change ~= itemChange then
+                    -- Update current items table
+                    currItems[i] = {
+                        name = itemName,
+                        count = itemCount,
+                        change = itemChange
+                    }
+
+                    -- Clear cell
+                    for line = 1, cellHeight do
+                        writeCell(monitor, actualRow + line, actualCol, cellWidth, cellHeight,
+                            string.rep(" ", cellWidth), colors.white)
+                    end
+
+                    -- Write the item name, count and change in their respective cell
+                    writeCell(monitor, actualRow + 1, actualCol, cellWidth, cellHeight, itemName, colors.white)
+                    writeCell(monitor, actualRow + 2, actualCol, cellWidth, cellHeight, tostring(itemCount),
                         colors.white)
+                    writeCell(monitor, actualRow + 3, actualCol, cellWidth, cellHeight, itemChange, colors.white)
                 end
-
-                writeCell(monitor, actualRow + 1, actualCol, cellWidth, cellHeight, itemName, colors.white)
-                writeCell(monitor, actualRow + 2, actualCol, cellWidth, cellHeight, tostring(itemCount), colors.white)
-                writeCell(monitor, actualRow + 3, actualCol, cellWidth, cellHeight, itemChange, colors.white)
-
             end
+        else
+            -- Handle the case where no changes were detected
+            print("No changes detected.")
         end
+
         sleep(10)
     end
 end
