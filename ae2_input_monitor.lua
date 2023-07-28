@@ -66,36 +66,13 @@ function displayItemInfo(monitorSide, peripheralSide)
     local prevItems = {}
     local currItems = {}
 
-    -- Add initial items to prevItems
-    local allItems = interface.items()
-    for _, item in ipairs(allItems) do
-        prevItems[item.name] = {
-            count = item.count,
-            changeMagnitude = 0,
-            changeSign = "+"
-        }
-    end
-
-    local monitorWidth, monitorHeight = monitor.getSize()
-    monitor.setCursorPos(math.floor(monitorWidth / 2), math.floor(monitorHeight / 2))
-    monitor.write("Loading first change...")
-    sleep(2)
-
     -- Continuously fetch and display the items
     while true do
         -- Get items
         local allItems = interface.items()
 
-        -- Filter items with change
-        local items = {}
-        for _, item in ipairs(allItems) do
-            if prevItems[item.name] and item.count ~= prevItems[item.name].count then
-                table.insert(items, item)
-            end
-        end
-
         -- Calculate change for each item and store it in the item table
-        for _, item in ipairs(items) do
+        for _, item in ipairs(allItems) do
             local itemName = item.name
             local itemCount = item.count
             local itemChangeMagnitude = 0
@@ -112,16 +89,22 @@ function displayItemInfo(monitorSide, peripheralSide)
                 end
             end
 
-            -- Save the current count and change for the next update
+            -- Save the current count for the next update
             prevItems[itemName] = {
-                count = itemCount,
-                changeMagnitude = itemChangeMagnitude,
-                changeSign = itemChangeSign
+                count = itemCount
             }
 
             -- Add change info to item table
             item.changeMagnitude = itemChangeMagnitude
             item.changeSign = itemChangeSign
+        end
+
+        -- Filter items with change
+        local items = {}
+        for _, item in ipairs(allItems) do
+            if item.changeMagnitude > 0 then
+                table.insert(items, item)
+            end
         end
 
         -- Sort items by change magnitude and sign
@@ -178,6 +161,23 @@ function displayItemInfo(monitorSide, peripheralSide)
         sleep(10)
     end
 end
+
+-- Automatically find the sides
+local monitorSide = findPeripheralSide("monitor")
+local peripheralSide = findPeripheralSide("merequester:requester")
+
+if not monitorSide then
+    print("Monitor not found.")
+    return
+end
+
+if not peripheralSide then
+    print("ME Requester not found.")
+    return
+end
+
+-- Call the function to display the item information
+displayItemInfo(monitorSide, peripheralSide)
 
 -- Automatically find the sides
 local monitorSide = findPeripheralSide("monitor")
