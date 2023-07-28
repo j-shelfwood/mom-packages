@@ -10,10 +10,9 @@ function findPeripheralSide(name)
 end
 
 -- Function to write text in a cell
-function writeCell(monitor, row, col, cellWidth, cellHeight, text, line, color)
-    local x = (col - 1) * cellWidth + math.floor((cellWidth - #text) / 2) + 1
-    local y = (row - 1) * cellHeight + line
-    monitor.setCursorPos(x, y)
+function writeCell(monitor, row, col, cellWidth, cellHeight, text, color)
+    local x = col + math.floor((cellWidth - #text) / 2)
+    monitor.setCursorPos(x, row)
     monitor.setTextColor(color)
     monitor.write(text)
 end
@@ -150,16 +149,19 @@ function displayItemInfo(monitorSide, peripheralSide)
                     count = itemCount,
                     change = itemChange
                 }
+                local actualRow = (row - 1) * cellHeight
+                local actualCol = (col - 1) * cellWidth + 1
 
                 -- Clear cell
                 for line = 1, cellHeight do
-                    writeCell(monitor, row, col, cellWidth, cellHeight, string.rep(" ", cellWidth), line, colors.white)
+                    writeCell(monitor, actualRow + line, actualCol, cellWidth, cellHeight, string.rep(" ", cellWidth),
+                        colors.white)
                 end
 
-                -- Write the item name, count and change in their respective cell
-                writeCell(monitor, row, col, cellWidth, cellHeight, itemName, 1, colors.white)
-                writeCell(monitor, row, col, cellWidth, cellHeight, tostring(itemCount), 2, colors.white)
-                writeCell(monitor, row, col, cellWidth, cellHeight, itemChange, 3, colors.white)
+                writeCell(monitor, actualRow + 1, actualCol, cellWidth, cellHeight, itemName, colors.white)
+                writeCell(monitor, actualRow + 2, actualCol, cellWidth, cellHeight, tostring(itemCount), colors.white)
+                writeCell(monitor, actualRow + 3, actualCol, cellWidth, cellHeight, itemChange, colors.white)
+
             end
         end
         sleep(10)
