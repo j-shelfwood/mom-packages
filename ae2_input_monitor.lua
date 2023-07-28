@@ -1,188 +1,70 @@
--- Function to find peripheral side
-function findPeripheralSide(name)
-    local sides = {"top", "bottom", "left", "right", "front", "back"}
-    for _, side in ipairs(sides) do
-        if peripheral.isPresent(side) and peripheral.getType(side) == name then
-            return side
-        end
-    end
-    return nil
-end
+-- Required imports or definitions
+local generics = require("generics")
+local peripheralSide = generics.findPeripheralSide("merequester:requester")
+local monitorSide = generics.findPeripheralSide("monitor")
 
--- Function to write text in a cell
-function writeCell(monitor, row, col, cellWidth, cellHeight, text, color)
-    local x = col + math.floor((cellWidth - #text) / 2)
-    monitor.setCursorPos(x, row)
-    monitor.setTextColor(color)
-    monitor.write(text)
-end
+-- Set up monitor
+local monitor = peripheral.wrap(monitorSide)
+monitor.setTextScale(0.7)
 
--- Function to calculate the text scale
-function calculate_text_scale(num_items, monitor_width, monitor_height)
-    local num_scales = 4 -- 0.5, 1, 1.5, 2
-    local scale_factors = {2, 1, 2 / 3, 0.5}
+-- Get monitor dimensions
+local monitorWidth, monitorHeight = monitor.getSize()
 
-    for i = num_scales, 1, -1 do
-        local scale_factor = scale_factors[i]
-        local max_cells = (monitor_width * scale_factor) * (monitor_height * scale_factor) / (15 * 3) -- 15 and 3 are cell width and height at text scale 0.5
-        if max_cells >= num_items then
-            return 0.5 * i -- text scale is 0.5 times the index
-        end
-    end
+-- Calculate cell dimensions for a 5x7 grid
+local cellWidth = math.floor(monitorWidth / 7)
+local cellHeight = math.floor(monitorHeight / 5)
 
-    return 0.5 -- return the smallest available text scale as a default
-end
+-- Store previous items
+local prevItems = {}
 
--- Function to calculate the grid dimensions
-function calculate_grid_dimensions(num_items, monitor_width, monitor_height, text_scale)
-    local cell_width, cell_height = 15 / text_scale, 3 / text_scale -- cell width and height at the given text scale
-    local num_columns = math.floor(monitor_width / cell_width)
-    local num_rows = math.ceil(num_items / num_columns)
-    return num_rows, num_columns
-end
+-- Function to track input of items
+while true do
+    -- Get items
+    local items = peripheral.wrap(peripheralSide).items()
 
--- Function to shorten item names if they're too long
-function shortenName(name)
-    if #name <= 18 then
-        return name
-    elseif #name > 30 then
-        return name:sub(1, 10) .. "..." .. name:sub(-10, -1)
-    else
-        return name:sub(1, 18) .. "..."
-    end
-end
+    -- Clear the monitor
+    monitor.setBackgroundColor(colors.black)
+    monitor.clear()
 
--- Function to display item information in a grid
-function displayItemInfo(monitorSide, peripheralSide)
-    -- Get a reference to the monitor and the peripheral
-    local monitor = peripheral.wrap(monitorSide)
-    local interface = peripheral.wrap(peripheralSide)
+    -- Draw grid
+    paintutils.drawBox(1, 1, monitorWidth, monitorHeight, colors.white)
 
-    -- Initialize the previous items table and current items table
-    local prevItems = {}
-    local currItems = {}
+    -- Handle each item
+    for _, item in ipairs(items) do
+        local itemName = generics.shortenName(item.name, 15)
+        local itemCount = item.count
+        local change = 0
 
-    -- Continuously fetch and display the items
-    while true do
-        -- Save the current count for the next update
-        for _, item in ipairs(interface.items()) do
-            local itemName = item.name
-            local itemCount = item.count
-            prevItems[itemName] = itemCount
+        -- If the item was already present, calculate the change
+        if prevItems[itemName] then
+            change = itemCount - prevItems[itemName]
         end
 
-        -- Get items
-        local allItems = interface.items()
+        -- Save the current count for next iteration
+        prevItems[itemName] = itemCount
 
-        -- Filter items with change
-        local items = {}
+        -- Only display the changes if there are any
+        if change ~= 0 then
+            -- Display the changes
+            local x = (_ - 1) % 7 * cellWidth + 2
+            local y = math.floor((_ - 1) / 7) * cellHeight + 2
 
-        -- Calculate change for each item and store it in the item table
-        for _, item in ipairs(allItems) do
-            local itemName = item.name
-            local itemCount = item.count
+            monitor.setCursorPos(x, y)
+            monitor.setTextColor(colors.white)
+            monitor.write(itemName)
 
-            -- Calculate the change from the previous count
-            if prevItems[itemName] and prevItems[itemName] ~= itemCount then
-                local change = itemCount - prevItems[itemName]
-                local itemChangeMagnitude = math.abs(change)
-                local itemChangeSign = "+"
-
-                if change > 0 then
-                    itemChangeSign = "+"
-                elseif change < 0 then
-                    itemChangeSign = "-"
-                end
-
-                -- Add change info to item table
-                item.changeMagnitude = itemChangeMagnitude
-                item.changeSign = itemChangeSign
-
-                -- Add item to the items table
-                table.insert(items, item)
+            -- Write change with color
+            monitor.setCursorPos(x, y + 1)
+            if change < 0 then
+                monitor.setTextColor(colors.red)
+                monitor.write("-" .. tostring(math.abs(change)))
+            else
+                monitor.setTextColor(colors.green)
+                monitor.write("+" .. tostring(change))
             end
         end
-
-        if #items > 0 then
-            -- Sort items by change magnitude and sign
-            table.sort(items, function(a, b)
-                if a.changeMagnitude == b.changeMagnitude then
-                    return a.changeSign < b.changeSign -- Positive change comes first
-                else
-                    return a.changeMagnitude < b.changeMagnitude -- Biggest change comes first
-                end
-            end)
-
-            -- Get monitor dimensions and calculate cell dimensions
-            local monitorWidth, monitorHeight = monitor.getSize()
-            local textScale = calculate_text_scale(#items, monitorWidth, monitorHeight)
-            local numRows, numColumns = calculate_grid_dimensions(#items, monitorWidth, monitorHeight, textScale)
-            local cellWidth = math.floor(monitorWidth / numColumns)
-            local cellHeight = math.floor(monitorHeight / numRows)
-
-            -- Debugging output
-            print("Text scale: " .. textScale)
-            print("Grid dimensions: " .. numRows .. " rows, " .. numColumns .. " columns")
-
-            -- Display items in the grid
-            for i = 1, #items do
-                local row = math.ceil(i / numColumns)
-                local col = i % numColumns
-                if col == 0 then
-                    col = numColumns
-                end
-                local actualRow = (row - 1) * cellHeight
-                local actualCol = (col - 1) * cellWidth + 1
-                local item = items[i]
-                local itemName = shortenName(item.name)
-                local itemCount = item.count
-                local itemChange = item.changeSign .. tostring(item.changeMagnitude)
-
-                -- Check if item's info has changed
-                if not currItems[i] or currItems[i].name ~= itemName or currItems[i].count ~= itemCount or
-                    currItems[i].change ~= itemChange then
-                    -- Update current items table
-                    currItems[i] = {
-                        name = itemName,
-                        count = itemCount,
-                        change = itemChange
-                    }
-
-                    -- Clear cell
-                    for line = 1, cellHeight do
-                        writeCell(monitor, actualRow + line, actualCol, cellWidth, cellHeight,
-                            string.rep(" ", cellWidth), colors.white)
-                    end
-
-                    -- Write the item name, count and change in their respective cell
-                    writeCell(monitor, actualRow + 1, actualCol, cellWidth, cellHeight, itemName, colors.white)
-                    writeCell(monitor, actualRow + 2, actualCol, cellWidth, cellHeight, tostring(itemCount),
-                        colors.white)
-                    writeCell(monitor, actualRow + 3, actualCol, cellWidth, cellHeight, itemChange, colors.white)
-                end
-            end
-        else
-            -- Handle the case where no changes were detected
-            print("No changes detected.")
-        end
-
-        sleep(10)
     end
+
+    -- Wait before next iteration
+    sleep(10)
 end
-
--- Automatically find the sides
-local monitorSide = findPeripheralSide("monitor")
-local peripheralSide = findPeripheralSide("merequester:requester")
-
-if not monitorSide then
-    print("Monitor not found.")
-    return
-end
-
-if not peripheralSide then
-    print("ME Requester not found.")
-    return
-end
-
--- Call the function to display the item information
-displayItemInfo(monitorSide, peripheralSide)
