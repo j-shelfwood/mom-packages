@@ -37,10 +37,7 @@ end
 function calculate_grid_dimensions(num_items, monitor_width, monitor_height, text_scale)
     local cell_width, cell_height = 15 / text_scale, 3 / text_scale -- cell width and height at the given text scale
     local num_columns = math.floor(monitor_width / cell_width)
-    local num_rows = math.floor(num_items / num_columns)
-    if num_items % num_columns ~= 0 then
-        num_rows = num_rows + 1
-    end
+    local num_rows = math.ceil(num_items / num_columns)
     return num_rows, num_columns
 end
 
