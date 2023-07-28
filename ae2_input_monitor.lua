@@ -131,8 +131,11 @@ function displayItemInfo(monitorSide, peripheralSide)
 
         -- Display items in the grid
         for i = 1, #items do
-            local row = math.floor((i - 1) / numColumns) + 1
-            local col = (i - 1) % numColumns + 1
+            local row = math.ceil(i / numColumns)
+            local col = i % numColumns
+            if col == 0 then
+                col = numColumns
+            end
             local item = items[i]
             local itemName = shortenName(item.name)
             local itemCount = item.count
@@ -159,7 +162,6 @@ function displayItemInfo(monitorSide, peripheralSide)
                 writeCell(monitor, row, col, cellWidth, cellHeight, itemChange, 3, colors.white)
             end
         end
-
         sleep(10)
     end
 end
