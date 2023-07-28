@@ -68,6 +68,13 @@ function displayItemInfo(monitorSide, peripheralSide)
 
     -- Continuously fetch and display the items
     while true do
+        -- Save the current count for the next update
+        for _, item in ipairs(interface.items()) do
+            local itemName = item.name
+            local itemCount = item.count
+            prevItems[itemName] = itemCount
+        end
+
         -- Get items
         local allItems = interface.items()
 
@@ -105,18 +112,11 @@ function displayItemInfo(monitorSide, peripheralSide)
         -- Sort items by change magnitude and sign
         table.sort(items, function(a, b)
             if a.changeMagnitude == b.changeMagnitude then
-                return a.changeSign > b.changeSign -- Positive change comes first
+                return a.changeSign < b.changeSign -- Positive change comes first
             else
-                return a.changeMagnitude > b.changeMagnitude
+                return a.changeMagnitude < b.changeMagnitude -- Biggest change comes first
             end
         end)
-
-        -- Save the current count for the next update
-        for _, item in ipairs(allItems) do
-            local itemName = item.name
-            local itemCount = item.count
-            prevItems[itemName] = itemCount
-        end
 
         -- Get monitor dimensions and calculate cell dimensions
         local monitorWidth, monitorHeight = monitor.getSize()
