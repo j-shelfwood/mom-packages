@@ -80,7 +80,7 @@ function displayItemInfo(monitorSide, peripheralSide)
 
             -- Calculate the change from the previous count
             if prevItems[itemName] then
-                local change = itemCount - prevItems[itemName].count
+                local change = itemCount - prevItems[itemName]
                 itemChangeMagnitude = math.abs(change)
                 if change > 0 then
                     itemChangeSign = "+"
@@ -88,11 +88,6 @@ function displayItemInfo(monitorSide, peripheralSide)
                     itemChangeSign = "-"
                 end
             end
-
-            -- Save the current count for the next update
-            prevItems[itemName] = {
-                count = itemCount
-            }
 
             -- Add change info to item table
             item.changeMagnitude = itemChangeMagnitude
@@ -115,6 +110,13 @@ function displayItemInfo(monitorSide, peripheralSide)
                 return a.changeMagnitude > b.changeMagnitude
             end
         end)
+
+        -- Save the current count for the next update
+        for _, item in ipairs(allItems) do
+            local itemName = item.name
+            local itemCount = item.count
+            prevItems[itemName] = itemCount
+        end
 
         -- Get monitor dimensions and calculate cell dimensions
         local monitorWidth, monitorHeight = monitor.getSize()
@@ -161,23 +163,6 @@ function displayItemInfo(monitorSide, peripheralSide)
         sleep(10)
     end
 end
-
--- Automatically find the sides
-local monitorSide = findPeripheralSide("monitor")
-local peripheralSide = findPeripheralSide("merequester:requester")
-
-if not monitorSide then
-    print("Monitor not found.")
-    return
-end
-
-if not peripheralSide then
-    print("ME Requester not found.")
-    return
-end
-
--- Call the function to display the item information
-displayItemInfo(monitorSide, peripheralSide)
 
 -- Automatically find the sides
 local monitorSide = findPeripheralSide("monitor")
