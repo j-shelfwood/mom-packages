@@ -1,6 +1,6 @@
 -- turtle_minion.lua
 -- Check if there is a pickaxe in first inventory slot
-if turtle.getItemCount(1) == 0 then
+if turtle.getItemCount(1) ~= 0 then
     -- Equip the pickaxe
     turtle.select(1)
     turtle.equipRight()
