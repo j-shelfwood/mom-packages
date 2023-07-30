@@ -1,6 +1,8 @@
 -- enslavement.lua
 -- Open the modem for Rednet communication
-rednet.open("right") -- replace "left" with the side where the modem is located
+-- Automatically detect which side has the modem 
+-- and open it for Rednet communication (without using generics)
+rednet.open(peripheral.find("modem").getName())
 
 -- Wait for a Rednet message
 local senderID, message, protocol = rednet.receive()
