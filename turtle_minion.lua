@@ -208,8 +208,10 @@ function refuelAndUnload()
     moveTo(diggingX, currentPosition.y, diggingZ)
 end
 
-turtle.down() -- move down to start digging from the layer below
-currentPosition.y = currentPosition.y - 1 -- adjust the current y-coordinate
+-- move down to start digging from the layer below
+turtle.down()
+turtle.down()
+currentPosition.y = currentPosition.y - 2 -- adjust the current y-coordinate
 
 -- Move to the assigned starting position
 moveTo(startX, 0, startZ)
