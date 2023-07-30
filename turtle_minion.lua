@@ -18,11 +18,15 @@ file.close()
 -- Get the side of the main computer from the instruction file
 local side = instruction.side
 
--- Equip the pickaxe
-turtle.select(1) -- assumes the pickaxe is in the first slot
-turtle.equipRight()
-turtle.select(1)
-turtle.equipLeft()
+-- Check if there is a pickaxe in first inventory slot
+if turtle.getItemCount(1) == 0 then
+    -- Equip the pickaxe
+    turtle.select(1)
+    turtle.equipRight()
+    -- Equip the modem it just unequipped
+    turtle.select(1)
+    turtle.equipLeft()
+end
 
 -- Define the starting position, digging area dimensions, and depth
 local startX, startZ, width, length, depth = instruction.x, instruction.z, instruction.width, instruction.length,
