@@ -23,51 +23,16 @@ local currentPosition = {
 
 -- Define the coordinates of the fuel and inventory chests based on the side of the main computer
 local fuelChest, inventoryChest
-if side == "left" then
-    fuelChest = {
-        x = 0,
-        y = 1,
-        z = 0
-    }
-    inventoryChest = {
-        x = 0,
-        y = -1,
-        z = 0
-    }
-elseif side == "right" then
-    fuelChest = {
-        x = 0,
-        y = -1,
-        z = 0
-    }
-    inventoryChest = {
-        x = 0,
-        y = 1,
-        z = 0
-    }
-elseif side == "front" then
-    fuelChest = {
-        x = 0,
-        y = 0,
-        z = 1
-    }
-    inventoryChest = {
-        x = 0,
-        y = 0,
-        z = -1
-    }
-elseif side == "back" then
-    fuelChest = {
-        x = 0,
-        y = 0,
-        z = -1
-    }
-    inventoryChest = {
-        x = 0,
-        y = 0,
-        z = 1
-    }
-end
+fuelChest = {
+    x = 0,
+    y = 1,
+    z = 0
+}
+inventoryChest = {
+    x = 0,
+    y = 2,
+    z = 0
+}
 
 -- Define the coordinates of the fuel and inventory chests based on the side of the main computer
 -- Function to turn the turtle to a specified orientation
