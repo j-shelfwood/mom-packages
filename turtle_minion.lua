@@ -216,9 +216,6 @@ function refuelAndUnload()
 end
 
 print('Starting digging')
--- move down to start digging from the layer below
-turtle.down()
-turtle.down()
 
 currentPosition.y = currentPosition.y - 2 -- adjust the current y-coordinate
 
