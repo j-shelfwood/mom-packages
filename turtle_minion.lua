@@ -21,6 +21,8 @@ local side = instruction.side
 -- Equip the pickaxe
 turtle.select(1) -- assumes the pickaxe is in the first slot
 turtle.equipRight()
+turtle.select(1)
+turtle.equipLeft()
 
 -- Define the starting position, digging area dimensions, and depth
 local startX, startZ, width, length, depth = instruction.x, instruction.z, instruction.width, instruction.length,

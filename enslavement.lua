@@ -1,6 +1,6 @@
 -- enslavement.lua
 -- Open the modem for Rednet communication
-rednet.open("left") -- replace "left" with the side where the modem is located
+rednet.open("right") -- replace "left" with the side where the modem is located
 
 -- Wait for a Rednet message
 local senderID, message, protocol = rednet.receive()
