@@ -1,6 +1,7 @@
 -- turtle_minion.lua
 -- Check if there is a pickaxe in first inventory slot
 if turtle.getItemCount(1) ~= 0 then
+    print('Equipping pickaxe')
     -- Equip the pickaxe
     turtle.select(1)
     turtle.equipRight()
@@ -13,6 +14,7 @@ end
 rednet.open("left") -- replace "left" with the side where the modem is located
 
 -- Wait for the instruction file to be received
+print('Waiting for instruction file')
 local senderID, message, protocol = rednet.receive("instruction")
 
 -- Write the received instruction file
@@ -24,6 +26,7 @@ file.close()
 local file = fs.open("instruction.txt", "r")
 local instruction = textutils.unserialize(file.readAll())
 file.close()
+print('Received instruction file')
 
 -- Get the side of the main computer from the instruction file
 local side = instruction.side
@@ -212,11 +215,14 @@ function refuelAndUnload()
     moveTo(diggingX, currentPosition.y, diggingZ)
 end
 
+print('Starting digging')
 -- move down to start digging from the layer below
 turtle.down()
 turtle.down()
+
 currentPosition.y = currentPosition.y - 2 -- adjust the current y-coordinate
 
+print('Moving to starting position')
 -- Move to the assigned starting position
 moveTo(startX, 0, startZ)
 
@@ -225,6 +231,7 @@ for k = 1, depth do
     digLayer(width, length)
     -- Check if refuel or unload is needed
     if turtle.getFuelLevel() < width * length or turtle.getItemCount() > turtle.getInventorySize() - 100 then
+        print('Refueling and unloading')
         refuelAndUnload()
     end
     if k < depth then
