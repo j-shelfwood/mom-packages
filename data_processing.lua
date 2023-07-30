@@ -1,6 +1,6 @@
 -- data_processing.lua
 local DataProcessing = {}
-local generics = require('mpm/packages/generics')
+local generics = require('generics')
 
 -- Function to fetch items from the AE2 system
 function DataProcessing.fetch_items()
@@ -17,7 +17,11 @@ function DataProcessing.fetch_items()
         if consolidatedItems[techName] then
             consolidatedItems[techName].count = consolidatedItems[techName].count + item.count
         else
-            consolidatedItems[techName] = {name = item.name, technicalName = techName, count = item.count}
+            consolidatedItems[techName] = {
+                name = item.name,
+                technicalName = techName,
+                count = item.count
+            }
         end
     end
 
@@ -45,7 +49,13 @@ function DataProcessing.calculate_changes(prev_items, curr_items)
         if prev_count and prev_count ~= item.count then
             local change = math.abs(item.count - prev_count)
             local operation = item.count > prev_count and "+" or "-"
-            table.insert(changes, {name = item.name, technicalName = item.technicalName, count = item.count, change = math.abs(change), operation = operation})
+            table.insert(changes, {
+                name = item.name,
+                technicalName = item.technicalName,
+                count = item.count,
+                change = math.abs(change),
+                operation = operation
+            })
         end
     end
 

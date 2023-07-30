@@ -1,7 +1,7 @@
 -- Include Data Processing and Grid Display APIs
 local DataProcessing = require('data_processing')
 local GridDisplay = require('grid_display')
-local generics = require('mpm/packages/generics')
+local generics = require('generics')
 
 -- Wrap the monitor
 local monitor = peripheral.wrap(generics.findPeripheralSide('monitor')) -- replace "monitor_side" with the actual side of the monitor
@@ -30,7 +30,9 @@ local function refresh_display()
         changes = DataProcessing.calculate_changes(prev_items, curr_items)
 
         -- Sort the changes by the change amount (descending)
-        table.sort(changes, function(a, b) return a.change > b.change end)
+        table.sort(changes, function(a, b)
+            return a.change > b.change
+        end)
 
         -- Only display the top 25 changes
         changes = {table.unpack(changes, 1, 30)}
