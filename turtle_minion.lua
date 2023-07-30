@@ -1,6 +1,6 @@
 -- turtle_minion.lua
 -- Open the modem for Rednet communication
-rednet.open("left") -- replace "left" with the side where the modem is located
+rednet.open("right") -- replace "left" with the side where the modem is located
 
 -- Wait for the instruction file to be received
 local senderID, message, protocol = rednet.receive("instruction")
