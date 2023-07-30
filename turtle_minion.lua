@@ -23,7 +23,7 @@ local currentPosition = {
 
 -- Define the coordinates of the fuel and inventory chests based on the side of the main computer
 local fuelChest, inventoryChest
-if side == "north" then
+if side == "left" then
     fuelChest = {
         x = 0,
         y = 1,
@@ -34,7 +34,7 @@ if side == "north" then
         y = -1,
         z = 0
     }
-elseif side == "south" then
+elseif side == "right" then
     fuelChest = {
         x = 0,
         y = -1,
@@ -45,7 +45,7 @@ elseif side == "south" then
         y = 1,
         z = 0
     }
-elseif side == "east" then
+elseif side == "front" then
     fuelChest = {
         x = 0,
         y = 0,
@@ -56,7 +56,7 @@ elseif side == "east" then
         y = 0,
         z = -1
     }
-elseif side == "west" then
+elseif side == "back" then
     fuelChest = {
         x = 0,
         y = 0,
@@ -69,6 +69,7 @@ elseif side == "west" then
     }
 end
 
+-- Define the coordinates of the fuel and inventory chests based on the side of the main computer
 -- Function to turn the turtle to a specified orientation
 function turnTo(newOrientation)
     local difference = newOrientation - orientation

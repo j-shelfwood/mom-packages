@@ -1,37 +1,37 @@
 -- main_computer.lua
 -- Define the instructions for each turtle
 local instructions = {
-    north = {
-        x = 0,
-        z = 25,
-        width = 51,
-        length = 26,
-        depth = 20,
-        side = "north"
-    },
-    south = {
+    left = {
+        side = "left",
         x = 0,
         z = -25,
-        width = 51,
-        length = 26,
-        depth = 20,
-        side = "south"
-    },
-    east = {
-        x = 25,
-        z = 0,
         width = 26,
         length = 51,
-        depth = 20,
-        side = "east"
+        depth = 20
     },
-    west = {
+    right = {
+        side = "right",
+        x = 0,
+        z = -25,
+        width = 26,
+        length = 51,
+        depth = 20
+    },
+    front = {
+        side = "front",
         x = -25,
         z = 0,
-        width = 26,
-        length = 51,
-        depth = 20,
-        side = "west"
+        width = 51,
+        length = 26,
+        depth = 20
+    },
+    back = {
+        side = "back",
+        x = -25,
+        z = 0,
+        width = 51,
+        length = 26,
+        depth = 20
     }
 }
 
