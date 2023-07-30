@@ -1,4 +1,7 @@
 -- main_computer.lua
+-- Open the modem for Rednet communication
+rednet.open("bottom") -- replace "bottom" with the side where the modem is located
+
 -- Define the instructions for each turtle
 local instructions = {
     left = {
@@ -35,29 +38,26 @@ local instructions = {
     }
 }
 
--- Function to write the instructions to a file
-function writeInstructions(side, instruction)
-    local file = fs.open("instruction_" .. side .. ".txt", "w")
+-- Load the turtle_minion.lua script
+local file = fs.open("turtle_minion.lua", "r")
+local turtleScript = file.readAll()
+file.close()
+
+-- Send the instruction file and turtle_minion.lua script to each turtle over Rednet
+for side, instruction in pairs(instructions) do
+    -- Write the instructions for the turtle
+    local file = fs.open("instruction.txt", "w")
     file.write(textutils.serialize(instruction))
     file.close()
-end
 
--- Write the instructions for each turtle
-for side, instruction in pairs(instructions) do
-    writeInstructions(side, instruction)
-end
+    -- Get the ID of the turtle on this side
+    local turtleID = peripheral.call(side, "getID")
 
--- Function to copy a file to a turtle
-function copyToTurtle(side, filename)
-    local turtle = peripheral.wrap(side)
-    turtle.turnOn()
-    sleep(1) -- wait for the turtle to boot up
-    fs.copy(filename, "/disk/" .. filename)
-    turtle.shutdown()
-end
+    -- Send the turtle_minion.lua script to the turtle
+    rednet.send(turtleID, turtleScript, "script")
+    -- wait a bit to ensure the instruction file is fully received before sending the next message
+    sleep(1)
 
--- Copy the turtle_minion.lua script and the instruction file to each turtle
-for side, _ in pairs(instructions) do
-    copyToTurtle(side, "turtle_minion.lua")
-    copyToTurtle(side, "instruction_" .. side .. ".txt")
+    -- Send the instruction file to the turtle
+    rednet.send(turtleID, fs.open("instruction.txt", "r").readAll(), "instruction")
 end

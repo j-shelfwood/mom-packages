@@ -1,4 +1,15 @@
 -- turtle_minion.lua
+-- Open the modem for Rednet communication
+rednet.open("left") -- replace "left" with the side where the modem is located
+
+-- Wait for the instruction file to be received
+local senderID, message, protocol = rednet.receive("instruction")
+
+-- Write the received instruction file
+local file = fs.open("instruction.txt", "w")
+file.write(message)
+file.close()
+
 -- Load the instruction file
 local file = fs.open("instruction.txt", "r")
 local instruction = textutils.unserialize(file.readAll())
@@ -6,13 +17,14 @@ file.close()
 
 -- Get the side of the main computer from the instruction file
 local side = instruction.side
--- Facing east
-local orientation = 0
+
+-- Equip the pickaxe
+turtle.select(1) -- assumes the pickaxe is in the first slot
+turtle.equipRight()
 
 -- Define the starting position, digging area dimensions, and depth
 local startX, startZ, width, length, depth = instruction.x, instruction.z, instruction.width, instruction.length,
     instruction.depth
-local diggingX, diggingZ = startX, startZ
 
 -- Current position of the turtle, relative to the starting position
 local currentPosition = {
@@ -20,6 +32,9 @@ local currentPosition = {
     y = 0,
     z = 0
 }
+
+-- Current orientation of the turtle: 0 = east, 1 = south, 2 = west, 3 = north
+local orientation = 0
 
 -- Define the coordinates of the fuel and inventory chests based on the side of the main computer
 local fuelChest, inventoryChest
