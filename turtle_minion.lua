@@ -1,12 +1,12 @@
 -- turtle_minion.lua
--- Check if there is a pickaxe in first inventory slot
-if turtle.getItemCount(1) ~= 0 then
+-- Check if there is a pickaxe in second inventory slot
+if turtle.getItemCount(2) ~= 0 then
     print('Equipping pickaxe')
     -- Equip the pickaxe
-    turtle.select(1)
+    turtle.select(2)
     turtle.equipRight()
     -- Equip the modem it just unequipped
-    turtle.select(1)
+    turtle.select(2)
     turtle.equipLeft()
 end
 
@@ -214,9 +214,17 @@ function refuelAndUnload()
     -- Go back to the starting position
     moveTo(diggingX, currentPosition.y, diggingZ)
 end
+print('Doing first refuel from inventory')
+
+turtle.select(1)
+turtle.refuel()
 
 print('Starting digging')
 
+turtle.digDown()
+turtle.down()
+turtle.digDown()
+turtle.down()
 currentPosition.y = currentPosition.y - 2 -- adjust the current y-coordinate
 
 print('Moving to starting position')
