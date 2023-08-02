@@ -25,6 +25,7 @@ function inspectPeripheral()
     -- Get the methods of the selected peripheral
     local peripheralName = peripherals[selection]
     local methods = peripheral.getMethods(peripheralName)
+    local target = peripheral.wrap(peripheralName)
 
     -- If there are no methods available, print a message and return
     if methods == nil or #methods == 0 then
@@ -33,7 +34,7 @@ function inspectPeripheral()
     end
 
     -- Print the methods in columns
-    print("Methods for the " .. peripheralName .. " peripheral:")
+    print("Methods for the " .. peripheral.getType(target) .. " peripheral:")
     print(textutils.serialize(methods))
 end
 
