@@ -34,7 +34,7 @@ function inspectPeripheral()
 
     -- Print the methods in columns
     print("Methods for the " .. peripheralName .. " peripheral:")
-    textutils.pagedPrint(methods)
+    print(textutils.serialize(methods))
 end
 
 inspectPeripheral()
