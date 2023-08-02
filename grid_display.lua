@@ -87,6 +87,14 @@ function GridDisplay:display(data, format_callback, center_text)
         center_text = true
     end
 
+    -- If the data is empty write No data on the monitor centered.
+    if #data == 0 then
+        self.monitor.clear()
+        self.monitor.setCursorPos(math.floor(self.monitor.getSize() / 2) - 4, math.floor(self.monitor.getSize() / 2))
+        self.monitor.write("No data")
+        return
+    end
+
     -- Calculate cells
     self:calculate_cells(#data)
 
@@ -95,7 +103,9 @@ function GridDisplay:display(data, format_callback, center_text)
 
     -- Display data
     for i, item in ipairs(data) do
-        if i > self.rows * self.columns then break end -- if there are more items than cells, stop displaying
+        if i > self.rows * self.columns then
+            break
+        end -- if there are more items than cells, stop displaying
 
         local row = math.floor((i - 1) / self.columns) + 1
         local column = (i - 1) % self.columns + 1
