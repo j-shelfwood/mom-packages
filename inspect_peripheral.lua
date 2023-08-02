@@ -27,6 +27,3 @@ local sides = {"top", "bottom", "left", "right", "front", "back"}
 for _, side in ipairs(sides) do
     inspectPeripheral(side)
 end
-
--- Call the function to inspect the peripheral
-inspectPeripheral(side)
