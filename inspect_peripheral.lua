@@ -1,29 +1,41 @@
--- Function to inspect a peripheral and print out its methods
-function inspectPeripheral(side)
-    -- Check if there is a peripheral connected on the given side
-    if not peripheral.isPresent(side) then
-        print("No peripheral present on the " .. side .. " side.")
+-- Function to inspect any detected peripheral and print out its methods (Computercraft/CC:Tweaked)
+function inspectPeripheral()
+    -- Get a list of all connected peripherals
+    local peripherals = peripheral.getNames()
+
+    -- If there are no peripherals available, print a message and return
+    if #peripherals == 0 then
+        print("No peripherals connected.")
         return
     end
 
-    -- Get the methods of the peripheral
-    local methods = peripheral.getMethods(side)
+    -- Prompt the user to select a peripheral
+    print("Select a peripheral to inspect:")
+    for i, peripheralName in ipairs(peripherals) do
+        print(i .. ". " .. peripheralName)
+    end
+    local selection = tonumber(read())
+
+    -- If the user entered an invalid selection, print a message and return
+    if selection == nil or selection < 1 or selection > #peripherals then
+        print("Invalid selection.")
+        return
+    end
+
+    -- Get the methods of the selected peripheral
+    local peripheralName = peripherals[selection]
+    local methods = peripheral.getMethods(peripheralName)
 
     -- If there are no methods available, print a message and return
     if methods == nil or #methods == 0 then
-        print("No methods available for the peripheral on the " .. side .. " side.")
+        print("No methods available for the selected peripheral.")
         return
     end
 
-    -- Print the methods
-    print("Methods for the peripheral on the " .. side .. " side:")
-    for _, method in ipairs(methods) do
-        print(method)
-    end
+    -- Print the methods in columns
+    print("Methods for the " .. peripheralName .. " peripheral:")
+    textutils.pagedPrint(methods)
 end
 
--- Auto-detect any peripherals connected to the computer
-local sides = {"top", "bottom", "left", "right", "front", "back"}
-for _, side in ipairs(sides) do
-    inspectPeripheral(side)
-end
+inspectPeripheral()
+
