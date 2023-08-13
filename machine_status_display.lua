@@ -13,18 +13,21 @@ local display = GridDisplay.new(monitor)
 -- Define a formatting callback for the grid display
 local function format_callback(item)
     -- Format the machine data
+    local progressPercentage = string.format("%.1f%%", item.progress * 100) -- Convert the float to a percentage with 1 decimal point
+    local efficiencyInfo = tostring(item.currentEfficiency)
     local craftingInfo = "N/A" -- Default value
-    if item.craftingInfo and item.craftingInfo.itemName then -- Assuming the table has an itemName field
-        craftingInfo = item.craftingInfo.itemName
+
+    if item.items and #item.items > 0 then -- Assuming the items method returns a list
+        craftingInfo = item.items[1] -- Display the first item
     end
 
     return {
-        line_1 = item.name or "N/A",
-        color_1 = colors.white,
-        line_2 = (tostring(item.energy) .. "/" .. tostring(item.capacity)) or "N/A",
-        color_2 = colors.blue,
+        line_1 = (tostring(item.energy) .. "/" .. tostring(item.capacity)) or "N/A",
+        color_1 = colors.blue,
+        line_2 = progressPercentage .. " | " .. efficiencyInfo,
+        color_2 = colors.white,
         line_3 = craftingInfo,
-        color_3 = item.isBusy and colors.red or colors.green
+        color_3 = colors.green
     }
 end
 
@@ -32,7 +35,6 @@ end
 local function fetch_data(machine_type)
     local machine_data = {}
     local peripherals = wpp.peripheral.getNames()
-
     -- Display count of peripherals
     print("Found " .. #peripherals .. " peripherals on the network.")
 
@@ -42,17 +44,21 @@ local function fetch_data(machine_type)
         -- Filter by the given machine type
         if string.find(name, machine_type) then
             print("Fetching data for " .. name)
-            machine.wppPrefetch({"getEnergy", "isBusy", "getEnergyCapacity", "getCraftingInformation"})
-            print(textutils.serialize(machine.getCraftingInformation()))
+            machine.wppPrefetch({"getEnergy", "isBusy", "getEnergyCapacity", "getCraftingInformation", "items"})
+
             -- Extract the name
             local _, _, name = string.find(name, machine_type .. "_(.+)")
+
+            local craftingInfo = machine.getCraftingInformation() or {}
+            local itemsList = machine.items() or {}
 
             table.insert(machine_data, {
                 name = name,
                 energy = machine.getEnergy(),
-                isBusy = machine.isBusy(),
                 capacity = machine.getEnergyCapacity(),
-                craftingInfo = machine.getCraftingInformation()
+                progress = craftingInfo.progress or 0,
+                currentEfficiency = craftingInfo.currentEfficiency or 0,
+                items = itemsList
             })
         end
     end
