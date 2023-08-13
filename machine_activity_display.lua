@@ -19,7 +19,7 @@ monitor.setTextScale(1)
 
 -- Fixed box sizes and borders
 local bar_width = 7 -- 18 width minus 1 for left, 1 for right, 1 for middle, and 7 for the second column
-local bar_height = 2 -- (69 - 25) / 24
+local bar_height = 3 -- (69 - 25) / 24
 
 -- Function to fetch machine data
 local function fetch_data(machine_type)
