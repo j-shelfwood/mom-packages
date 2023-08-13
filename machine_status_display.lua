@@ -19,8 +19,10 @@ local function format_callback(item)
 
     if item.items and #item.items > 0 then -- Assuming the items method returns a list
         craftingInfo = item.items[1].name -- Display the first item
+        print(craftingInfo)
+        print(textutils.serialize(item.items))
     end
-    print(textutils.serialize(craftingInfo))
+
     return {
         line_1 = (tostring(item.energy) .. "/" .. tostring(item.capacity)) or "N/A",
         color_1 = colors.blue,
