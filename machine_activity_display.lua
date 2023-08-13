@@ -18,51 +18,43 @@ local function fetch_data(machine_type)
         -- Filter by the given machine type
         if string.find(name, machine_type) then
             machine.wppPrefetch({"isBusy"})
-            -- Extract the name
-            local _, _, name = string.find(name, machine_type .. "_(.+)")
+            -- Extract the machine number
+            local _, _, number = string.find(name, "_(%d+)$")
             table.insert(machine_data, {
-                name = name,
+                number = number,
                 isBusy = machine.isBusy()
             })
         end
     end
+    -- Sort the machine data by machine number
+    table.sort(machine_data, function(a, b)
+        return tonumber(a.number) < tonumber(b.number)
+    end)
     return machine_data
 end
 
 -- Function to display machine status visually
 local function display_machine_status(machine_type)
     local machine_data = fetch_data(machine_type)
-    if #machine_data > 0 then
-        local machine = machine_data[1] -- Display the first machine for simplicity
-        monitor.clear()
-        -- Display machine name on top and bottom
-        monitor.setCursorPos(1, 1)
-        monitor.write(machine.name)
-        monitor.setCursorPos(1, 10)
-        monitor.write(machine.name)
-        -- Display squares in between based on isBusy status
-        for row = 2, 9 do
-            monitor.setCursorPos(1, row)
-            if machine.isBusy then
-                monitor.setBackgroundColor(colors.green)
-            else
-                monitor.setBackgroundColor(colors.gray)
-            end
-            monitor.write("  ") -- Each square is 2 characters wide
+    monitor.clear()
+    for idx, machine in ipairs(machine_data) do
+        local column, row = (idx - 1) % 2 + 1, math.ceil(idx / 2)
+        monitor.setCursorPos((column - 1) * 3 + 1, row)
+        if machine.isBusy then
+            monitor.setBackgroundColor(colors.green)
+        else
+            monitor.setBackgroundColor(colors.gray)
         end
-        monitor.setBackgroundColor(colors.black) -- Reset background color
-    else
-        monitor.clear()
-        monitor.setCursorPos(1, 5)
-        monitor.write("No Data")
+        monitor.write(string.format("%2s", machine.number))
     end
+    monitor.setBackgroundColor(colors.black) -- Reset background color
 end
 
 -- Get machine type from command line parameter
 local args = {...}
 local machine_type = args[1] or "modern_industrialization:electrolyzer"
 
--- Check if machine type is valid (additional checks can be added if needed)
+-- Check if machine type is valid (can add more checks if needed)
 if not machine_type then
     print("Please provide a valid machine type as a command-line parameter.")
     return
