@@ -1,4 +1,4 @@
--- Include WPP & Generics API's
+-- Include Data Processing and Grid Display APIs
 local wpp = require('wpp')
 local generics = require('generics')
 
@@ -46,8 +46,8 @@ local function display_machine_status(machine_type)
     local machine_data = fetch_data(machine_type)
     print("Found", #machine_data, "machines") -- Debug output for number of machines found
     monitor.clear()
-    local bar_width = 34 -- Half the width
-    local bar_height = height / 12
+    local bar_width = width // 2 -- Half the width
+    local bar_height = height // 12
     for idx, machine in ipairs(machine_data) do
         local column = (idx - 1) % 2
         local row = math.ceil(idx / 2)
@@ -65,7 +65,8 @@ local function display_machine_status(machine_type)
         end
         -- Write the machine number centered in the bar
         monitor.setTextColor(colors.black)
-        monitor.setCursorPos(x + math.floor((bar_width - #machine.number) / 2), y + math.floor(bar_height / 2))
+        monitor.setCursorPos(x + math.floor((bar_width - string.len(machine.number)) / 2),
+            y + math.floor(bar_height / 2))
         monitor.write(machine.number)
     end
     monitor.setBackgroundColor(colors.black) -- Reset background color
@@ -82,8 +83,8 @@ if not machine_type then
     return
 end
 
--- Run the display_machine_status function every 15 seconds
+-- Run the display_machine_status function every 5 seconds
 while true do
     display_machine_status(machine_type)
-    os.sleep(15)
+    os.sleep(5)
 end
