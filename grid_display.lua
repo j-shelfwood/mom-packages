@@ -123,11 +123,13 @@ function GridDisplay:display(data, format_callback, center_text)
 
             -- If center_text is true, add spaces to the lines to center them
             if center_text then
-                local spaces = math.floor((15 - #lines[line]) / 2)
-                lines[line] = string.rep(" ", spaces) .. lines[line] .. string.rep(" ", spaces)
+                local content = tostring(lines[line]) -- Ensure that the line content is a string
+                local spaces = math.floor((15 - #content) / 2)
+                content = string.rep(" ", spaces) .. content .. string.rep(" ", spaces)
+                self.monitor.write(content)
+            else
+                self.monitor.write(tostring(lines[line])) -- Ensure the line content is a string
             end
-
-            self.monitor.write(lines[line])
         end
     end
 end
