@@ -58,8 +58,15 @@ local function refresh_display(machine_type)
     display:display(machine_data, format_callback)
 end
 
--- Choose the machine type to display
-local machine_type = "electrolyzer" -- Change this to your desired machine type
+-- Get machine type from command line parameter
+local args = {...}
+local machine_type = args[1] or "modern_industrialization:electrolyzer" -- Default to 'electrolyzer' if no parameter is provided
+
+-- Check if machine type is valid (can add more checks if needed)
+if not machine_type then
+    print("Please provide a valid machine type as a command-line parameter.")
+    return
+end
 
 -- Run the refresh_display function every 15 seconds
 while true do
