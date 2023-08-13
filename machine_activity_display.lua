@@ -17,6 +17,10 @@ end
 
 monitor.setTextScale(1)
 
+-- Fixed box sizes and borders
+local bar_width = 7 -- 18 width minus 1 for left, 1 for right, 1 for middle, and 7 for the second column
+local bar_height = 3 -- (69 - 25) / 24
+
 -- Function to fetch machine data
 local function fetch_data(machine_type)
     local machine_data = {}
@@ -41,16 +45,10 @@ local function fetch_data(machine_type)
     return machine_data
 end
 
--- Function to display machine status visually
 local function display_machine_status(machine_type)
     local machine_data = fetch_data(machine_type)
-    print("Found", #machine_data, "machines")
-    if #machine_data == 0 then
-        return
-    end
+    print("Found", #machine_data, "machines") -- Debug output for number of machines found
     monitor.clear()
-    local bar_width = (width - 3) / 2 -- Half the width, minus 1 for border and 1 for space between bars
-    local bar_height = (height - 12) / 12 -- Account for 12 bars and 11 spaces
     for idx, machine in ipairs(machine_data) do
         local column = (idx - 1) % 2
         local row = math.ceil(idx / 2)
