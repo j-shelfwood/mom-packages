@@ -13,13 +13,17 @@ local display = GridDisplay.new(monitor)
 -- Define a formatting callback for the grid display
 local function format_callback(item)
     -- Format the machine data
-    local craftingInfo = item.craftingInfo or "N/A"
+    local craftingInfo = "N/A" -- Default value
+    if item.craftingInfo and item.craftingInfo.itemName then -- Assuming the table has an itemName field
+        craftingInfo = item.craftingInfo.itemName
+    end
+
     return {
-        line_1 = item.name or "-",
+        line_1 = item.name or "N/A",
         color_1 = colors.white,
-        line_2 = tostring(item.energy) .. "/" .. tostring(item.capacity),
+        line_2 = (tostring(item.energy) .. "/" .. tostring(item.capacity)) or "N/A",
         color_2 = colors.blue,
-        line_3 = craftingInfo or "",
+        line_3 = craftingInfo,
         color_3 = item.isBusy and colors.red or colors.green
     }
 end
@@ -39,7 +43,7 @@ local function fetch_data(machine_type)
         if string.find(name, machine_type) then
             print("Fetching data for " .. name)
             machine.wppPrefetch({"getEnergy", "isBusy", "getEnergyCapacity", "getCraftingInformation"})
-
+            print(textutils.serialize(machine.getCraftingInformation()))
             -- Extract the name
             local _, _, name = string.find(name, machine_type .. "_(.+)")
 
