@@ -13,13 +13,14 @@ local display = GridDisplay.new(monitor)
 -- Define a formatting callback for the grid display
 local function format_callback(item)
     -- Format the machine data
+    local craftingInfo = item.craftingInfo or "N/A"
     return {
         line_1 = item.name,
         color_1 = colors.white,
-        line_2 = item.isBusy and "Busy" or "Idle",
-        color_2 = item.isBusy and colors.red or colors.green,
-        line_3 = "E: " .. tostring(item.energy) .. "/" .. tostring(item.capacity),
-        color_3 = colors.blue
+        line_2 = tostring(item.energy) .. "/" .. tostring(item.capacity),
+        color_2 = colors.blue,
+        line_3 = craftingInfo,
+        color_3 = item.isBusy and colors.red or colors.green
     }
 end
 
@@ -27,6 +28,7 @@ end
 local function fetch_data(machine_type)
     local machine_data = {}
     local peripherals = wpp.peripheral.getNames()
+
     -- Display count of peripherals
     print("Found " .. #peripherals .. " peripherals on the network.")
 
@@ -36,7 +38,7 @@ local function fetch_data(machine_type)
         -- Filter by the given machine type
         if string.find(name, machine_type) then
             print("Fetching data for " .. name)
-            machine.wppPrefetch({"getEnergy", "isBusy", "getEnergyCapacity"})
+            machine.wppPrefetch({"getEnergy", "isBusy", "getEnergyCapacity", "getCraftingInformation"})
 
             -- Extract the name
             local _, _, name = string.find(name, machine_type .. "_(.+)")
@@ -45,7 +47,8 @@ local function fetch_data(machine_type)
                 name = name,
                 energy = machine.getEnergy(),
                 isBusy = machine.isBusy(),
-                capacity = machine.getEnergyCapacity()
+                capacity = machine.getEnergyCapacity(),
+                craftingInfo = machine.getCraftingInformation()
             })
         end
     end
@@ -63,7 +66,7 @@ end
 
 -- Get machine type from command line parameter
 local args = {...}
-local machine_type = args[1] or "modern_industrialization:electrolyzer" -- Default to 'electrolyzer' if no parameter is provided
+local machine_type = args[1] or "modern_industrialization:electrolyzer"
 
 -- Check if machine type is valid (can add more checks if needed)
 if not machine_type then
