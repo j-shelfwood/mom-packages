@@ -1,4 +1,4 @@
--- Include Data Processing and Grid Display APIs
+-- Include WPP & Generics API's
 local wpp = require('wpp')
 local generics = require('generics')
 
@@ -10,8 +10,8 @@ local monitor = peripheral.wrap(generics.findPeripheralSide('monitor'))
 local width, height = monitor.getSize()
 print("Monitor resolution:", width, "x", height) -- Debug output for monitor resolution
 
-if width ~= 69 or height < 18 then
-    print("Invalid monitor size! Expected: 69x18 or larger")
+if width ~= 18 or height < 69 then
+    print("Invalid monitor size! Expected: 18x69 or larger")
     return
 end
 
