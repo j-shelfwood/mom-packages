@@ -7,12 +7,22 @@ wpp.wireless.connect("shelfwood")
 
 -- Wrap the monitor
 local monitor = peripheral.wrap(generics.findPeripheralSide('monitor'))
+local width, height = monitor.getSize()
+print("Monitor resolution:", width, "x", height) -- Debug output for monitor resolution
+
+if width ~= 2 or height < 10 then
+    print("Invalid monitor size! Expected: 2x10 or larger")
+    return
+end
+
 monitor.setTextScale(1)
 
 -- Function to fetch machine data
 local function fetch_data(machine_type)
     local machine_data = {}
     local peripherals = wpp.peripheral.getNames()
+    -- print peripheral count
+    print("Found", #peripherals, "peripherals on the network.")
     for _, name in ipairs(peripherals) do
         local machine = wpp.peripheral.wrap(name)
         -- Filter by the given machine type
@@ -26,6 +36,9 @@ local function fetch_data(machine_type)
             })
         end
     end
+    -- Show how many machines were found matching the machine_type
+    print("Found", #machine_data, "machines")
+    print("Matching ", machine_type)
     -- Sort the machine data by machine number
     table.sort(machine_data, function(a, b)
         return tonumber(a.number) < tonumber(b.number)
@@ -36,6 +49,7 @@ end
 -- Function to display machine status visually
 local function display_machine_status(machine_type)
     local machine_data = fetch_data(machine_type)
+    print("Found", #machine_data, "machines") -- Debug output for number of machines found
     monitor.clear()
     for idx, machine in ipairs(machine_data) do
         local column, row = (idx - 1) % 2 + 1, math.ceil(idx / 2)
