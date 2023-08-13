@@ -17,6 +17,30 @@ end
 
 monitor.setTextScale(1)
 
+-- Function to fetch machine data
+local function fetch_data(machine_type)
+    local machine_data = {}
+    local peripherals = wpp.peripheral.getNames()
+    for _, name in ipairs(peripherals) do
+        local machine = wpp.peripheral.wrap(name)
+        -- Filter by the given machine type
+        if string.find(name, machine_type) then
+            machine.wppPrefetch({"isBusy"})
+            -- Extract the machine number
+            local _, _, number = string.find(name, "_(%d+)$")
+            table.insert(machine_data, {
+                number = number,
+                isBusy = machine.isBusy()
+            })
+        end
+    end
+    -- Sort the machine data by machine number
+    table.sort(machine_data, function(a, b)
+        return tonumber(a.number) < tonumber(b.number)
+    end)
+    return machine_data
+end
+
 -- Function to display machine status visually
 local function display_machine_status(machine_type)
     local machine_data = fetch_data(machine_type)
@@ -50,30 +74,6 @@ local function display_machine_status(machine_type)
     end
     monitor.setBackgroundColor(colors.black) -- Reset background color
     monitor.setTextColor(colors.white) -- Reset text color
-end
-
--- Function to fetch machine data
-local function fetch_data(machine_type)
-    local machine_data = {}
-    local peripherals = wpp.peripheral.getNames()
-    for _, name in ipairs(peripherals) do
-        local machine = wpp.peripheral.wrap(name)
-        -- Filter by the given machine type
-        if string.find(name, machine_type) then
-            machine.wppPrefetch({"isBusy"})
-            -- Extract the machine number
-            local _, _, number = string.find(name, "_(%d+)$")
-            table.insert(machine_data, {
-                number = number,
-                isBusy = machine.isBusy()
-            })
-        end
-    end
-    -- Sort the machine data by machine number
-    table.sort(machine_data, function(a, b)
-        return tonumber(a.number) < tonumber(b.number)
-    end)
-    return machine_data
 end
 
 -- Get machine type from command line parameter
