@@ -17,6 +17,41 @@ end
 
 monitor.setTextScale(1)
 
+-- Function to display machine status visually
+local function display_machine_status(machine_type)
+    local machine_data = fetch_data(machine_type)
+    print("Found", #machine_data, "machines")
+    if #machine_data == 0 then
+        return
+    end
+    monitor.clear()
+    local bar_width = (width - 3) // 2 -- Half the width, minus 1 for border and 1 for space between bars
+    local bar_height = (height - 12) // 12 -- Account for 12 bars and 11 spaces
+    for idx, machine in ipairs(machine_data) do
+        local column = (idx - 1) % 2
+        local row = math.ceil(idx / 2)
+        local x = column * (bar_width + 1) + 2 -- +2 to account for left border and space between bars
+        local y = (row - 1) * (bar_height + 1) + 2 -- +2 to account for top border and space between bars
+        -- Draw a colored bar based on isBusy status
+        if machine.isBusy then
+            monitor.setBackgroundColor(colors.green)
+        else
+            monitor.setBackgroundColor(colors.gray)
+        end
+        for i = 0, bar_height - 1 do
+            monitor.setCursorPos(x, y + i)
+            monitor.write(string.rep(" ", bar_width))
+        end
+        -- Write the machine number centered in the bar
+        monitor.setTextColor(colors.black)
+        monitor.setCursorPos(x + math.floor((bar_width - string.len(machine.number)) / 2),
+            y + math.floor(bar_height / 2))
+        monitor.write(machine.number)
+    end
+    monitor.setBackgroundColor(colors.black) -- Reset background color
+    monitor.setTextColor(colors.white) -- Reset text color
+end
+
 -- Function to fetch machine data
 local function fetch_data(machine_type)
     local machine_data = {}
@@ -39,38 +74,6 @@ local function fetch_data(machine_type)
         return tonumber(a.number) < tonumber(b.number)
     end)
     return machine_data
-end
-
--- Function to display machine status visually
-local function display_machine_status(machine_type)
-    local machine_data = fetch_data(machine_type)
-    print("Found", #machine_data, "machines") -- Debug output for number of machines found
-    monitor.clear()
-    local bar_width = width / 2 -- Half the width
-    local bar_height = height / 12
-    for idx, machine in ipairs(machine_data) do
-        local column = (idx - 1) % 2
-        local row = math.ceil(idx / 2)
-        local x = column * bar_width + 1
-        local y = (row - 1) * bar_height + 1
-        -- Draw a colored bar based on isBusy status
-        if machine.isBusy then
-            monitor.setBackgroundColor(colors.green)
-        else
-            monitor.setBackgroundColor(colors.gray)
-        end
-        for i = 0, bar_height - 1 do
-            monitor.setCursorPos(x, y + i)
-            monitor.write(string.rep(" ", bar_width))
-        end
-        -- Write the machine number centered in the bar
-        monitor.setTextColor(colors.black)
-        monitor.setCursorPos(x + math.floor((bar_width - string.len(machine.number)) / 2),
-            y + math.floor(bar_height / 2))
-        monitor.write(machine.number)
-    end
-    monitor.setBackgroundColor(colors.black) -- Reset background color
-    monitor.setTextColor(colors.white) -- Reset text color
 end
 
 -- Get machine type from command line parameter
