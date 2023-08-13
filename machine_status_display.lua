@@ -15,11 +15,11 @@ local function format_callback(item)
     -- Format the machine data
     local craftingInfo = item.craftingInfo or "N/A"
     return {
-        line_1 = item.name,
+        line_1 = item.name or "-",
         color_1 = colors.white,
         line_2 = tostring(item.energy) .. "/" .. tostring(item.capacity),
         color_2 = colors.blue,
-        line_3 = craftingInfo,
+        line_3 = craftingInfo or "",
         color_3 = item.isBusy and colors.red or colors.green
     }
 end
