@@ -27,12 +27,15 @@ end
 local function fetch_data(machine_type)
     local machine_data = {}
     local peripherals = wpp.peripheral.getNames()
+    -- Display count of peripherals
+    print("Found " .. #peripherals .. " peripherals on the network.")
 
     for _, name in ipairs(peripherals) do
         local machine = wpp.peripheral.wrap(name)
 
         -- Filter by the given machine type
         if string.find(name, machine_type) then
+            print("Fetching data for " .. name)
             machine.wppPrefetch({"getEnergy", "isBusy", "getEnergyCapacity"})
 
             -- Extract the name
