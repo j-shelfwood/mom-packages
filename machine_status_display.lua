@@ -27,7 +27,7 @@ local function format_callback(item)
         line_2 = progressPercentage .. " | " .. efficiencyInfo,
         color_2 = colors.white,
         line_3 = craftingInfo,
-        color_3 = colors.green
+        color_3 = item.isBusy and colors.green or colors.blue
     }
 end
 
@@ -58,7 +58,8 @@ local function fetch_data(machine_type)
                 capacity = machine.getEnergyCapacity(),
                 progress = craftingInfo.progress or 0,
                 currentEfficiency = craftingInfo.currentEfficiency or 0,
-                items = itemsList
+                items = itemsList,
+                isBusy = machine.isBusy()
             })
         end
     end
