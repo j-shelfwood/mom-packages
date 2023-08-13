@@ -46,8 +46,8 @@ local function display_machine_status(machine_type)
     local machine_data = fetch_data(machine_type)
     print("Found", #machine_data, "machines") -- Debug output for number of machines found
     monitor.clear()
-    local bar_width = width // 2 -- Half the width
-    local bar_height = height // 12
+    local bar_width = width / 2 -- Half the width
+    local bar_height = height / 12
     for idx, machine in ipairs(machine_data) do
         local column = (idx - 1) % 2
         local row = math.ceil(idx / 2)
