@@ -15,12 +15,12 @@ local function format_callback(item)
     -- Format the machine data
     local progressPercentage = string.format("%.1f%%", item.progress * 100) -- Convert the float to a percentage with 1 decimal point
     local efficiencyInfo = tostring(item.currentEfficiency)
-    local craftingInfo = "N/A" -- Default value
+    local craftingInfo = "-" -- Default value
 
     if item.items and #item.items > 0 then -- Assuming the items method returns a list
         craftingInfo = item.items[1] -- Display the first item
     end
-
+    print(textutils.serialize(craftingInfo))
     return {
         line_1 = (tostring(item.energy) .. "/" .. tostring(item.capacity)) or "N/A",
         color_1 = colors.blue,
