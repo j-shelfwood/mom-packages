@@ -18,7 +18,7 @@ local function format_callback(item)
     local craftingInfo = "-" -- Default value
 
     if item.items and #item.items > 0 then -- Assuming the items method returns a list
-        craftingInfo = item.items[1].name -- Display the first item
+        craftingInfo = item.items[1].count .. 'x ' .. item.items[1].displayName -- Display the first item
         print(craftingInfo)
         print(textutils.serialize(item.items))
     end
