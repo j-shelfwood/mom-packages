@@ -25,8 +25,8 @@ local function display_machine_status(machine_type)
         return
     end
     monitor.clear()
-    local bar_width = (width - 3) // 2 -- Half the width, minus 1 for border and 1 for space between bars
-    local bar_height = (height - 12) // 12 -- Account for 12 bars and 11 spaces
+    local bar_width = (width - 3) / 2 -- Half the width, minus 1 for border and 1 for space between bars
+    local bar_height = (height - 12) / 12 -- Account for 12 bars and 11 spaces
     for idx, machine in ipairs(machine_data) do
         local column = (idx - 1) % 2
         local row = math.ceil(idx / 2)
