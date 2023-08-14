@@ -21,10 +21,13 @@ monitor.setTextScale(1)
 local bar_width = 7 -- 18 width minus 1 for left, 1 for right, 1 for middle, and 7 for the second column
 local bar_height = 4 -- (69 - 25) / 24
 
--- Function to fetch machine data
+local last_machine_data = {} -- Store the last fetched machine data
+
 local function fetch_data(machine_type)
     local machine_data = {}
     local peripherals = wpp.peripheral.getNames()
+
+    -- ... [rest of the fetch_data function]
 
     -- Retry logic if no peripherals are detected
     local retries = 3
@@ -66,36 +69,44 @@ local function fetch_data(machine_type)
         end
     end
 
-    return machine_data
+    if #machine_data == 0 then
+        return last_machine_data -- Return last fetched data if no new data is available
+    else
+        last_machine_data = machine_data -- Update the last fetched data
+        return machine_data
+    end
 end
 
 local function display_machine_status(machine_type)
     local machine_data = fetch_data(machine_type)
-    print("Found", #machine_data, "machines") -- Debug output for number of machines found
-    monitor.clear()
-    for idx, machine in ipairs(machine_data) do
-        local column = (idx - 1) % 2
-        local row = math.ceil(idx / 2)
-        local x = column * (bar_width + 1) + 2 -- +2 to account for left border and space between bars
-        local y = (row - 1) * (bar_height + 1) + 2 -- +2 to account for top border and space between bars
-        -- Draw a colored bar based on isBusy status
-        if machine.isBusy then
-            monitor.setBackgroundColor(colors.green)
-        else
-            monitor.setBackgroundColor(colors.gray)
+
+    if machine_data and #machine_data > 0 then -- Check if machine data is not nil and not empty
+        print("Found", #machine_data, "machines") -- Debug output for number of machines found
+        monitor.clear()
+        for idx, machine in ipairs(machine_data) do
+            local column = (idx - 1) % 2
+            local row = math.ceil(idx / 2)
+            local x = column * (bar_width + 1) + 2 -- +2 to account for left border and space between bars
+            local y = (row - 1) * (bar_height + 1) + 2 -- +2 to account for top border and space between bars
+            -- Draw a colored bar based on isBusy status
+            if machine.isBusy then
+                monitor.setBackgroundColor(colors.green)
+            else
+                monitor.setBackgroundColor(colors.gray)
+            end
+            for i = 0, bar_height - 1 do
+                monitor.setCursorPos(x, y + i)
+                monitor.write(string.rep(" ", bar_width))
+            end
+            -- Write the machine number centered in the bar
+            monitor.setTextColor(colors.black)
+            monitor.setCursorPos(x + math.floor((bar_width - string.len(machine.number)) / 2),
+                y + math.floor(bar_height / 2))
+            monitor.write(machine.number)
         end
-        for i = 0, bar_height - 1 do
-            monitor.setCursorPos(x, y + i)
-            monitor.write(string.rep(" ", bar_width))
-        end
-        -- Write the machine number centered in the bar
-        monitor.setTextColor(colors.black)
-        monitor.setCursorPos(x + math.floor((bar_width - string.len(machine.number)) / 2),
-            y + math.floor(bar_height / 2))
-        monitor.write(machine.number)
+        monitor.setBackgroundColor(colors.black) -- Reset background color
+        monitor.setTextColor(colors.white) -- Reset text color
     end
-    monitor.setBackgroundColor(colors.black) -- Reset background color
-    monitor.setTextColor(colors.white) -- Reset text color
 end
 
 -- Get machine type from command line parameter
