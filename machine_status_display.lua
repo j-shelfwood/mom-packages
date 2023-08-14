@@ -20,8 +20,8 @@ local function format_callback(item)
     if item.items then
         craftingInfo = item.items[1].count .. 'x ' .. item.items[1].displayName -- Display the first item
     elseif item.tanks then
-        -- Get the fluid name from modern_industrialization:sugar_solution to `sugar solution`
-        local _, _, fluidName = string.find(item.tanks[1].name, "modern_industrialization:(.+)")
+        -- Get the fluid name from modern_industrialization:sugar_solution to `sugar solution` or minecraft:empty to `empty`
+        local _, _, fluidName = string.find(item.tanks[1].name, ":(.+)")
         fluidName = string.gsub(fluidName, "_", " ")
         craftingInfo = item.tanks[1].amount .. 'mB ' .. fluidName -- Display the first fluid
     else
