@@ -88,14 +88,22 @@ local function display_machine_status(machine_type)
     monitor.clear()
 
     -- Display the title at the top
+    monitor.setBackgroundColor(colors.black)
+    monitor.setTextColor(colors.white)
     monitor.setCursorPos(math.floor((width - string.len(title)) / 2) + 1, 2)
     monitor.write(title)
+
+    -- Calculate total grid height
+    local totalGridHeight = math.ceil(#machine_data / 2) * (bar_height + 1) - 1
+
+    -- Calculate the top margin to vertically center the grid
+    local topMargin = math.floor((height - totalGridHeight - 2 * 3) / 2) + 3 -- 3 for top title and its margins
 
     for idx, machine in ipairs(machine_data) do
         local column = (idx - 1) % 2
         local row = math.ceil(idx / 2)
-        local x = column * (bar_width + 1) + 2 -- +2 to account for left border and space between bars
-        local y = (row - 1) * (bar_height + 1) + 2 -- +2 to account for top border and space between bars
+        local x = column * (bar_width + (column == 0 and 1 or 2)) + 2 -- Adjust gutter for the second column
+        local y = (row - 1) * (bar_height + 1) + topMargin
         -- Draw a colored bar based on isBusy status
         if machine.isBusy then
             monitor.setBackgroundColor(colors.green)
@@ -111,12 +119,12 @@ local function display_machine_status(machine_type)
         monitor.setCursorPos(x + math.floor((bar_width - string.len(machine.name)) / 2), y + math.floor(bar_height / 2))
         monitor.write(machine.name)
     end
-    -- Display the title at the bottom
-    monitor.setCursorPos(math.floor((width - string.len(title)) / 2) + 1, height - 1)
-    monitor.write(title)
 
-    monitor.setBackgroundColor(colors.black) -- Reset background color
-    monitor.setTextColor(colors.white) -- Reset text color
+    -- Display the title at the bottom
+    monitor.setBackgroundColor(colors.black)
+    monitor.setTextColor(colors.white)
+    monitor.setCursorPos(math.floor((width - string.len(title)) / 2) + 1, height - 2)
+    monitor.write(title)
 end
 
 -- Run the display_machine_status function every 5 seconds
