@@ -1,6 +1,10 @@
 -- Include generics for peripheral discovery
 local generics = require('generics')
 
+-- Get machine type from command line parameter
+local args = {...}
+local machine_type = args[1] or "modern_industrialization:electrolyzer"
+
 -- Wrap the monitor and the modem
 local monitor = peripheral.wrap(generics.findPeripheralSide('monitor'))
 
@@ -11,6 +15,22 @@ if width ~= 18 or height < 69 then
     print("Invalid monitor size! Expected: 18x69 or larger")
     return
 end
+
+-- Check if machine type is valid (can add more checks if needed)
+if not machine_type then
+    print("Please provide a valid machine type as a command-line parameter.")
+    return
+end
+
+-- Extract and format the machine type for the title
+local _, _, machineTypeName = string.find(machine_type, ":(.+)")
+
+if not machineTypeName then
+    print("Error extracting machine type name from:", machine_type)
+    return
+end
+
+local title = string.upper(string.sub(machineTypeName, 1, 1)) .. string.sub(machineTypeName, 2) -- Capitalize the first letter
 
 monitor.setTextScale(1)
 
@@ -98,20 +118,6 @@ local function display_machine_status(machine_type)
     monitor.setBackgroundColor(colors.black) -- Reset background color
     monitor.setTextColor(colors.white) -- Reset text color
 end
-
--- Get machine type from command line parameter
-local args = {...}
-local machine_type = args[1] or "modern_industrialization:electrolyzer"
-
--- Check if machine type is valid (can add more checks if needed)
-if not machine_type then
-    print("Please provide a valid machine type as a command-line parameter.")
-    return
-end
-
--- Extract and format the machine type for the title
-local _, _, machineTypeName = string.find(machine_type, ":(.+)")
-local title = string.upper(string.sub(machineTypeName, 1, 1)) .. string.sub(machineTypeName, 2) -- Capitalize the first letter
 
 -- Run the display_machine_status function every 5 seconds
 while true do
