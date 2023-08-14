@@ -76,7 +76,7 @@ function GridDisplay:calculate_cells(num_items)
     self.start_y = 1
 
     -- Set the cell dimensions to the minimum
-    self.cell_width = 17
+    self.cell_width = 22
     self.cell_height = 5
 end
 
