@@ -56,8 +56,15 @@ local function fetch_data(machine_type)
             local craftingInfo = machine.getCraftingInformation() or {}
 
             -- Call items with pcall, in case the machine doesn't have an items method we call fluids instead
-            local success, itemsList = pcall(machine.items())
-            local success, fluidsList = pcall(machine.tanks())
+            local successItems, itemsList = pcall(function()
+                return machine.items()
+            end)
+            local itemsData = successItems and itemsList or nil
+
+            local successTanks, fluidsList = pcall(function()
+                return machine.tanks()
+            end)
+            local tanksData = successTanks and fluidsList or nil
 
             table.insert(machine_data, {
                 name = name,
@@ -65,8 +72,8 @@ local function fetch_data(machine_type)
                 capacity = machine.getEnergyCapacity(),
                 progress = craftingInfo.progress or 0,
                 currentEfficiency = craftingInfo.currentEfficiency or 0,
-                items = itemsList or {},
-                tanks = fluidsList or {},
+                items = itemsData,
+                tanks = tanksData,
                 isBusy = machine.isBusy()
             })
         end
