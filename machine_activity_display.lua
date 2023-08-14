@@ -1,12 +1,15 @@
--- Include Data Processing and Grid Display APIs
-local wpp = require('wpp')
+-- Include generics for peripheral discovery
 local generics = require('generics')
 
--- Connect to the wireless peripheral network
-wpp.wireless.connect("shelfwood")
-
--- Wrap the monitor
+-- Wrap the monitor and the modem
 local monitor = peripheral.wrap(generics.findPeripheralSide('monitor'))
+local modem = peripheral.wrap("back") -- Assuming the wired modem is on the back
+
+-- Ensure the modem is open
+if not modem.isOpen() then
+    modem.open()
+end
+
 local width, height = monitor.getSize()
 print("Monitor resolution:", width, "x", height) -- Debug output for monitor resolution
 
@@ -21,92 +24,65 @@ monitor.setTextScale(1)
 local bar_width = 7 -- 18 width minus 1 for left, 1 for right, 1 for middle, and 7 for the second column
 local bar_height = 4 -- (69 - 25) / 24
 
-local last_machine_data = {} -- Store the last fetched machine data
-
+-- Function to fetch machine data
 local function fetch_data(machine_type)
     local machine_data = {}
-    local peripherals = wpp.peripheral.getNames()
-
-    -- ... [rest of the fetch_data function]
-
-    -- Retry logic if no peripherals are detected
-    local retries = 3
-    while #peripherals == 0 and retries > 0 do
-        os.sleep(5) -- Wait for 5 seconds before retrying
-        peripherals = wpp.peripheral.getNames()
-        retries = retries - 1
-    end
-
-    -- Display count of peripherals
-    print("Found " .. #peripherals .. " peripherals on the network.")
+    local peripherals = peripheral.getNames()
 
     for _, name in ipairs(peripherals) do
-        local machine = wpp.peripheral.wrap(name)
+        local machine = peripheral.wrap(name)
 
-        -- Check if machine is not nil
-        if machine then
-            -- Filter by the given machine type
-            if string.find(name, machine_type) then
-                print("Fetching data for " .. name)
-                machine.wppPrefetch({"getEnergy", "isBusy", "getEnergyCapacity", "getCraftingInformation", "items"})
+        if string.find(name, machine_type) then
+            print("Fetching data for " .. name)
 
-                -- Extract the name
-                local _, _, name = string.find(name, machine_type .. "_(.+)")
+            -- Extract the name
+            local _, _, name = string.find(name, machine_type .. "_(.+)")
 
-                local craftingInfo = machine.getCraftingInformation() or {}
-                local itemsList = machine.items() or {}
+            local craftingInfo = machine.getCraftingInformation() or {}
+            local itemsList = machine.items() or {}
 
-                table.insert(machine_data, {
-                    name = name,
-                    energy = machine.getEnergy(),
-                    capacity = machine.getEnergyCapacity(),
-                    progress = craftingInfo.progress or 0,
-                    currentEfficiency = craftingInfo.currentEfficiency or 0,
-                    items = itemsList,
-                    isBusy = machine.isBusy()
-                })
-            end
+            table.insert(machine_data, {
+                name = name,
+                energy = machine.getEnergy(),
+                capacity = machine.getEnergyCapacity(),
+                progress = craftingInfo.progress or 0,
+                currentEfficiency = craftingInfo.currentEfficiency or 0,
+                items = itemsList,
+                isBusy = machine.isBusy()
+            })
         end
     end
 
-    if #machine_data == 0 then
-        return last_machine_data -- Return last fetched data if no new data is available
-    else
-        last_machine_data = machine_data -- Update the last fetched data
-        return machine_data
-    end
+    return machine_data
 end
 
 local function display_machine_status(machine_type)
     local machine_data = fetch_data(machine_type)
+    print("Found", #machine_data, "machines") -- Debug output for number of machines found
+    monitor.clear()
 
-    if machine_data and #machine_data > 0 then -- Check if machine data is not nil and not empty
-        print("Found", #machine_data, "machines") -- Debug output for number of machines found
-        monitor.clear()
-        for idx, machine in ipairs(machine_data) do
-            local column = (idx - 1) % 2
-            local row = math.ceil(idx / 2)
-            local x = column * (bar_width + 1) + 2 -- +2 to account for left border and space between bars
-            local y = (row - 1) * (bar_height + 1) + 2 -- +2 to account for top border and space between bars
-            -- Draw a colored bar based on isBusy status
-            if machine.isBusy then
-                monitor.setBackgroundColor(colors.green)
-            else
-                monitor.setBackgroundColor(colors.gray)
-            end
-            for i = 0, bar_height - 1 do
-                monitor.setCursorPos(x, y + i)
-                monitor.write(string.rep(" ", bar_width))
-            end
-            -- Write the machine number centered in the bar
-            monitor.setTextColor(colors.black)
-            monitor.setCursorPos(x + math.floor((bar_width - string.len(machine.name)) / 2),
-                y + math.floor(bar_height / 2))
-            monitor.write(machine.name)
+    for idx, machine in ipairs(machine_data) do
+        local column = (idx - 1) % 2
+        local row = math.ceil(idx / 2)
+        local x = column * (bar_width + 1) + 2 -- +2 to account for left border and space between bars
+        local y = (row - 1) * (bar_height + 1) + 2 -- +2 to account for top border and space between bars
+        -- Draw a colored bar based on isBusy status
+        if machine.isBusy then
+            monitor.setBackgroundColor(colors.green)
+        else
+            monitor.setBackgroundColor(colors.gray)
         end
-        monitor.setBackgroundColor(colors.black) -- Reset background color
-        monitor.setTextColor(colors.white) -- Reset text color
+        for i = 0, bar_height - 1 do
+            monitor.setCursorPos(x, y + i)
+            monitor.write(string.rep(" ", bar_width))
+        end
+        -- Write the machine number centered in the bar
+        monitor.setTextColor(colors.black)
+        monitor.setCursorPos(x + math.floor((bar_width - string.len(machine.name)) / 2), y + math.floor(bar_height / 2))
+        monitor.write(machine.name)
     end
+    monitor.setBackgroundColor(colors.black) -- Reset background color
+    monitor.setTextColor(colors.white) -- Reset text color
 end
 
 -- Get machine type from command line parameter
