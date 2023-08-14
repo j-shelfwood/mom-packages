@@ -17,10 +17,12 @@ local function format_callback(item)
     local efficiencyInfo = tostring(item.currentEfficiency)
     local craftingInfo = "-" -- Default value
 
-    if item.items and #item.items > 0 then -- Assuming the items method returns a list
+    if item.items then
         craftingInfo = item.items[1].count .. 'x ' .. item.items[1].displayName -- Display the first item
-        print(craftingInfo)
-        print(textutils.serialize(item.items))
+    elseif item.tanks then
+        craftingInfo = item.tanks[1].amount .. 'mB ' .. item.tanks[1].displayName -- Display the first fluid
+    else
+        craftingInfo = "No items or fluids found"
     end
 
     return {
@@ -54,11 +56,11 @@ local function fetch_data(machine_type)
             local craftingInfo = machine.getCraftingInformation() or {}
 
             -- Call items with pcall, in case the machine doesn't have an items method we call fluids instead
-            local success, itemsList = pcall(machine.items)
+            local success, itemsList = pcall(machine.items())
 
             if not success then
                 -- Call fluids with pcall
-                success, itemsList = pcall(machine.fluids)
+                success, itemsList = pcall(machine.tanks())
             end
 
             table.insert(machine_data, {
