@@ -20,8 +20,10 @@ local function format_callback(item)
     if item.items then
         craftingInfo = item.items[1].count .. 'x ' .. item.items[1].displayName -- Display the first item
     elseif item.tanks then
-        print(textutils.serialize(item.tanks))
-        craftingInfo = item.tanks[1].amount .. 'mB ' .. item.tanks[1].name -- Display the first fluid
+        -- Get the fluid name from modern_industrialization:sugar_solution to `sugar solution`
+        local _, _, fluidName = string.find(item.tanks[1].name, "modern_industrialization:(.+)")
+        fluidName = string.gsub(fluidName, "_", " ")
+        craftingInfo = item.tanks[1].amount .. 'mB ' .. fluidName -- Display the first fluid
     else
         craftingInfo = "No items or fluids found"
     end
