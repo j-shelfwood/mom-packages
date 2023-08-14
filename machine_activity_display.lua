@@ -104,5 +104,5 @@ end
 -- Run the display_machine_status function every 5 seconds
 while true do
     display_machine_status(machine_type)
-    os.sleep(5)
+    os.sleep(1)
 end
