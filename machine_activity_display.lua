@@ -25,23 +25,47 @@ local bar_height = 4 -- (69 - 25) / 24
 local function fetch_data(machine_type)
     local machine_data = {}
     local peripherals = wpp.peripheral.getNames()
+
+    -- Retry logic if no peripherals are detected
+    local retries = 3
+    while #peripherals == 0 and retries > 0 do
+        os.sleep(5) -- Wait for 5 seconds before retrying
+        peripherals = wpp.peripheral.getNames()
+        retries = retries - 1
+    end
+
+    -- Display count of peripherals
+    print("Found " .. #peripherals .. " peripherals on the network.")
+
     for _, name in ipairs(peripherals) do
         local machine = wpp.peripheral.wrap(name)
-        -- Filter by the given machine type
-        if string.find(name, machine_type) then
-            machine.wppPrefetch({"isBusy"})
-            -- Extract the machine number
-            local _, _, number = string.find(name, "_(%d+)$")
-            table.insert(machine_data, {
-                number = number,
-                isBusy = machine.isBusy()
-            })
+
+        -- Check if machine is not nil
+        if machine then
+            -- Filter by the given machine type
+            if string.find(name, machine_type) then
+                print("Fetching data for " .. name)
+                machine.wppPrefetch({"getEnergy", "isBusy", "getEnergyCapacity", "getCraftingInformation", "items"})
+
+                -- Extract the name
+                local _, _, name = string.find(name, machine_type .. "_(.+)")
+
+                local craftingInfo = machine.getCraftingInformation() or {}
+                local itemsList = machine.items() or {}
+
+                table.insert(machine_data, {
+                    name = name,
+                    energy = machine.getEnergy(),
+                    capacity = machine.getEnergyCapacity(),
+                    progress = craftingInfo.progress or 0,
+                    currentEfficiency = craftingInfo.currentEfficiency or 0,
+                    items = itemsList,
+                    isBusy = machine.isBusy()
+                })
+            end
         end
     end
-    -- Sort the machine data by machine number
-    table.sort(machine_data, function(a, b)
-        return tonumber(a.number) < tonumber(b.number)
-    end)
+
     return machine_data
 end
 
