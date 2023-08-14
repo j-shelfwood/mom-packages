@@ -16,24 +16,25 @@ local function format_callback(item)
     local progressPercentage = string.format("%.1f%%", item.progress * 100) -- Convert the float to a percentage with 1 decimal point
     local efficiencyInfo = tostring(item.currentEfficiency)
     local craftingInfo = "-" -- Default value
-
+    local amount = " "
     if item.items then
-        craftingInfo = item.items[1].count .. 'x ' .. item.items[1].displayName -- Display the first item
+        craftingInfo = item.items[1].displayName -- Display the first item
+        amount = item.items[1].count
     elseif item.tanks then
         -- Get the fluid name from modern_industrialization:sugar_solution to `sugar solution` or minecraft:empty to `empty`
         local _, _, fluidName = string.find(item.tanks[1].name, ":(.+)")
-        fluidName = string.gsub(fluidName, "_", " ")
-        craftingInfo = item.tanks[1].amount .. 'mB ' .. fluidName -- Display the first fluid
+        craftingInfo = string.gsub(fluidName, "_", " ")
+        amount = item.tanks[1].amount .. 'mB '
     else
         craftingInfo = "No items or fluids found"
     end
 
     return {
-        line_1 = (tostring(item.energy) .. "/" .. tostring(item.capacity)) or "N/A",
+        line_1 = progressPercentage .. " | " .. efficiencyInfo,
         color_1 = colors.blue,
-        line_2 = progressPercentage .. " | " .. efficiencyInfo,
-        color_2 = colors.white,
-        line_3 = craftingInfo,
+        line_2 = craftingInfo,
+        color_2 = colors.green,
+        line_3 = amount,
         color_3 = item.isBusy and colors.green or colors.blue
     }
 end
@@ -106,5 +107,5 @@ end
 -- Run the refresh_display function every 15 seconds
 while true do
     refresh_display(machine_type)
-    os.sleep(15)
+    os.sleep(1)
 end
