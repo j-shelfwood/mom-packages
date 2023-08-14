@@ -21,7 +21,7 @@ local function format_callback(item)
         craftingInfo = item.items[1].count .. 'x ' .. item.items[1].displayName -- Display the first item
     elseif item.tanks then
         print(textutils.serialize(item.tanks))
-        craftingInfo = item.tanks[1].amount .. 'mB ' .. item.tanks[1].displayName -- Display the first fluid
+        craftingInfo = item.tanks[1].amount .. 'mB ' .. item.tanks[1].name -- Display the first fluid
     else
         craftingInfo = "No items or fluids found"
     end
