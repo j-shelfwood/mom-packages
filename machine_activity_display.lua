@@ -55,12 +55,9 @@ local function fetch_data(machine_type)
 
                 local craftingInfo = machine.getCraftingInformation() or {}
                 local itemsList = machine.items() or {}
-                -- Extract the number from the name
-                local _, _, number = string.find(name, "(%d+)")
 
                 table.insert(machine_data, {
                     name = name,
-                    number = number,
                     energy = machine.getEnergy(),
                     capacity = machine.getEnergyCapacity(),
                     progress = craftingInfo.progress or 0,
@@ -103,9 +100,9 @@ local function display_machine_status(machine_type)
             end
             -- Write the machine number centered in the bar
             monitor.setTextColor(colors.black)
-            monitor.setCursorPos(x + math.floor((bar_width - string.len(machine.number)) / 2),
+            monitor.setCursorPos(x + math.floor((bar_width - string.len(machine.name)) / 2),
                 y + math.floor(bar_height / 2))
-            monitor.write(machine.number)
+            monitor.write(machine.name)
         end
         monitor.setBackgroundColor(colors.black) -- Reset background color
         monitor.setTextColor(colors.white) -- Reset text color
