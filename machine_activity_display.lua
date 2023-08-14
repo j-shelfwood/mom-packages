@@ -38,8 +38,20 @@ local function fetch_data(machine_type)
             -- Extract the name
             local _, _, name = string.find(name, machine_type .. "_(.+)")
 
-            local craftingInfo = machine.getCraftingInformation() or {}
-            local itemsList = machine.items() or {}
+            -- Call the machine.items using pcal so we have no fail 
+            local ok, itemsList = pcall(machine.items)
+            if not ok then
+                itemsList = {}
+            end
+
+            -- Do the same for local craftingInfo = machine.getCraftingInformation() or {}
+            local ok, craftingInfo = pcall(machine.getCraftingInformation)
+            if not ok then
+                craftingInfo = {
+                    progress = 0,
+                    currentEfficiency = 0
+                }
+            end
 
             table.insert(machine_data, {
                 name = name,
