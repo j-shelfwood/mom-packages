@@ -116,6 +116,9 @@ local function display_machine_status(machine_type)
     print("Found", #machine_data, "machines") -- Debug output for number of machines found
     monitor.clear()
 
+    -- Calculate total grid height based on the number of machines
+    local totalGridHeight = math.ceil(#machine_data / 2) * (bar_height + 1) - 1
+
     -- Display the title at the top
     monitor.setBackgroundColor(colors.black)
     monitor.setTextColor(colors.white)
