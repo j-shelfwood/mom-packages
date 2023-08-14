@@ -22,14 +22,12 @@ if not machine_type then
     return
 end
 
--- Extract and format the machine type for the title
 local _, _, machineTypeName = string.find(machine_type, ":(.+)")
-
 if not machineTypeName then
     print("Error extracting machine type name from:", machine_type)
     return
 end
-
+machineTypeName = machineTypeName:gsub("_", " ") -- Replace underscores with spaces
 local title = string.upper(string.sub(machineTypeName, 1, 1)) .. string.sub(machineTypeName, 2) -- Capitalize the first letter
 
 monitor.setTextScale(1)
@@ -82,6 +80,37 @@ local function fetch_data(machine_type)
     return machine_data
 end
 
+local function displayCenteredTitle(yPos, title)
+    -- Split title at spaces
+    local titleParts = {}
+    for part in string.gmatch(title, "%S+") do
+        table.insert(titleParts, part)
+    end
+
+    local currentTitle = titleParts[1]
+    local lineCount = 1
+
+    for i = 2, #titleParts do
+        -- Check if adding the next word exceeds the width
+        if string.len(currentTitle .. " " .. titleParts[i]) <= width then
+            currentTitle = currentTitle .. " " .. titleParts[i]
+        else
+            -- Display the current title and reset for next line
+            monitor.setCursorPos(math.floor((width - string.len(currentTitle)) / 2) + 1, yPos)
+            monitor.write(currentTitle)
+            yPos = yPos + 1
+            currentTitle = titleParts[i]
+            lineCount = lineCount + 1
+        end
+    end
+
+    -- Display the last part of the title
+    monitor.setCursorPos(math.floor((width - string.len(currentTitle)) / 2) + 1, yPos)
+    monitor.write(currentTitle)
+
+    return lineCount
+end
+
 local function display_machine_status(machine_type)
     local machine_data = fetch_data(machine_type)
     print("Found", #machine_data, "machines") -- Debug output for number of machines found
@@ -90,14 +119,10 @@ local function display_machine_status(machine_type)
     -- Display the title at the top
     monitor.setBackgroundColor(colors.black)
     monitor.setTextColor(colors.white)
-    monitor.setCursorPos(math.floor((width - string.len(title)) / 2) + 1, 2)
-    monitor.write(title)
+    local linesUsed = displayCenteredTitle(2, title)
 
-    -- Calculate total grid height
-    local totalGridHeight = math.ceil(#machine_data / 2) * (bar_height + 1) - 1
-
-    -- Calculate the top margin to vertically center the grid
-    local topMargin = math.floor((height - totalGridHeight - 2 * 3) / 2) + 3 -- 3 for top title and its margins
+    -- Adjust the topMargin based on the number of lines used by the title
+    local topMargin = math.floor((height - totalGridHeight - (2 * linesUsed) - 2) / 2) + linesUsed + 1
 
     for idx, machine in ipairs(machine_data) do
         local column = (idx - 1) % 2
@@ -123,8 +148,7 @@ local function display_machine_status(machine_type)
     -- Display the title at the bottom
     monitor.setBackgroundColor(colors.black)
     monitor.setTextColor(colors.white)
-    monitor.setCursorPos(math.floor((width - string.len(title)) / 2) + 1, height - 2)
-    monitor.write(title)
+    displayCenteredTitle(height - linesUsed, title)
 end
 
 -- Run the display_machine_status function every 5 seconds
