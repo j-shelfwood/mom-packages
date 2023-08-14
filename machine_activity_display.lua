@@ -55,9 +55,12 @@ local function fetch_data(machine_type)
 
                 local craftingInfo = machine.getCraftingInformation() or {}
                 local itemsList = machine.items() or {}
+                -- Extract the number from the name
+                local _, _, number = string.find(name, "(%d+)")
 
                 table.insert(machine_data, {
                     name = name,
+                    number = number,
                     energy = machine.getEnergy(),
                     capacity = machine.getEnergyCapacity(),
                     progress = craftingInfo.progress or 0,
