@@ -67,6 +67,10 @@ local function display_machine_status(machine_type)
     print("Found", #machine_data, "machines") -- Debug output for number of machines found
     monitor.clear()
 
+    -- Display the title at the top
+    monitor.setCursorPos(math.floor((width - string.len(title)) / 2) + 1, 2)
+    monitor.write(title)
+
     for idx, machine in ipairs(machine_data) do
         local column = (idx - 1) % 2
         local row = math.ceil(idx / 2)
@@ -87,6 +91,10 @@ local function display_machine_status(machine_type)
         monitor.setCursorPos(x + math.floor((bar_width - string.len(machine.name)) / 2), y + math.floor(bar_height / 2))
         monitor.write(machine.name)
     end
+    -- Display the title at the bottom
+    monitor.setCursorPos(math.floor((width - string.len(title)) / 2) + 1, height - 1)
+    monitor.write(title)
+
     monitor.setBackgroundColor(colors.black) -- Reset background color
     monitor.setTextColor(colors.white) -- Reset text color
 end
@@ -100,6 +108,10 @@ if not machine_type then
     print("Please provide a valid machine type as a command-line parameter.")
     return
 end
+
+-- Extract and format the machine type for the title
+local _, _, machineTypeName = string.find(machine_type, ":(.+)")
+local title = string.upper(string.sub(machineTypeName, 1, 1)) .. string.sub(machineTypeName, 2) -- Capitalize the first letter
 
 -- Run the display_machine_status function every 5 seconds
 while true do
