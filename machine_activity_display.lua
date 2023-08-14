@@ -3,12 +3,6 @@ local generics = require('generics')
 
 -- Wrap the monitor and the modem
 local monitor = peripheral.wrap(generics.findPeripheralSide('monitor'))
-local modem = peripheral.wrap("back") -- Assuming the wired modem is on the back
-
--- Ensure the modem is open
-if not modem.isOpen() then
-    modem.open()
-end
 
 local width, height = monitor.getSize()
 print("Monitor resolution:", width, "x", height) -- Debug output for monitor resolution
