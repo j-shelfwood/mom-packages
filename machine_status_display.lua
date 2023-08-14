@@ -52,7 +52,14 @@ local function fetch_data(machine_type)
             local _, _, name = string.find(name, machine_type .. "_(.+)")
 
             local craftingInfo = machine.getCraftingInformation() or {}
-            local itemsList = machine.items() or {}
+
+            -- Call items with pcall, in case the machine doesn't have an items method we call fluids instead
+            local success, itemsList = pcall(machine.items)
+
+            if not success then
+                -- Call fluids with pcall
+                success, itemsList = pcall(machine.fluids)
+            end
 
             table.insert(machine_data, {
                 name = name,
@@ -60,7 +67,7 @@ local function fetch_data(machine_type)
                 capacity = machine.getEnergyCapacity(),
                 progress = craftingInfo.progress or 0,
                 currentEfficiency = craftingInfo.currentEfficiency or 0,
-                items = itemsList,
+                items = itemsList or {},
                 isBusy = machine.isBusy()
             })
         end
