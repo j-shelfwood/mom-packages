@@ -17,10 +17,10 @@ local function format_callback(item)
     local efficiencyInfo = tostring(item.currentEfficiency)
     local craftingInfo = "-" -- Default value
     local amount = " "
-    if item.items then
+    if item.items and item.items > 0 then
         craftingInfo = item.items[1].displayName -- Display the first item
         amount = item.items[1].count
-    elseif item.tanks then
+    elseif item.tanks and item.tanks > 0 then
         -- Get the fluid name from modern_industrialization:sugar_solution to `sugar solution` or minecraft:empty to `empty`
         local _, _, fluidName = string.find(item.tanks[1].name, ":(.+)")
         craftingInfo = string.gsub(fluidName, "_", " ")
