@@ -22,16 +22,16 @@ function GridDisplay:setCellParameters(num_items, width, height, max_columns, ro
     local desired_columns = math.sqrt(num_items * cell_aspect_ratio)
     local desired_rows = num_items / desired_columns
     local actual_columns = math.min(max_columns, math.ceil(desired_columns))
-    local remaining_width = width - (actual_columns * self.cell_width)
-    local spacing_between_cells_x = remaining_width / (actual_columns + 1)
 
-    local remaining_height = height - (rows * self.cell_height)
-    local spacing_between_cells_y = remaining_height / (rows + 1)
+    local spacing_between_cells_x = 2 -- Change this to your desired spacing
+    local spacing_between_cells_y = 2 -- Change this to your desired spacing
 
-    self.start_x = spacing_between_cells_x + 1
-    self.start_y = spacing_between_cells_y + 1 -- This sets the starting Y position
+    self.start_x = 1
+    self.start_y = 1
     self.columns = actual_columns
     self.scale = scale
+    self.spacing_x = spacing_between_cells_x
+    self.spacing_y = spacing_between_cells_y
 end
 
 function GridDisplay:calculate_cells(num_items)
@@ -116,8 +116,8 @@ function GridDisplay:display(data, format_callback, center_text)
         local formatted = format_callback(item)
 
         for line_idx, line_content in ipairs(formatted.lines) do
-            self.monitor.setCursorPos(self.start_x + (column - 1) * self.cell_width + 2,
-                self.start_y + (row - 1) * self.cell_height + line_idx)
+            self.monitor.setCursorPos(self.start_x + (column - 1) * (self.cell_width + self.spacing_x),
+                self.start_y + (row - 1) * (self.cell_height + self.spacing_y) + line_idx)
             self.monitor.setTextColor(formatted.colors[line_idx] or colors.white)
 
             local content = self:truncateText(tostring(line_content), self.cell_width - 4)
