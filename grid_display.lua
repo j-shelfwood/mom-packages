@@ -17,7 +17,7 @@ function GridDisplay.new(monitor, custom_cell_width)
     return self
 end
 
-function GridDisplay:setCellParameters(num_items, width, height, max_columns, scale)
+function GridDisplay:setCellParameters(num_items, width, height, max_columns, rows, scale)
     local cell_aspect_ratio = self.cell_width / self.cell_height
     local desired_columns = math.sqrt(num_items * cell_aspect_ratio)
     local desired_rows = num_items / desired_columns
@@ -25,8 +25,8 @@ function GridDisplay:setCellParameters(num_items, width, height, max_columns, sc
     local remaining_width = width - (actual_columns * self.cell_width)
     local spacing_between_cells_x = remaining_width / (actual_columns + 1)
 
-    local remaining_height = height - (self.rows * self.cell_height)
-    local spacing_between_cells_y = remaining_height / (self.rows + 1)
+    local remaining_height = height - (rows * self.cell_height)
+    local spacing_between_cells_y = remaining_height / (rows + 1)
 
     self.start_x = spacing_between_cells_x + 1
     self.start_y = spacing_between_cells_y + 1 -- This sets the starting Y position
@@ -51,7 +51,8 @@ function GridDisplay:calculate_cells(num_items)
         print("Required Rows:", required_rows) -- Debugging output
 
         if required_rows <= max_rows_at_current_height then
-            self:setCellParameters(num_items, width, height, max_columns, scale)
+            self:setCellParameters(num_items, width, height, max_columns, required_rows, scale)
+
             self.rows = required_rows
             return
         end
