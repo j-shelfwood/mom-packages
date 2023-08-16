@@ -22,8 +22,6 @@ local function refresh_display()
 
     if prev_items then
         local changes = DataProcessing.calculate_changes(prev_items, curr_items)
-        -- Print out how many changes were detected
-        print("Detected " .. #changes .. " changes")
 
         -- Sort the changes by the change amount (descending)
         table.sort(changes, function(a, b)
@@ -35,6 +33,7 @@ local function refresh_display()
 
         -- Display the changes on the monitor
         display:display(changes, format_callback)
+        print("Detected " .. #changes .. " changes")
     end
     -- Update prev_items for the next iteration
     prev_items = curr_items
