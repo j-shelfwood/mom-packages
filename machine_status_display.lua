@@ -1,3 +1,4 @@
+-- machine_status_display.lua
 -- Include Data Processing and Grid Display APIs
 local wpp = require('wpp')
 local GridDisplay = require('grid_display')
@@ -10,7 +11,6 @@ wpp.wireless.connect("shelfwood")
 local monitor = peripheral.wrap(generics.findPeripheralSide('monitor'))
 local display = GridDisplay.new(monitor)
 
--- Define a formatting callback for the grid display
 local function format_callback(item)
     local progressPercentage = string.format("%.1f%%", item.progress * 100)
     local efficiencyInfo = tostring(item.currentEfficiency)
@@ -28,12 +28,8 @@ local function format_callback(item)
     end
 
     return {
-        line_1 = progressPercentage .. " | " .. efficiencyInfo,
-        color_1 = colors.blue,
-        line_2 = craftingInfo,
-        color_2 = colors.green,
-        line_3 = amount,
-        color_3 = item.isBusy and colors.green or colors.blue
+        lines = {progressPercentage .. " | " .. efficiencyInfo, craftingInfo, amount},
+        colors = {colors.blue, colors.green, item.isBusy and colors.green or colors.blue}
     }
 end
 
