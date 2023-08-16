@@ -36,9 +36,16 @@ function GridDisplay:calculate_cells(num_items)
     while scale >= MIN_TEXT_SCALE do
         self.monitor.setTextScale(scale)
         local width, height = self.monitor.getSize()
-        local max_columns = math.floor(width / self.cell_width)
-        local max_rows = math.floor(height / self.cell_height)
+
+        -- Account for the gaps between cells and borders
+        local effective_width = width - (self.columns + 1) * self.spacing_x
+        local effective_height = height - (self.rows + 1) * self.spacing_y
+
+        local max_columns = math.floor(effective_width / self.cell_width)
+        local max_rows = math.floor(effective_height / self.cell_height)
+
         local required_rows = math.ceil(num_items / max_columns)
+
         if required_rows <= max_rows then
             self:setCellParameters(num_items, width, height, max_columns, required_rows, scale)
             self.rows = required_rows
