@@ -40,22 +40,24 @@ function GridDisplay:calculate_cells(num_items)
         self.monitor.setTextScale(scale)
         local width, height = self.monitor.getSize()
 
-        -- Calculate maximum number of cells that can fit width-wise
+        -- Determine the maximum number of columns that can fit
         local max_columns = math.floor(width / self.cell_width)
 
-        -- Adjust cell width to distribute extra space
-        local extra_space = width - (max_columns * self.cell_width)
-        if max_columns > 0 then
-            local extra_space = width - (max_columns * self.cell_width)
-            self.cell_width = self.cell_width + math.floor(extra_space / max_columns)
-        end
+        -- Determine the total required lines for all items 
+        -- (assuming each item takes up at least a minimum of 3 lines)
+        local total_required_lines = 3 * num_items
 
-        local required_rows = math.ceil(num_items / max_columns)
-        local max_rows_at_current_height = math.floor(height / self.cell_height)
+        -- Determine the total number of lines available on the monitor at this scale
+        local total_available_lines = height * max_columns
 
-        if required_rows <= max_rows_at_current_height then
-            self:setCellParameters(num_items, width, height, max_columns, required_rows, scale)
-            return
+        if total_required_lines <= total_available_lines then
+            local required_rows = math.ceil(num_items / max_columns)
+            local max_rows_at_current_height = math.floor(height / self.cell_height)
+
+            if required_rows <= max_rows_at_current_height then
+                self:setCellParameters(num_items, width, height, max_columns, required_rows, scale)
+                return
+            end
         end
 
         scale = scale - SCALE_DECREMENT
