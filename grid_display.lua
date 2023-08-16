@@ -4,8 +4,7 @@ GridDisplay.__index = GridDisplay
 -- Constants
 local MIN_TEXT_SCALE = 0.5
 local SCALE_DECREMENT = 0.5
-local DEFAULT_CELL_WIDTH = 18 -- Reduced from 22 to 20
-local DEFAULT_CELL_HEIGHT_PER_LINE = 1
+local DEFAULT_CELL_WIDTH = 20
 local ELLIPSIS = "..."
 
 -- Constructor
@@ -13,45 +12,35 @@ function GridDisplay.new(monitor, custom_cell_width)
     local self = setmetatable({}, GridDisplay)
     self.monitor = monitor
     self.cell_width = custom_cell_width or DEFAULT_CELL_WIDTH
-    self.cell_height = DEFAULT_CELL_HEIGHT_PER_LINE * 3 -- Default to 3 lines per cell
     return self
 end
 
 function GridDisplay:setCellParameters(num_items, width, height, max_columns, rows, scale)
-    local cell_aspect_ratio = self.cell_width / self.cell_height
-    local desired_columns = math.sqrt(num_items * cell_aspect_ratio)
-    local desired_rows = num_items / desired_columns
-    local actual_columns = math.min(max_columns, math.ceil(desired_columns))
-
-    local spacing_between_cells_x = 1 -- Change this to your desired spacing
-    local spacing_between_cells_y = 1 -- Change this to your desired spacing
-
+    local spacing_between_cells_x = 2
+    local spacing_between_cells_y = 2
     self.start_x = 1
     self.start_y = 1
-    self.columns = actual_columns
+    self.columns = max_columns
     self.scale = scale
     self.spacing_x = spacing_between_cells_x
     self.spacing_y = spacing_between_cells_y
 end
 
-function GridDisplay:calculate_cells(num_items)
-    local scale = 5 -- start with the largest scale
+function GridDisplay:determineCellHeight(data, format_callback)
+    local formatted = format_callback(data[1])
+    return #formatted.lines * DEFAULT_CELL_HEIGHT_PER_LINE
+end
 
+function GridDisplay:calculate_cells(num_items)
+    local scale = 5
     while scale >= MIN_TEXT_SCALE do
         self.monitor.setTextScale(scale)
         local width, height = self.monitor.getSize()
         local max_columns = math.floor(width / self.cell_width)
-
+        local max_rows = math.floor(height / self.cell_height)
         local required_rows = math.ceil(num_items / max_columns)
-        local max_rows_at_current_height = math.floor(height / DEFAULT_CELL_HEIGHT_PER_LINE)
-
-        if required_rows <= max_rows_at_current_height then
+        if required_rows <= max_rows then
             self:setCellParameters(num_items, width, height, max_columns, required_rows, scale)
-            print("Scale:", scale) -- Debugging output
-            print("Monitor Width:", width, "Monitor Height:", height) -- Debugging output
-            print("Max Columns:", max_columns) -- Debugging output
-            print("Required Rows:", required_rows) -- Debugging output
-
             self.rows = required_rows
             return
         end
