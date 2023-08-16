@@ -43,6 +43,7 @@ function GridDisplay:calculate_cells(num_items)
 
         if required_rows <= max_rows_at_current_height then
             self:setCellParameters(num_items, width, height, max_columns, scale)
+            self.rows = required_rows
             return
         end
         scale = scale - SCALE_DECREMENT
