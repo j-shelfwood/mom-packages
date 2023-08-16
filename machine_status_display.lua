@@ -16,10 +16,10 @@ local function format_callback(item)
     local efficiencyInfo = tostring(item.currentEfficiency)
     local craftingInfo = "-"
     local amount = " "
-    if item.items and item.items > 0 then
+    if item.items and #item.items > 0 then
         craftingInfo = item.items[1].displayName
         amount = item.items[1].count
-    elseif item.tanks and item.tanks > 0 then
+    elseif item.tanks and #item.tanks > 0 then
         local _, _, fluidName = string.find(item.tanks[1].name, ":(.+)")
         craftingInfo = string.gsub(fluidName, "_", " ")
         amount = item.tanks[1].amount .. 'mB '
