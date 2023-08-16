@@ -56,21 +56,8 @@ local function fetch_data(machine_type)
                 itemsList = {}
             end
 
-            -- Do the same for local craftingInfo = machine.getCraftingInformation() or {}
-            local ok, craftingInfo = pcall(machine.getCraftingInformation)
-            if not ok then
-                craftingInfo = {
-                    progress = 0,
-                    currentEfficiency = 0
-                }
-            end
-
             table.insert(machine_data, {
                 name = name,
-                energy = machine.getEnergy(),
-                capacity = machine.getEnergyCapacity(),
-                progress = craftingInfo.progress or 0,
-                currentEfficiency = craftingInfo.currentEfficiency or 0,
                 items = itemsList,
                 isBusy = machine.isBusy()
             })
