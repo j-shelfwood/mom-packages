@@ -84,6 +84,16 @@ function GridDisplay:display(data, format_callback, center_text)
         center_text = true
     end
 
+    -- Determine cell height based on maximum number of lines across all data items
+    local max_lines = 0
+    for _, item in ipairs(data) do
+        local formatted = format_callback(item)
+        max_lines = math.max(max_lines, #formatted.lines)
+    end
+    self.cell_height = DEFAULT_CELL_HEIGHT_PER_LINE * max_lines
+
+    self:calculate_cells(#data)
+
     if #data == 0 then
         self.monitor.clear()
         local width, height = self.monitor.getSize()
@@ -92,19 +102,6 @@ function GridDisplay:display(data, format_callback, center_text)
         return
     end
 
-    -- Determine cell height based on maximum number of lines across all data items
-    local max_lines = 0
-    for _, item in ipairs(data) do
-        if i > self.rows * self.columns then
-            break
-        end
-
-        local formatted = format_callback(item)
-        local cell_height_for_item = (#formatted.lines + 1) * DEFAULT_CELL_HEIGHT_PER_LINE
-    end
-    self.cell_height = DEFAULT_CELL_HEIGHT_PER_LINE * max_lines
-
-    self:calculate_cells(#data)
     self.monitor.clear()
 
     for i, item in ipairs(data) do
@@ -114,7 +111,6 @@ function GridDisplay:display(data, format_callback, center_text)
 
         local row = math.floor((i - 1) / self.columns) + 1
         local column = (i - 1) % self.columns + 1
-
         local formatted = format_callback(item)
 
         for line_idx, line_content in ipairs(formatted.lines) do
