@@ -4,7 +4,7 @@ GridDisplay.__index = GridDisplay
 -- Constants
 local MIN_TEXT_SCALE = 0.5
 local SCALE_DECREMENT = 0.5
-local DEFAULT_CELL_WIDTH = 20 -- Reduced from 22 to 20
+local DEFAULT_CELL_WIDTH = 18 -- Reduced from 22 to 20
 local DEFAULT_CELL_HEIGHT_PER_LINE = 1
 local ELLIPSIS = "..."
 
