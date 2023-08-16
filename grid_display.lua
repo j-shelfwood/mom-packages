@@ -41,6 +41,11 @@ function GridDisplay:calculate_cells(num_items)
         local required_rows = math.ceil(num_items / max_columns)
         local max_rows_at_current_height = math.floor(height / DEFAULT_CELL_HEIGHT_PER_LINE)
 
+        print("Scale:", scale) -- Debugging output
+        print("Monitor Width:", width, "Monitor Height:", height) -- Debugging output
+        print("Max Columns:", max_columns) -- Debugging output
+        print("Required Rows:", required_rows) -- Debugging output
+
         if required_rows <= max_rows_at_current_height then
             self:setCellParameters(num_items, width, height, max_columns, scale)
             self.rows = required_rows
@@ -56,6 +61,10 @@ function GridDisplay:calculate_cells(num_items)
     self.columns = math.floor(width / self.cell_width)
     self.rows = math.floor(height / DEFAULT_CELL_HEIGHT_PER_LINE)
     self.start_x = 1
+
+    print("Using minimum scale settings") -- Debugging output
+    print("Monitor Width:", width, "Monitor Height:", height) -- Debugging output
+    print("Columns:", self.columns, "Rows:", self.rows) -- Debugging output
 end
 
 function GridDisplay:truncateText(text, maxLength)
