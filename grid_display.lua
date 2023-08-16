@@ -23,8 +23,8 @@ function GridDisplay:setCellParameters(num_items, width, height, max_columns, ro
     local desired_rows = num_items / desired_columns
     local actual_columns = math.min(max_columns, math.ceil(desired_columns))
 
-    local spacing_between_cells_x = 2 -- Change this to your desired spacing
-    local spacing_between_cells_y = 2 -- Change this to your desired spacing
+    local spacing_between_cells_x = 1 -- Change this to your desired spacing
+    local spacing_between_cells_y = 1 -- Change this to your desired spacing
 
     self.start_x = 1
     self.start_y = 1
