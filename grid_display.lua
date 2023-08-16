@@ -41,29 +41,36 @@ function GridDisplay:calculate_cells(num_items)
         local width, height = self.monitor.getSize()
 
         local max_columns = math.floor(width / self.cell_width)
-        local max_rows_at_default_height = math.floor(height / DEFAULT_CELL_HEIGHT_PER_LINE)
 
-        -- Adjust cell height based on the scale and number of lines.
+        -- Start with a cell height of a single line
+        local current_cell_height = DEFAULT_CELL_HEIGHT_PER_LINE
+
+        -- Adjust cell height based on the average number of lines for the items we are trying to fit
         local lines_per_item = math.ceil(num_items / max_columns)
-        self.cell_height = math.min(lines_per_item * DEFAULT_CELL_HEIGHT_PER_LINE, height)
 
-        local max_rows = math.floor(height / self.cell_height)
-        local max_cells = max_rows * max_columns
+        while current_cell_height <= lines_per_item * DEFAULT_CELL_HEIGHT_PER_LINE do
+            self.cell_height = current_cell_height
+            local max_rows = math.floor(height / self.cell_height)
+            local max_cells = max_rows * max_columns
 
-        if max_cells >= num_items then
-            self:setCellParameters(num_items, width, height, max_columns, max_rows, scale)
-            return
+            if max_cells >= num_items then
+                self:setCellParameters(num_items, width, height, max_columns, max_rows, scale)
+                return
+            end
+
+            -- Increment cell height by one line
+            current_cell_height = current_cell_height + DEFAULT_CELL_HEIGHT_PER_LINE
         end
 
         scale = scale - SCALE_DECREMENT
     end
 
-    -- If we reach this point, we can't fit all items even at the minimum scale
+    -- If we reach this point, use the minimum scale
     self.scale = MIN_TEXT_SCALE
     self.monitor.setTextScale(self.scale)
     local width, height = self.monitor.getSize()
     self.columns = math.floor(width / self.cell_width)
-    self.rows = math.floor(height / self.cell_height)
+    self.rows = math.floor(height / DEFAULT_CELL_HEIGHT_PER_LINE) -- Use default height for cells at minimum scale
 
     -- Calculate the position of the first cell
     self.start_x = 1
