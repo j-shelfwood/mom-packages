@@ -40,14 +40,15 @@ function GridDisplay:calculate_cells(num_items)
         self.monitor.setTextScale(scale)
         local width, height = self.monitor.getSize()
 
+        -- Calculate maximum number of cells that can fit width-wise
+        local max_columns = math.floor(width / self.cell_width)
+
+        -- Adjust cell width to distribute extra space
+        local extra_space = width - (max_columns * self.cell_width)
         if max_columns > 0 then
             local extra_space = width - (max_columns * self.cell_width)
             self.cell_width = self.cell_width + math.floor(extra_space / max_columns)
         end
-
-        -- Adjust cell width to distribute extra space
-        local extra_space = width - (max_columns * self.cell_width)
-        self.cell_width = self.cell_width + math.floor(extra_space / max_columns)
 
         local required_rows = math.ceil(num_items / max_columns)
         local max_rows_at_current_height = math.floor(height / self.cell_height)
