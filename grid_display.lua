@@ -33,6 +33,36 @@ function GridDisplay:setCellParameters(num_items, width, height, max_columns, ma
     self.scale = scale
 end
 
+function GridDisplay:calculate_cells(num_items)
+    local scale = 5 -- start with the largest scale
+
+    while scale >= MIN_TEXT_SCALE do
+        self.monitor.setTextScale(scale)
+        local width, height = self.monitor.getSize()
+        local max_columns = math.floor(width / self.cell_width)
+        local max_rows = math.floor(height / self.cell_height)
+        local max_cells = max_rows * max_columns
+
+        if max_cells >= num_items then
+            self:setCellParameters(num_items, width, height, max_columns, max_rows, scale)
+            return
+        end
+
+        scale = scale - SCALE_DECREMENT
+    end
+
+    -- If we reach this point, we can't fit all items even at the minimum scale
+    self.scale = MIN_TEXT_SCALE
+    self.monitor.setTextScale(self.scale)
+    local width, height = self.monitor.getSize()
+    self.columns = math.floor(width / self.cell_width)
+    self.rows = math.floor(height / self.cell_height)
+
+    -- Calculate the position of the first cell
+    self.start_x = 1
+    self.start_y = 1
+end
+
 function GridDisplay:truncateText(text, maxLength)
     if #text <= maxLength then
         return text
