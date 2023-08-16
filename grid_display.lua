@@ -4,7 +4,7 @@ GridDisplay.__index = GridDisplay
 -- Constants
 local MIN_TEXT_SCALE = 0.5
 local SCALE_DECREMENT = 0.5
-local DEFAULT_CELL_WIDTH = 22
+local DEFAULT_CELL_WIDTH = 20 -- Reduced from 22 to 20
 local DEFAULT_CELL_HEIGHT_PER_LINE = 5
 local ELLIPSIS = "..."
 
@@ -77,7 +77,17 @@ function GridDisplay:truncateText(text, maxLength)
 end
 
 function GridDisplay:display(data, format_callback, center_text)
-    center_text = center_text or true
+    if center_text == nil then
+        center_text = true
+    end
+
+    -- Determine cell height based on maximum number of lines across all data items
+    local max_lines = 0
+    for _, item in ipairs(data) do
+        local formatted = format_callback(item)
+        max_lines = math.max(max_lines, #formatted.lines)
+    end
+    self.cell_height = DEFAULT_CELL_HEIGHT_PER_LINE * max_lines
 
     self:calculate_cells(#data)
 
@@ -96,14 +106,13 @@ function GridDisplay:display(data, format_callback, center_text)
             break
         end
 
-        local formatted = format_callback(item)
         local row = math.floor((i - 1) / self.columns) + 1
         local column = (i - 1) % self.columns + 1
-        local actual_cell_height = #formatted.lines * DEFAULT_CELL_HEIGHT_PER_LINE
+        local formatted = format_callback(item)
 
         for line_idx, line_content in ipairs(formatted.lines) do
-            self.monitor.setCursorPos(self.start_x + (column - 1) * (self.cell_width + 1) + 2,
-                (row - 1) * actual_cell_height + line_idx)
+            self.monitor.setCursorPos(self.start_x + (column - 1) * self.cell_width + 2,
+                self.start_y + (row - 1) * self.cell_height + line_idx)
             self.monitor.setTextColor(formatted.colors[line_idx] or colors.white)
 
             local content = self:truncateText(tostring(line_content), self.cell_width - 4)
