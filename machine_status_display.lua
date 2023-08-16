@@ -12,16 +12,14 @@ local display = GridDisplay.new(monitor)
 
 -- Define a formatting callback for the grid display
 local function format_callback(item)
-    -- Format the machine data
-    local progressPercentage = string.format("%.1f%%", item.progress * 100) -- Convert the float to a percentage with 1 decimal point
+    local progressPercentage = string.format("%.1f%%", item.progress * 100)
     local efficiencyInfo = tostring(item.currentEfficiency)
-    local craftingInfo = "-" -- Default value
+    local craftingInfo = "-"
     local amount = " "
     if item.items and item.items > 0 then
-        craftingInfo = item.items[1].displayName -- Display the first item
+        craftingInfo = item.items[1].displayName
         amount = item.items[1].count
     elseif item.tanks and item.tanks > 0 then
-        -- Get the fluid name from modern_industrialization:sugar_solution to `sugar solution` or minecraft:empty to `empty`
         local _, _, fluidName = string.find(item.tanks[1].name, ":(.+)")
         craftingInfo = string.gsub(fluidName, "_", " ")
         amount = item.tanks[1].amount .. 'mB '
@@ -43,23 +41,18 @@ end
 local function fetch_data(machine_type)
     local machine_data = {}
     local peripherals = wpp.peripheral.getNames()
-    -- Display count of peripherals
     print("Found " .. #peripherals .. " peripherals on the network.")
 
     for _, name in ipairs(peripherals) do
         local machine = wpp.peripheral.wrap(name)
 
-        -- Filter by the given machine type
         if string.find(name, machine_type) then
             print("Fetching data for " .. name)
             machine.wppPrefetch({"getEnergy", "isBusy", "getEnergyCapacity", "getCraftingInformation", "items"})
 
-            -- Extract the name
             local _, _, name = string.find(name, machine_type .. "_(.+)")
-
             local craftingInfo = machine.getCraftingInformation() or {}
 
-            -- Call items with pcall, in case the machine doesn't have an items method we call fluids instead
             local successItems, itemsList = pcall(function()
                 return machine.items()
             end)
@@ -89,8 +82,6 @@ end
 -- Function to refresh the display
 local function refresh_display(machine_type)
     local machine_data = fetch_data(machine_type)
-
-    -- Display the machine data on the monitor
     display:display(machine_data, format_callback)
 end
 
@@ -98,13 +89,11 @@ end
 local args = {...}
 local machine_type = args[1] or "modern_industrialization:electrolyzer"
 
--- Check if machine type is valid (can add more checks if needed)
 if not machine_type then
     print("Please provide a valid machine type as a command-line parameter.")
     return
 end
 
--- Run the refresh_display function every 15 seconds
 while true do
     refresh_display(machine_type)
     os.sleep(1)
