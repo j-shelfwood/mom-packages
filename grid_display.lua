@@ -39,7 +39,14 @@ function GridDisplay:calculate_cells(num_items)
     while scale >= MIN_TEXT_SCALE do
         self.monitor.setTextScale(scale)
         local width, height = self.monitor.getSize()
+
         local max_columns = math.floor(width / self.cell_width)
+        local max_rows_at_default_height = math.floor(height / DEFAULT_CELL_HEIGHT_PER_LINE)
+
+        -- Adjust cell height based on the scale and number of lines.
+        local lines_per_item = math.ceil(num_items / max_columns)
+        self.cell_height = math.min(lines_per_item * DEFAULT_CELL_HEIGHT_PER_LINE, height)
+
         local max_rows = math.floor(height / self.cell_height)
         local max_cells = max_rows * max_columns
 
