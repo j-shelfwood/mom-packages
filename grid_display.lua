@@ -28,7 +28,7 @@ end
 
 function GridDisplay:determineCellHeight(data, format_callback)
     local formatted = format_callback(data[1])
-    return #formatted.lines * DEFAULT_CELL_HEIGHT_PER_LINE
+    return #formatted.lines
 end
 
 function GridDisplay:calculate_cells(num_items)
@@ -87,7 +87,7 @@ function GridDisplay:display(data, format_callback, center_text)
         local formatted = format_callback(item)
         max_lines = math.max(max_lines, #formatted.lines)
     end
-    self.cell_height = DEFAULT_CELL_HEIGHT_PER_LINE * max_lines
+    self.cell_height = self:determineCellHeight(data, format_callback)
 
     self:calculate_cells(#data)
 
