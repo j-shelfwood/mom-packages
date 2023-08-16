@@ -13,6 +13,7 @@ function GridDisplay.new(monitor, custom_cell_width)
     local self = setmetatable({}, GridDisplay)
     self.monitor = monitor
     self.cell_width = custom_cell_width or DEFAULT_CELL_WIDTH
+    self.cell_height = DEFAULT_CELL_HEIGHT_PER_LINE * 3 -- Default to 3 lines per cell
     return self
 end
 
