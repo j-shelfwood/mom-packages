@@ -17,14 +17,19 @@ function GridDisplay.new(monitor, custom_cell_width)
 end
 
 function GridDisplay:setCellParameters(num_items, width, height, max_columns, rows, scale)
-    local spacing_between_cells_x = 2
-    local spacing_between_cells_y = 2
-    self.start_x = 1
-    self.start_y = 1
+    local total_grid_width = (self.cell_width + self.spacing_x) * max_columns - self.spacing_x -- Subtracting the spacing once as it's not needed after the last column
+    local total_grid_height = (self.cell_height + self.spacing_y) * rows - self.spacing_y -- Same reasoning for rows
+
+    -- Calculate the leftover spaces
+    local leftover_width = width - total_grid_width
+    local leftover_height = height - total_grid_height
+
+    -- Set the starting positions
+    self.start_x = math.floor(leftover_width / 2)
+    self.start_y = math.floor(leftover_height / 2)
+
     self.columns = max_columns
     self.scale = scale
-    self.spacing_x = spacing_between_cells_x
-    self.spacing_y = spacing_between_cells_y
 end
 
 function GridDisplay:determineCellHeight(data, format_callback)
