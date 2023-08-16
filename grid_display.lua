@@ -18,8 +18,8 @@ function GridDisplay.new(monitor, custom_cell_width)
 end
 
 function GridDisplay:setCellParameters(num_items, width, height, max_columns, max_rows, scale)
-    local aspect_ratio = width / height
-    local desired_columns = math.sqrt(num_items * aspect_ratio)
+    local cell_aspect_ratio = self.cell_width / self.cell_height
+    local desired_columns = math.sqrt(num_items * cell_aspect_ratio)
     local desired_rows = num_items / desired_columns
     local actual_columns = math.min(max_columns, math.ceil(desired_columns))
     local actual_rows = math.min(max_rows, math.floor(desired_rows))
@@ -95,8 +95,12 @@ function GridDisplay:display(data, format_callback, center_text)
     -- Determine cell height based on maximum number of lines across all data items
     local max_lines = 0
     for _, item in ipairs(data) do
+        if i > self.rows * self.columns then
+            break
+        end
+
         local formatted = format_callback(item)
-        max_lines = math.max(max_lines, #formatted.lines)
+        local cell_height_for_item = (#formatted.lines + 1) * DEFAULT_CELL_HEIGHT_PER_LINE
     end
     self.cell_height = DEFAULT_CELL_HEIGHT_PER_LINE * max_lines
 
