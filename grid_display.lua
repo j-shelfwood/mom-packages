@@ -7,11 +7,12 @@ local SCALE_DECREMENT = 0.5
 local DEFAULT_CELL_WIDTH = 20
 local ELLIPSIS = "..."
 
--- Constructor
 function GridDisplay.new(monitor, custom_cell_width)
     local self = setmetatable({}, GridDisplay)
     self.monitor = monitor
     self.cell_width = custom_cell_width or DEFAULT_CELL_WIDTH
+    self.spacing_x = 1 -- Define the spacing here
+    self.spacing_y = 1 -- Define the spacing here
     return self
 end
 
