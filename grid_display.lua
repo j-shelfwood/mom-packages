@@ -47,17 +47,16 @@ function GridDisplay:calculate_cells(num_items)
 
         if required_rows <= max_rows_at_current_height then
             self:setCellParameters(num_items, width, height, max_columns, required_rows, scale)
+            print("Scale:", scale) -- Debugging output
+            print("Monitor Width:", width, "Monitor Height:", height) -- Debugging output
+            print("Max Columns:", max_columns) -- Debugging output
+            print("Required Rows:", required_rows) -- Debugging output
 
             self.rows = required_rows
             return
         end
         scale = scale - SCALE_DECREMENT
     end
-
-    print("Scale:", scale) -- Debugging output
-    print("Monitor Width:", width, "Monitor Height:", height) -- Debugging output
-    print("Max Columns:", max_columns) -- Debugging output
-    print("Required Rows:", required_rows) -- Debugging output
 
     -- Minimum scale settings
     self.scale = MIN_TEXT_SCALE
