@@ -36,6 +36,37 @@ function inspectPeripheral()
     -- Print the methods comma separated so many fit on the screen
     print("Methods for the " .. peripheral.getType(target) .. " peripheral:")
     print(table.concat(methods, ", "))
+
+    -- Prompt the user to select a method
+    print("Select a method to run:")
+    for i, methodName in ipairs(methods) do
+        print(i .. ". " .. methodName)
+    end
+    local methodSelection = tonumber(read())
+
+    -- If the user entered an invalid method selection, print a message and return
+    if methodSelection == nil or methodSelection < 1 or methodSelection > #methods then
+        print("Invalid method selection.")
+        return
+    end
+
+    -- Get the selected method name
+    local methodName = methods[methodSelection]
+
+    -- Prompt for arguments
+    print("Enter arguments for method " .. methodName .. " (comma separated, leave blank for none):")
+    local argsInput = read()
+    local args = {}
+    for arg in string.gmatch(argsInput, "[^,]+") do
+        table.insert(args, arg)
+    end
+
+    -- Run the method and serialize the result
+    local result = textutils.serialize(target[methodName](unpack(args)))
+
+    -- Print the result
+    print("Result:")
+    print(result)
 end
 
 inspectPeripheral()
