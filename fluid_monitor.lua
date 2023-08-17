@@ -10,9 +10,9 @@ local display = GridDisplay.new(monitor)
 -- Define a formatting callback for the grid display
 local function format_callback(fluid)
     local color = fluid.operation == "+" and colors.green or colors.red
+    local _, _, name = string.find(fluid.name, ":(.+)")
     return {
-        lines = {fluid.name, tostring(fluid.count) .. " buckets",
-                 fluid.operation .. tostring(fluid.change) .. " buckets"},
+        lines = {name, tostring(fluid.count) .. " mB", fluid.operation .. tostring(fluid.change) .. " mB"},
         colors = {colors.white, colors.white, color}
     }
 end

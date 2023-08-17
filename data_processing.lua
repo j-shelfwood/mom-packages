@@ -62,4 +62,61 @@ function DataProcessing.calculate_changes(prev_items, curr_items)
     return changes
 end
 
+-- Function to fetch fluids from the AE2 system
+function DataProcessing.fetch_fluids()
+    -- Get a reference to the peripheral (assuming it's named fluid_requester)
+    local interface = peripheral.wrap(generics.findPeripheralSide("merequester:requester"))
+
+    -- Get fluids
+    local allFluids = interface.tanks()
+
+    -- Consolidate fluids
+    local consolidatedFluids = {}
+    for _, fluid in ipairs(allFluids) do
+        if consolidatedFluids[fluid.name] then
+            consolidatedFluids[fluid.name].amount = consolidatedFluids[fluid.name].amount + fluid.amount
+        else
+            consolidatedFluids[fluid.name] = {
+                name = fluid.name,
+                amount = fluid.amount
+            }
+        end
+    end
+
+    -- Convert the consolidated fluids dictionary into a list
+    local fluids = {}
+    for _, fluid in pairs(consolidatedFluids) do
+        table.insert(fluids, fluid)
+    end
+
+    return fluids
+end
+
+-- Function to calculate the changes between two fluid lists
+function DataProcessing.calculate_fluid_changes(prev_fluids, curr_fluids)
+    -- Convert the previous fluid list into a dictionary for easier lookup
+    local prev_dict = {}
+    for _, fluid in ipairs(prev_fluids) do
+        prev_dict[fluid.name] = fluid.amount
+    end
+
+    -- Calculate changes
+    local changes = {}
+    for _, fluid in ipairs(curr_fluids) do
+        local prev_amount = prev_dict[fluid.name]
+        if prev_amount and prev_amount ~= fluid.amount then
+            local change = math.abs(fluid.amount - prev_amount)
+            local operation = fluid.amount > prev_amount and "+" or "-"
+            table.insert(changes, {
+                name = fluid.name,
+                amount = fluid.amount,
+                change = math.abs(change),
+                operation = operation
+            })
+        end
+    end
+
+    return changes
+end
+
 return DataProcessing
