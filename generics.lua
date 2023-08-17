@@ -17,22 +17,22 @@ function generics.formatFluidAmount(amount_mB)
 
     -- mb
     if absAmount_B < 10 then
-        return tostring(math.floor(absAmount_mB)) .. "mB"
+        return string.format("%.1fmB", absAmount_mB)
     end
 
     -- B
     if absAmount_B < 1000 then
         local absAmount_B = absAmount_B / 1000
-        return tostring(math.floor(absAmount_B)) .. "B"
+        return string.format("%.1f B", absAmount_B)
     end
 
     -- Thousand B
-    if absAmount_B < 100000 then
-        return tostring(math.floor(absAmount_B / 1000)) .. "K B"
+    if absAmount_B < 999999 then
+        return string.format("%.1fK B", absAmount_B / 1000)
     end
 
     -- Million B
-    return tostring(math.floor(absAmount_B / 1000000)) .. "M B"
+    return string.format("%.2fM B", absAmount_B / 1000000)
 end
 
 -- Function to shorten item names if they're too long
