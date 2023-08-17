@@ -68,7 +68,7 @@ function DataProcessing.fetch_fluids()
     local interface = peripheral.wrap(generics.findPeripheralSide("merequester:requester"))
 
     -- Get fluids
-    local allFluids = interface.fluids() -- Assuming a method named fluids exists
+    local allFluids = interface.tanks()
 
     -- Consolidate fluids
     local consolidatedFluids = {}
