@@ -75,12 +75,12 @@ function DataProcessing.fetch_fluids()
     for _, fluid in ipairs(allFluids) do
         local techName = fluid.technicalName
         if consolidatedFluids[techName] then
-            consolidatedFluids[techName].count = consolidatedFluids[techName].count + fluid.count
+            consolidatedFluids[techName].amount = consolidatedFluids[techName].amount + fluid.amount
         else
             consolidatedFluids[techName] = {
                 name = fluid.name,
                 technicalName = techName,
-                count = fluid.count
+                amount = fluid.amount
             }
         end
     end
@@ -99,20 +99,20 @@ function DataProcessing.calculate_fluid_changes(prev_fluids, curr_fluids)
     -- Convert the previous fluid list into a dictionary for easier lookup
     local prev_dict = {}
     for _, fluid in ipairs(prev_fluids) do
-        prev_dict[fluid.technicalName] = fluid.count
+        prev_dict[fluid.technicalName] = fluid.amount
     end
 
     -- Calculate changes
     local changes = {}
     for _, fluid in ipairs(curr_fluids) do
-        local prev_count = prev_dict[fluid.technicalName]
-        if prev_count and prev_count ~= fluid.count then
-            local change = math.abs(fluid.count - prev_count)
-            local operation = fluid.count > prev_count and "+" or "-"
+        local prev_amount = prev_dict[fluid.technicalName]
+        if prev_amount and prev_amount ~= fluid.amount then
+            local change = math.abs(fluid.amount - prev_amount)
+            local operation = fluid.amount > prev_amount and "+" or "-"
             table.insert(changes, {
                 name = fluid.name,
                 technicalName = fluid.technicalName,
-                count = fluid.count,
+                amount = fluid.amount,
                 change = math.abs(change),
                 operation = operation
             })
