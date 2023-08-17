@@ -12,31 +12,27 @@ function generics.findPeripheralSide(name)
 end
 
 function generics.formatFluidAmount(amount_mB)
-    local amount_B = amount_mB / 1000
+    local absAmount_mB = math.abs(amount_mB)
+    local absAmount_B = absAmount_mB / 1000
 
     -- mb
-    if amount_B < 10 then
-        return tostring(math.floor(amount_mB)) .. "mB"
+    if absAmount_B < 10 then
+        return tostring(math.floor(absAmount_mB)) .. "mB"
     end
 
     -- B
-    if amount_B < 100 then
-        local amount_B = amount_B / 1000
-        return tostring(math.floor(amount_B)) .. "B"
+    if absAmount_B < 1000 then
+        local absAmount_B = absAmount_B / 1000
+        return tostring(math.floor(absAmount_B)) .. "B"
     end
 
-    -- kB
-    if amount_B < 1000 then
-        return tostring(math.floor(amount_B / 1000)) .. "K B"
+    -- Thousand B
+    if absAmount_B < 100000 then
+        return tostring(math.floor(absAmount_B / 1000)) .. "K B"
     end
 
-    -- MB
-    if amount_B > 9999 then
-        local amount_MB = amount_B / 1000
-        return tostring(math.floor(amount_MB)) .. "M B"
-    end
-
-    return tostring(math.floor(amount_B / 1000)) .. "K B"
+    -- Million B
+    return tostring(math.floor(absAmount_B / 1000000)) .. "M B"
 end
 
 -- Function to shorten item names if they're too long
