@@ -14,22 +14,29 @@ end
 function generics.formatFluidAmount(amount_mB)
     local amount_B = amount_mB / 1000
 
-    if amount_B < 100 then
+    -- mb
+    if amount_B < 10 then
         return tostring(math.floor(amount_mB)) .. "mB"
     end
 
-    if amount_B > 9999 then
-        local amount_kB = amount_B / 1000
-        return string.format("%.1fkB", amount_B)
+    -- B
+    if amount_B < 100 then
+        local amount_B = amount_B / 1000
+        return tostring(math.floor(amount_B)) .. "B"
     end
 
+    -- kB
+    if amount_B < 1000 then
+        return tostring(math.floor(amount_B / 1000)) .. "kB"
+    end
+
+    -- MB
     if amount_B > 9999999 then
         local amount_MB = amount_B / 1000
-        return string.format("%.1fMB", amount_B)
+        return tostring(math.floor(amount_MB)) .. "MB"
     end
 
-    -- Otherwise, display it normally in B (buckets)
-    return string.format("%.1fB", amount_B)
+    return tostring(math.floor(amount_B / 1000)) .. "kB"
 end
 
 -- Function to shorten item names if they're too long
