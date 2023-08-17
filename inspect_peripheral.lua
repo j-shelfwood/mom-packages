@@ -33,9 +33,9 @@ function inspectPeripheral()
         return
     end
 
-    -- Print the methods in columns
+    -- Print the methods comma separated so many fit on the screen
     print("Methods for the " .. peripheral.getType(target) .. " peripheral:")
-    print(textutils.serialize(methods))
+    print(table.concat(methods, ", "))
 end
 
 inspectPeripheral()
