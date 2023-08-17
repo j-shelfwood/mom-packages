@@ -27,16 +27,16 @@ function generics.formatFluidAmount(amount_mB)
 
     -- kB
     if amount_B < 1000 then
-        return tostring(math.floor(amount_B / 1000)) .. "kB"
+        return tostring(math.floor(amount_B / 1000)) .. "K B"
     end
 
     -- MB
-    if amount_B > 9999999 then
+    if amount_B > 9999 then
         local amount_MB = amount_B / 1000
-        return tostring(math.floor(amount_MB)) .. "MB"
+        return tostring(math.floor(amount_MB)) .. "M B"
     end
 
-    return tostring(math.floor(amount_B / 1000)) .. "kB"
+    return tostring(math.floor(amount_B / 1000)) .. "K B"
 end
 
 -- Function to shorten item names if they're too long

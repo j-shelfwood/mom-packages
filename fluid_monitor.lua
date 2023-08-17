@@ -11,6 +11,8 @@ local display = GridDisplay.new(monitor)
 local function format_callback(fluid)
     local color = fluid.operation == "+" and colors.green or colors.red
     local _, _, name = string.find(fluid.name, ":(.+)")
+    -- Capitalize the first letter of the name
+    name = name:gsub("^%l", string.upper)
     return {
         lines = {name, generics.formatFluidAmount(fluid.amount),
                  fluid.operation .. generics.formatFluidAmount(fluid.change)},
