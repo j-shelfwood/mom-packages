@@ -11,6 +11,27 @@ function generics.findPeripheralSide(name)
     return nil
 end
 
+function generics.formatFluidAmount(amount_mB)
+    local amount_B = amount_mB / 1000
+
+    if amount_B < 100 then
+        return tostring(math.floor(amount_mB)) .. "mB"
+    end
+
+    if amount_B > 9999 then
+        local amount_kB = amount_B / 1000
+        return string.format("%.1fkB", amount_B)
+    end
+
+    if amount_B > 9999999 then
+        local amount_MB = amount_B / 1000
+        return string.format("%.1fMB", amount_B)
+    end
+
+    -- Otherwise, display it normally in B (buckets)
+    return string.format("%.1fB", amount_B)
+end
+
 -- Function to shorten item names if they're too long
 function generics.shortenName(name, maxLength)
     if #name <= maxLength then

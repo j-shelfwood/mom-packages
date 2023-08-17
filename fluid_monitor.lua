@@ -12,7 +12,8 @@ local function format_callback(fluid)
     local color = fluid.operation == "+" and colors.green or colors.red
     local _, _, name = string.find(fluid.name, ":(.+)")
     return {
-        lines = {name, tostring(fluid.amount / 1000) .. " B", fluid.operation .. tostring(fluid.change) .. " mB"},
+        lines = {name, generics.formatFluidAmount(fluid.amount),
+                 fluid.operation .. generics.formatFluidAmount(fluid.change)},
         colors = {colors.white, colors.white, color}
     }
 end
