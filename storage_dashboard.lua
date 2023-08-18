@@ -9,6 +9,7 @@ local WIDTH, HEIGHT = monitor.getSize()
 local MAX_DATA_POINTS = WIDTH -- Number of data points to store based on monitor width
 
 local storageData = {} -- To store recent storage usage data
+local TITLE = "AE2 Storage Capacity Status"
 
 -- Function to record the storage usage
 local function recordStorageUsage()
@@ -25,7 +26,7 @@ end
 local function calculateGraphData()
     local heights = {}
     for _, usage in ipairs(storageData) do
-        local height = math.floor((usage / DataProcessing.fetch_storage_status().totalItemStorage) * HEIGHT)
+        local height = math.floor((usage / DataProcessing.fetch_storage_status().totalItemStorage) * (HEIGHT - 1))
         table.insert(heights, height)
     end
     return heights
@@ -35,8 +36,13 @@ end
 local function drawGraph(heights)
     monitor.clear()
 
+    -- Write title centered on the top row
+    local titleStartX = math.floor((WIDTH - #TITLE) / 2) + 1
+    monitor.setCursorPos(titleStartX, 1)
+    monitor.write(TITLE)
+
     -- Write Y-axis info
-    monitor.setCursorPos(1, 1)
+    monitor.setCursorPos(1, 2)
     monitor.write(tostring(DataProcessing.fetch_storage_status().totalItemStorage))
     monitor.setCursorPos(1, HEIGHT)
     monitor.write("0")
@@ -46,7 +52,7 @@ local function drawGraph(heights)
         local columnPosition = WIDTH - #heights + x -- Starting from the rightmost position
 
         monitor.setBackgroundColor(colors.pink)
-        for y = HEIGHT, HEIGHT - height + 1, -1 do
+        for y = HEIGHT, HEIGHT - height + 2, -1 do
             monitor.setCursorPos(columnPosition, y)
             monitor.write(" ")
         end
