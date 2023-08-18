@@ -30,7 +30,7 @@ function DataProcessing.fetch_items()
         allItems = interface.listItems()
         for _, item in ipairs(allItems) do
             item.id = item.nbt.id
-            item.name = item.nbt.displayName
+            item.name = item.displayName
             item.count = item.amount
         end
     elseif peripheralType == "merequester:requester" then

@@ -60,7 +60,7 @@ function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
             items = interface.listItems()
             for _, item in ipairs(items) do
                 item.technicalName = item.nbt.id
-                item.name = item.nbt.displayName
+                item.name = item.displayName
                 item.count = item.amount
             end
         else
