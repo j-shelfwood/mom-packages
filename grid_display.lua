@@ -66,7 +66,7 @@ function GridDisplay:calculate_cells(num_items)
     self.monitor.setTextScale(self.scale)
     local width, height = self.monitor.getSize()
     self.columns = math.floor(width / self.cell_width)
-    self.rows = math.floor(height / DEFAULT_CELL_HEIGHT_PER_LINE)
+    self.rows = math.floor(height / self.cell_height)
     self.start_x = 1
 
     print("Using minimum scale settings") -- Debugging output
