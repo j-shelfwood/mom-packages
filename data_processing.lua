@@ -169,4 +169,31 @@ function DataProcessing.calculate_fluid_changes(prev_fluids, curr_fluids)
     return changes
 end
 
+-- [Existing content of data_processing.lua]
+
+-- New function to fetch storage cell details using listCells method
+function DataProcessing.fetch_storage_cells_details()
+    local peripheralType = detectPeripheralType()
+    local interface
+
+    -- Get a reference to the peripheral
+    if peripheralType == "meBridge" then
+        interface = peripheral.wrap(generics.findPeripheralSide("meBridge"))
+    elseif peripheralType == "merequester:requester" then
+        interface = peripheral.wrap(generics.findPeripheralSide("merequester:requester"))
+    else
+        error("No compatible peripheral detected.")
+    end
+
+    -- Fetch storage cell details using listCells method
+    if peripheralType == "meBridge" then
+        return interface.listCells()
+    elseif peripheralType == "merequester:requester" then
+        -- If the "merequester:requester" also supports listCells, fetch it, otherwise return an empty table
+        return interface.listCells and interface.listCells() or {}
+    end
+
+    return {} -- Default return in case of unforeseen issues
+end
+
 return DataProcessing

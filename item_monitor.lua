@@ -1,14 +1,30 @@
 -- Include Grid Display API
 local GridDisplay = require('grid_display')
 
--- Function to find peripheral side
 function findPeripheralSide(name)
     local sides = {"top", "bottom", "left", "right", "front", "back"}
+
+    -- Direct connection
     for _, side in ipairs(sides) do
         if peripheral.isPresent(side) and peripheral.getType(side) == name then
             return side
         end
     end
+
+    -- Check peripherals over network
+    local peripheralsList = peripheral.getNames()
+    local foundPeripherals = {}
+    for _, peripheralName in ipairs(peripheralsList) do
+        if peripheral.getType(peripheralName) == name then
+            table.insert(foundPeripherals, peripheralName)
+        end
+    end
+
+    if #foundPeripherals > 0 then
+        print("Using peripheral:", foundPeripherals[1])
+        return foundPeripherals[1]
+    end
+
     return nil
 end
 

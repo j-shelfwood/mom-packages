@@ -34,6 +34,8 @@ function saveToFile(filename, data)
     end
 end
 
+-- ... [Other functions stay the same]
+
 function peripheralReport()
     local peripherals = peripheral.getNames()
     if #peripherals == 0 then
@@ -62,16 +64,23 @@ function peripheralReport()
     table.insert(report, "Available Methods:")
 
     local methods = peripheral.getMethods(peripheralName)
+    local MAX_ITEMS = 10
+    local itemSampleLimit = 2
+
     for _, methodName in ipairs(methods) do
         table.insert(report, " - " .. methodName)
 
         -- Attempt to call the method with no arguments
-        -- (This might fail for methods that require arguments)
         local status, result = pcall(function()
             return target[methodName]()
         end)
 
-        if status then
+        if status and type(result) == "table" and #result > MAX_ITEMS then
+            table.insert(report, "   Sample Output (Showing " .. itemSampleLimit .. " out of " .. #result .. " items):")
+            for i = 1, itemSampleLimit do
+                table.insert(report, "     " .. safeSerialize(result[i]))
+            end
+        elseif status then
             table.insert(report, "   Sample Output: " .. safeSerialize(result))
         else
             table.insert(report,
