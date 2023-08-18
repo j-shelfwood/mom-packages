@@ -169,9 +169,29 @@ function DataProcessing.calculate_fluid_changes(prev_fluids, curr_fluids)
     return changes
 end
 
--- [Existing content of data_processing.lua]
+function DataProcessing.fetch_storage_status()
+    local peripheralType = detectPeripheralType()
+    local interface
 
--- New function to fetch storage cell details using listCells method
+    -- Get a reference to the peripheral
+    if peripheralType == "meBridge" then
+        interface = peripheral.wrap(generics.findPeripheralSide("meBridge"))
+    elseif peripheralType == "merequester:requester" then
+        interface = peripheral.wrap(generics.findPeripheralSide("merequester:requester"))
+    else
+        error("No compatible peripheral detected.")
+    end
+
+    local storageStatus = {
+        cells = interface.listCells(),
+        usedItemStorage = interface.getUsedItemStorage(),
+        totalItemStorage = interface.getTotalItemStorage(),
+        availableItemStorage = interface.getAvailableItemStorage()
+    }
+
+    return storageStatus
+end
+
 function DataProcessing.fetch_storage_cells_details()
     local peripheralType = detectPeripheralType()
     local interface
@@ -193,7 +213,24 @@ function DataProcessing.fetch_storage_cells_details()
         return interface.listCells and interface.listCells() or {}
     end
 
-    return {} -- Default return in case of unforeseen issues
+    return {}
+end
+
+function DataProcessing.categorize_storage_cells()
+    local cells = DataProcessing.fetch_storage_cells_details()
+    local categorized = {}
+
+    for _, cell in ipairs(cells) do
+        -- Extracting the storage cell type after the last underscore
+        local cellType = cell.item:match(".*_(%w+)$") or "Unknown"
+
+        if not categorized[cellType] then
+            categorized[cellType] = 0
+        end
+        categorized[cellType] = categorized[cellType] + 1
+    end
+
+    return categorized
 end
 
 return DataProcessing
