@@ -22,6 +22,17 @@ function safeSerialize(value)
     return _serialize(value)
 end
 
+function saveToFile(filename, data)
+    local file = fs.open(filename, "w")
+    if file then
+        file.write(data)
+        file.close()
+        print("Saved to " .. filename)
+    else
+        print("Failed to save to file.")
+    end
+end
+
 function inspectPeripheral()
     local peripherals = peripheral.getNames()
     if #peripherals == 0 then
@@ -73,7 +84,14 @@ function inspectPeripheral()
             local result = safeSerialize(target[methodName](unpack(args)))
             print("Result:")
             print(result)
-            break
+
+            -- Ask the user if they want to save the output
+            print("Do you want to save the output to a file? (y/n)")
+            local choice = read()
+            if choice == "y" then
+                local filename = methodName .. ".txt"
+                saveToFile(filename, result)
+            end
         else
             print("Invalid input. Try again.")
         end

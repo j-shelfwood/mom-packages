@@ -3,9 +3,9 @@ local DataProcessing = {}
 local generics = require('generics')
 
 function detectPeripheralType()
-    if peripheral.isPresent("meBridge") then
+    if generics.findPeripheralSide("meBridge") then
         return "meBridge"
-    elseif peripheral.isPresent("merequester:requester") then
+    elseif generics.findPeripheralSide("merequester:requester") then
         return "merequester:requester"
     end
     return nil
@@ -29,24 +29,33 @@ function DataProcessing.fetch_items()
     if peripheralType == "meBridge" then
         allItems = interface.listItems()
         for _, item in ipairs(allItems) do
-            item.technicalName = item.nbt.id
+            item.id = item.nbt.id
             item.name = item.nbt.displayName
             item.count = item.amount
         end
     elseif peripheralType == "merequester:requester" then
         allItems = interface.items()
+        for _, item in ipairs(allItems) do
+            item.id = item.technicalName
+            item.name = item.name
+            item.count = item.count
+        end
     end
 
     -- Consolidate items
     local consolidatedItems = {}
     for _, item in ipairs(allItems) do
-        local techName = item.technicalName
-        if consolidatedItems[techName] then
-            consolidatedItems[techName].count = consolidatedItems[techName].count + item.count
-        else
-            consolidatedItems[techName] = {
+        local id = item.id
+        if consolidatedItems[id] then
+            consolidatedItems[id] = {
+                id = id,
                 name = item.name,
-                technicalName = techName,
+                count = consolidatedItems[id].count + item.count
+            }
+        else
+            consolidatedItems[id] = {
+                id = id,
+                name = item.name,
                 count = item.count
             }
         end
@@ -58,6 +67,13 @@ function DataProcessing.fetch_items()
         table.insert(items, item)
     end
 
+    print("Items fetched: " .. #items)
+    for i, item in ipairs(items) do
+        if not item then
+            print("Nil item detected at position " .. i)
+        end
+    end
+
     return items
 end
 
@@ -66,23 +82,30 @@ function DataProcessing.calculate_changes(prev_items, curr_items)
     -- Convert the previous item list into a dictionary for easier lookup
     local prev_dict = {}
     for _, item in ipairs(prev_items) do
-        prev_dict[item.technicalName] = item.count
+        prev_dict[item.id] = item.count
     end
 
     -- Calculate changes
     local changes = {}
     for _, item in ipairs(curr_items) do
-        local prev_count = prev_dict[item.technicalName]
+        local prev_count = prev_dict[item.id]
         if prev_count and prev_count ~= item.count then
             local change = math.abs(item.count - prev_count)
             local operation = item.count > prev_count and "+" or "-"
             table.insert(changes, {
+                id = item.id,
                 name = item.name,
-                technicalName = item.technicalName,
                 count = item.count,
                 change = math.abs(change),
                 operation = operation
             })
+        end
+    end
+
+    print("Changes calculated: " .. #changes)
+    for i, change in ipairs(changes) do
+        if not change then
+            print("Nil change detected at position " .. i)
         end
     end
 

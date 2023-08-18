@@ -28,6 +28,15 @@ local function refresh_display()
         table.sort(changes, function(a, b)
             return a.change > b.change
         end)
+        -- If there are no changes, display a message on the monitor
+        if #changes == 0 then
+            -- Write it manually
+            monitor.clear()
+            monitor.setCursorPos(1, 1)
+            monitor.write("No changes detected")
+            print("No changes detected")
+            return
+        end
 
         -- Only display the top 25 changes
         changes = {table.unpack(changes, 1, 30)}

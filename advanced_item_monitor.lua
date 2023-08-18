@@ -55,8 +55,17 @@ function displayItemInfo(monitorSide, peripheralSide, numColumns, numRows)
 
     -- Continuously fetch and display the items
     while true do
-        -- Get items
-        local items = interface.items()
+        local items = {}
+        if peripheral.getType(peripheralSide) == "meBridge" then
+            items = interface.listItems()
+            for _, item in ipairs(items) do
+                item.technicalName = item.nbt.id
+                item.name = item.nbt.displayName
+                item.count = item.amount
+            end
+        else
+            items = interface.items()
+        end
 
         -- Sort items
         table.sort(items, function(a, b)
@@ -121,15 +130,15 @@ end
 
 -- Automatically find the sides
 local monitorSide = findPeripheralSide("monitor")
-local peripheralSide = findPeripheralSide("merequester:requester")
 
 if not monitorSide then
     print("Monitor not found.")
     return
 end
+local peripheralSide = findPeripheralSide("meBridge") or findPeripheralSide("merequester:requester")
 
 if not peripheralSide then
-    print("ME Requester not found.")
+    print("Neither ME Bridge nor ME Requester found.")
     return
 end
 
