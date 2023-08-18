@@ -1,62 +1,45 @@
 local DataProcessing = require('data_processing')
-local monitor = peripheral.find("monitor")
+local generics = require('generics')
 
--- Set text scale for better visibility
-monitor.setTextScale(0.5)
+-- Wrap the tall monitor on top
+local tallMonitor = peripheral.wrap("top")
 
-local WIDTH, HEIGHT = monitor.getSize()
+-- Constants
+local REFRESH_INTERVAL = 5 -- Seconds
+local MAX_DATA_POINTS = tallMonitor.getSize() -- Number of data points to store based on monitor width
 
--- Helper function to draw capacity bars
-local function drawCapacityBar(x, y, width, height, percentage)
-    local filledWidth = math.floor(width * percentage / 100)
-    for i = 1, height do
-        monitor.setCursorPos(x, y + i - 1)
-        monitor.setBackgroundColor(colors.green)
-        monitor.write(string.rep(" ", filledWidth))
-        monitor.setBackgroundColor(colors.gray)
-        monitor.write(string.rep(" ", width - filledWidth))
-    end
-    monitor.setBackgroundColor(colors.black) -- Reset background color
-end
+local storageData = {} -- To store recent storage usage data
 
-local function displayStorageInfo()
-    monitor.clear()
+-- Function to record the storage usage
+local function recordStorageUsage()
+    local usedStorage = DataProcessing.fetch_storage_status().usedItemStorage
+    table.insert(storageData, usedStorage)
 
-    -- Fetch storage cell details
-    local cells = DataProcessing.fetch_storage_cells_details()
-
-    if not cells or #cells == 0 then
-        monitor.setCursorPos(1, 1)
-        monitor.write("No storage cells detected.")
-        return
-    end
-
-    local totalUsedBytes = 0
-    local totalBytes = 0
-    for _, cell in ipairs(cells) do
-        totalUsedBytes = totalUsedBytes + (cell.totalBytes - cell.bytesPerType)
-        totalBytes = totalBytes + cell.totalBytes
-    end
-
-    -- Display total storage info
-    monitor.setCursorPos(1, 1)
-    monitor.write("Used: " .. totalUsedBytes .. "/" .. totalBytes .. " Bytes")
-
-    -- Display each cell's info
-    for i, cell in ipairs(cells) do
-        if i > HEIGHT - 2 then -- Save space for capacity bars
-            break
-        end
-        local percentageUsed = ((cell.totalBytes - cell.bytesPerType) / cell.totalBytes) * 100
-        monitor.setCursorPos(1, i + 1)
-        monitor.write(cell.item .. ": " .. math.floor(percentageUsed) .. "%")
-        drawCapacityBar(1, HEIGHT - i + 1, WIDTH, 1, percentageUsed)
+    -- Ensure we don't exceed the maximum data points
+    if #storageData > MAX_DATA_POINTS then
+        table.remove(storageData, 1)
     end
 end
 
-displayStorageInfo()
+-- Function to plot the storage trend graph
+local function plotGraph()
+    tallMonitor.clear()
 
+    local maxHeight = tallMonitor.getSize() -- Height of the monitor
+    local maxStorageCapacity = DataProcessing.fetch_storage_status().totalItemStorage
+
+    for x, usage in ipairs(storageData) do
+        -- Calculate the height to plot based on the usage relative to max storage capacity
+        local height = math.floor((usage / maxStorageCapacity) * maxHeight)
+
+        tallMonitor.setCursorPos(x, maxHeight - height + 1)
+        tallMonitor.write(string.rep("#", height))
+    end
+end
+
+-- Main loop to record and display the storage trend graph
 while true do
-    displayStorageInfo()
-    os.sleep(5)
+    recordStorageUsage()
+    plotGraph()
+    os.sleep(REFRESH_INTERVAL)
 end
