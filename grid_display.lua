@@ -68,6 +68,7 @@ function GridDisplay:calculate_cells(num_items)
     self.columns = math.floor(width / self.cell_width)
     self.rows = math.floor(height / self.cell_height)
     self.start_x = 1
+    self.start_y = 1
 
     print("Using minimum scale settings") -- Debugging output
     print("Monitor Width:", width, "Monitor Height:", height) -- Debugging output
