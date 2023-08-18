@@ -2,10 +2,21 @@
 local DataProcessing = {}
 local generics = require('generics')
 
+function detectPeripheralType()
+    if peripheral.isPresent("meBridge") then
+        return "meBridge"
+    elseif peripheral.isPresent("merequester:requester") then
+        return "merequester:requester"
+    end
+    return nil
+end
+
 -- Function to fetch items from the AE2 system
 function DataProcessing.fetch_items()
-    -- Get a reference to the peripheral
+    local peripheralType = detectPeripheralType()
     local interface
+
+    -- Get a reference to the peripheral
     if peripheralType == "meBridge" then
         interface = peripheral.wrap(generics.findPeripheralSide("meBridge"))
     elseif peripheralType == "merequester:requester" then
