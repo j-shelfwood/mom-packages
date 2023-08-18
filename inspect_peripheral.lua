@@ -1,5 +1,27 @@
 local ITEMS_PER_PAGE = 10 -- Adjust based on screen size and readability
 
+function safeSerialize(value)
+    local seen = {}
+    local function _serialize(value)
+        if type(value) == "table" then
+            if seen[value] then
+                return '"[Cyclical table reference]"'
+            end
+            seen[value] = true
+            local serializedTable = {}
+            for k, v in pairs(value) do
+                table.insert(serializedTable, _serialize(k) .. " = " .. _serialize(v))
+            end
+            return "{" .. table.concat(serializedTable, ", ") .. "}"
+        elseif type(value) == "string" then
+            return string.format("%q", value)
+        else
+            return tostring(value)
+        end
+    end
+    return _serialize(value)
+end
+
 function inspectPeripheral()
     local peripherals = peripheral.getNames()
     if #peripherals == 0 then
@@ -48,7 +70,7 @@ function inspectPeripheral()
             for arg in string.gmatch(argsInput, "[^,]+") do
                 table.insert(args, arg)
             end
-            local result = textutils.serialize(target[methodName](unpack(args)))
+            local result = safeSerialize(target[methodName](unpack(args)))
             print("Result:")
             print(result)
             break
