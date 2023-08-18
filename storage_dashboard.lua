@@ -2,11 +2,11 @@ local DataProcessing = require('data_processing')
 local generics = require('generics')
 
 -- Wrap the tall monitor on top
-local tallMonitor = peripheral.wrap("top")
+local monitor = peripheral.wrap("right")
 
 -- Constants
 local REFRESH_INTERVAL = 5 -- Seconds
-local MAX_DATA_POINTS = tallMonitor.getSize() -- Number of data points to store based on monitor width
+local MAX_DATA_POINTS = monitor.getSize() -- Number of data points to store based on monitor width
 
 local storageData = {} -- To store recent storage usage data
 
@@ -23,17 +23,17 @@ end
 
 -- Function to plot the storage trend graph
 local function plotGraph()
-    tallMonitor.clear()
+    monitor.clear()
 
-    local maxHeight = tallMonitor.getSize() -- Height of the monitor
+    local maxHeight = monitor.getSize() -- Height of the monitor
     local maxStorageCapacity = DataProcessing.fetch_storage_status().totalItemStorage
 
     for x, usage in ipairs(storageData) do
         -- Calculate the height to plot based on the usage relative to max storage capacity
         local height = math.floor((usage / maxStorageCapacity) * maxHeight)
 
-        tallMonitor.setCursorPos(x, maxHeight - height + 1)
-        tallMonitor.write(string.rep("#", height))
+        monitor.setCursorPos(x, maxHeight - height + 1)
+        monitor.write(string.rep("#", height))
     end
 end
 
