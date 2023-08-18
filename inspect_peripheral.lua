@@ -1,73 +1,61 @@
--- Function to inspect any detected peripheral and print out its methods (Computercraft/CC:Tweaked)
-function inspectPeripheral()
-    -- Get a list of all connected peripherals
-    local peripherals = peripheral.getNames()
+local ITEMS_PER_PAGE = 10 -- Adjust based on screen size and readability
 
-    -- If there are no peripherals available, print a message and return
+function inspectPeripheral()
+    local peripherals = peripheral.getNames()
     if #peripherals == 0 then
         print("No peripherals connected.")
         return
     end
 
-    -- Prompt the user to select a peripheral
     print("Select a peripheral to inspect:")
     for i, peripheralName in ipairs(peripherals) do
         print(i .. ". " .. peripheralName)
     end
     local selection = tonumber(read())
-
-    -- If the user entered an invalid selection, print a message and return
     if selection == nil or selection < 1 or selection > #peripherals then
         print("Invalid selection.")
         return
     end
 
-    -- Get the methods of the selected peripheral
     local peripheralName = peripherals[selection]
     local methods = peripheral.getMethods(peripheralName)
     local target = peripheral.wrap(peripheralName)
-
-    -- If there are no methods available, print a message and return
     if methods == nil or #methods == 0 then
         print("No methods available for the selected peripheral.")
         return
     end
 
-    -- Print the methods comma separated so many fit on the screen
     print("Methods for the " .. peripheral.getType(target) .. " peripheral:")
-    print(table.concat(methods, ", "))
+    local currentPage = 1
+    while true do
+        for i = (currentPage - 1) * ITEMS_PER_PAGE + 1, math.min(#methods, currentPage * ITEMS_PER_PAGE) do
+            print(i .. ". " .. methods[i])
+        end
 
-    -- Prompt the user to select a method
-    print("Select a method to run:")
-    for i, methodName in ipairs(methods) do
-        print(i .. ". " .. methodName)
+        print("Page " .. currentPage .. "/" .. math.ceil(#methods / ITEMS_PER_PAGE))
+        print("Enter method number (or 'n' for next page, 'p' for previous page):")
+        local input = read()
+
+        if input == "n" and currentPage < math.ceil(#methods / ITEMS_PER_PAGE) then
+            currentPage = currentPage + 1
+        elseif input == "p" and currentPage > 1 then
+            currentPage = currentPage - 1
+        elseif tonumber(input) and tonumber(input) > 0 and tonumber(input) <= #methods then
+            local methodName = methods[tonumber(input)]
+            print("Enter arguments for method " .. methodName .. " (comma separated, leave blank for none):")
+            local argsInput = read()
+            local args = {}
+            for arg in string.gmatch(argsInput, "[^,]+") do
+                table.insert(args, arg)
+            end
+            local result = textutils.serialize(target[methodName](unpack(args)))
+            print("Result:")
+            print(result)
+            break
+        else
+            print("Invalid input. Try again.")
+        end
     end
-    local methodSelection = tonumber(read())
-
-    -- If the user entered an invalid method selection, print a message and return
-    if methodSelection == nil or methodSelection < 1 or methodSelection > #methods then
-        print("Invalid method selection.")
-        return
-    end
-
-    -- Get the selected method name
-    local methodName = methods[methodSelection]
-
-    -- Prompt for arguments
-    print("Enter arguments for method " .. methodName .. " (comma separated, leave blank for none):")
-    local argsInput = read()
-    local args = {}
-    for arg in string.gmatch(argsInput, "[^,]+") do
-        table.insert(args, arg)
-    end
-
-    -- Run the method and serialize the result
-    local result = textutils.serialize(target[methodName](unpack(args)))
-
-    -- Print the result
-    print("Result:")
-    print(result)
 end
 
 inspectPeripheral()
-
