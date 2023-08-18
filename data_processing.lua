@@ -5,10 +5,26 @@ local generics = require('generics')
 -- Function to fetch items from the AE2 system
 function DataProcessing.fetch_items()
     -- Get a reference to the peripheral
-    local interface = peripheral.wrap(generics.findPeripheralSide("merequester:requester"))
+    local interface
+    if peripheralType == "meBridge" then
+        interface = peripheral.wrap(generics.findPeripheralSide("meBridge"))
+    elseif peripheralType == "merequester:requester" then
+        interface = peripheral.wrap(generics.findPeripheralSide("merequester:requester"))
+    else
+        error("No compatible peripheral detected.")
+    end
 
-    -- Get items
-    local allItems = interface.items()
+    local allItems = {}
+    if peripheralType == "meBridge" then
+        allItems = interface.listItems()
+        for _, item in ipairs(allItems) do
+            item.technicalName = item.nbt.id
+            item.name = item.nbt.displayName
+            item.count = item.amount
+        end
+    elseif peripheralType == "merequester:requester" then
+        allItems = interface.items()
+    end
 
     -- Consolidate items
     local consolidatedItems = {}
