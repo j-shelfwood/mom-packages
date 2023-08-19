@@ -1,2 +1,2 @@
 -- filelist.lua for tools module
-return {"inspect_peripheral.lua", "peripheral_report.lua"}
+return {"inspect_peripheral", "peripheral_report"}

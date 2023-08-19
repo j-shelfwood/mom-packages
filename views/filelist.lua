@@ -1,3 +1,3 @@
--- filelist.lua for views module
-return {"advanced_item_monitor.lua", "item_monitor.lua", "machine_activity_display.lua", "machine_status_display.lua",
-        "hello.lua", "fluid_monitor.lua", "storage_dashboard.lua", "inventory_changes.lua", "powah_energy_display.lua"}
+-- filelist for views module
+return {"advanced_item_monitor", "item_monitor", "machine_activity_display", "machine_status_display", "hello",
+        "fluid_monitor", "storage_dashboard", "inventory_changes", "powah_energy_display"}

@@ -1,2 +1,2 @@
 -- filelist.lua for turtles module
-return {"enslavement.lua", "main_computer.lua", "turtle_minion.lua"}
+return {"enslavement", "main_computer", "turtle_minion"}
