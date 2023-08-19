@@ -41,6 +41,11 @@ local function drawGraph(heights)
     monitor.setCursorPos(titleStartX, 1)
     monitor.write(TITLE)
 
+    -- Display current bytes used in the top right corner
+    local currentBytes = DataProcessing.fetch_storage_status().usedItemStorage
+    monitor.setCursorPos(WIDTH - #tostring(currentBytes), 1)
+    monitor.write(tostring(currentBytes) .. "B")
+
     -- Write Y-axis info
     monitor.setCursorPos(1, 2)
     monitor.write(tostring(DataProcessing.fetch_storage_status().totalItemStorage))
