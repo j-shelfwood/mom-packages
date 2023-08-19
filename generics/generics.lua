@@ -1,7 +1,7 @@
-local generics = {}
+local Generics = {}
 
 -- Function to find peripheral side
-function generics.findPeripheralSide(name)
+function Generics.findPeripheralSide(name)
     local sides = {"top", "bottom", "left", "right", "front", "back"}
     for _, side in ipairs(sides) do
         if peripheral.isPresent(side) and peripheral.getType(side) == name then
@@ -11,7 +11,7 @@ function generics.findPeripheralSide(name)
     return nil
 end
 
-function generics.formatFluidAmount(amount_mB)
+function Generics.formatFluidAmount(amount_mB)
     local absAmount_mB = math.abs(amount_mB)
     local absAmount_B = absAmount_mB / 1000
 
@@ -36,7 +36,7 @@ function generics.formatFluidAmount(amount_mB)
 end
 
 -- Function to shorten item names if they're too long
-function generics.shortenName(name, maxLength)
+function Generics.shortenName(name, maxLength)
     if #name <= maxLength then
         return name
     else
@@ -46,7 +46,7 @@ function generics.shortenName(name, maxLength)
 end
 
 -- Function to write centered text in a cell
-function generics.writeCentered(monitor, y, totalWidth, text)
+function Generics.writeCentered(monitor, y, totalWidth, text)
     local textScale = monitor.getTextScale()
     local textLength = #text
     local x = math.floor((totalWidth * textScale - textLength) / 2) + 1
@@ -54,4 +54,4 @@ function generics.writeCentered(monitor, y, totalWidth, text)
     monitor.write(text)
 end
 
-return generics
+return Generics
