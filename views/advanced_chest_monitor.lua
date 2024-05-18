@@ -92,8 +92,9 @@ local function displayItemInfo(monitorSide)
 
     -- Continuously fetch and display the items
     while true do
+        term.clear()
+        print("Fetching items from chests...")
         local items = fetchItemsFromChests()
-        print(textutils.serialize(items))
 
         -- Sort items
         table.sort(items, function(a, b)
