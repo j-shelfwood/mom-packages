@@ -1,5 +1,5 @@
 -- Include Grid Display API
-local GridDisplay = require('grid_display')
+local GridDisplay = require('../generics/grid_display')
 
 -- Function to find the side of a peripheral
 function findPeripheralSide(name)
