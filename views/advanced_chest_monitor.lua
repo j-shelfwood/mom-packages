@@ -1,9 +1,10 @@
 -- Include Grid Display API
-local GridDisplay = require('generics/grid_display')
+local GridDisplay = mpm('generics/grid_display')
+local Generics = mpm('generics/generics')
 
 -- Function to find the side of a peripheral
-function findPeripheralSide(name)
-    local sides = {"top", "bottom", "left", "right", "front", "back"}
+local function findPeripheralSide(name)
+    local sides = { "top", "bottom", "left", "right", "front", "back" }
 
     -- Direct connection
     for _, side in ipairs(sides) do
@@ -30,12 +31,12 @@ function findPeripheralSide(name)
 end
 
 -- Function to fetch items from all connected chests
-function fetchItemsFromChests()
+local function fetchItemsFromChests()
     local chests = {}
     local peripheralsList = peripheral.getNames()
 
     for _, peripheralName in ipairs(peripheralsList) do
-        if peripheral.getType(peripheralName) == "minecraft:chest" then
+        if peripheral.hasType(peripheralName, "inventory") then
             table.insert(chests, peripheral.wrap(peripheralName))
         end
     end
@@ -43,10 +44,12 @@ function fetchItemsFromChests()
     local allItems = {}
     for _, chest in ipairs(chests) do
         local items = chest.list()
-        for slot, item in pairs(items) do
-            item.slot = slot
-            item.chest = chest
-            table.insert(allItems, item)
+        if items then -- Check if items is not nil
+            for slot, item in pairs(items) do
+                item.slot = slot
+                item.chest = chest
+                table.insert(allItems, item)
+            end
         end
     end
 
@@ -74,7 +77,7 @@ function fetchItemsFromChests()
 end
 
 -- Function to display item information in a grid
-function displayItemInfo(monitorSide)
+local function displayItemInfo(monitorSide)
     -- Get a reference to the monitor
     local monitor = peripheral.wrap(monitorSide)
     local display = GridDisplay.new(monitor)
@@ -82,14 +85,15 @@ function displayItemInfo(monitorSide)
     -- Define a formatting callback for the grid display
     local function format_callback(item)
         return {
-            lines = {item.name, tostring(item.count)},
-            colors = {colors.white, colors.white}
+            lines = { Generics.prettifyItemIdentifier(item.name), tostring(item.count) },
+            colors = { colors.white, colors.white }
         }
     end
 
     -- Continuously fetch and display the items
     while true do
         local items = fetchItemsFromChests()
+        print(textutils.serialize(items))
 
         -- Sort items
         table.sort(items, function(a, b)
@@ -97,7 +101,10 @@ function displayItemInfo(monitorSide)
         end)
 
         -- Display the items in the grid
-        display:display(items, format_callback)
+        local success, err = pcall(display.display, display, items, format_callback)
+        if not success then
+            print("Error displaying items:", err)
+        end
 
         sleep(1)
     end
@@ -112,4 +119,8 @@ if not monitorSide then
 end
 
 -- Call the function to display the item information
+local success, err = pcall(displayItemInfo, monitorSide)
+if not success then
+    print("Error in displayItemInfo:", err)
+end
 displayItemInfo(monitorSide)

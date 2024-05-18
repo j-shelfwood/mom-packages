@@ -2,7 +2,7 @@ local Generics = {}
 
 -- Function to find peripheral side
 function Generics.findPeripheralSide(name)
-    local sides = {"top", "bottom", "left", "right", "front", "back"}
+    local sides = { "top", "bottom", "left", "right", "front", "back" }
     for _, side in ipairs(sides) do
         if peripheral.isPresent(side) and peripheral.getType(side) == name then
             return side
@@ -33,6 +33,19 @@ function Generics.formatFluidAmount(amount_mB)
 
     -- Million B
     return string.format("%.2fM B", absAmount_B / 1000000)
+end
+
+-- Function to prettify an item identifier (minecraft:chest -> Chest)
+function Generics.prettifyItemIdentifier(itemIdentifier)
+    -- Remove everything before : (including other values than minecraft:)
+    local name = itemIdentifier:match(":(.+)$")
+    if name then
+        -- Capitalize the first letter and return
+        return name:gsub("^%l", string.upper)
+    else
+        -- If no colon is found, return the original identifier
+        return itemIdentifier
+    end
 end
 
 -- Function to shorten item names if they're too long
