@@ -5,9 +5,11 @@ local generics = require('generics')
 function detectPeripheralType()
     if generics.findPeripheralSide("meBridge") then
         return "meBridge"
-    elseif generics.findPeripheralSide("merequester:requester") then
+    end
+    if generics.findPeripheralSide("merequester:requester") then
         return "merequester:requester"
     end
+    
     return nil
 end
 
