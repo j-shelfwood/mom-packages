@@ -1,8 +1,8 @@
 -- Include Grid Display API
-local GridDisplay = require('grid_display')
+local GridDisplay = require('generics/grid_display')
 
 function findPeripheralSide(name)
-    local sides = {"top", "bottom", "left", "right", "front", "back"}
+    local sides = { "top", "bottom", "left", "right", "front", "back" }
 
     -- Direct connection
     for _, side in ipairs(sides) do
@@ -43,8 +43,8 @@ function displayItemInfo(monitorSide, peripheralSide)
     local function format_callback(item)
         local color = item.change == "+" and colors.green or colors.red
         return {
-            lines = {item.name, tostring(item.count), item.change},
-            colors = {colors.white, colors.white, color}
+            lines = { item.name, tostring(item.count), item.change },
+            colors = { colors.white, colors.white, color }
         }
     end
 
