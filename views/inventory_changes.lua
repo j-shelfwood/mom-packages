@@ -12,7 +12,7 @@ local display = GridDisplay.new(monitor)
 local function format_callback(item)
     local color = item.operation == "+" and colors.green or colors.red
     return {
-        lines = { item.name, tostring(item.count), item.operation .. tostring(item.change) },
+        lines = { generics.prettifyItemIdentifier(item.name), tostring(item.count), item.operation .. tostring(item.change) },
         colors = { colors.white, colors.white, color }
     }
 end
