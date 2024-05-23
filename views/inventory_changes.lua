@@ -1,8 +1,8 @@
 -- Inventory_changes.lua
 -- Include Data Processing and Grid Display APIs
-local DataProcessing = require('data_processing')
-local GridDisplay = require('grid_display')
-local generics = require('generics')
+local DataProcessing = mpm('peripherals/data_processing')
+local GridDisplay = mpm('generics/grid_display')
+local generics = mpm('generics/generics')
 
 -- Wrap the monitor
 local monitor = peripheral.wrap(generics.findPeripheralSide('monitor'))
@@ -12,8 +12,8 @@ local display = GridDisplay.new(monitor)
 local function format_callback(item)
     local color = item.operation == "+" and colors.green or colors.red
     return {
-        lines = {item.name, tostring(item.count), item.operation .. tostring(item.change)},
-        colors = {colors.white, colors.white, color}
+        lines = { item.name, tostring(item.count), item.operation .. tostring(item.change) },
+        colors = { colors.white, colors.white, color }
     }
 end
 
@@ -39,7 +39,7 @@ local function refresh_display()
         end
 
         -- Only display the top 25 changes
-        changes = {table.unpack(changes, 1, 30)}
+        changes = { table.unpack(changes, 1, 30) }
 
         -- Display the changes on the monitor
         display:display(changes, format_callback)
