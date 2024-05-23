@@ -1,15 +1,15 @@
 -- data_processing.lua
 local DataProcessing = {}
-local generics = require('generics')
+local Generics = require('generics/generics')
 
 function detectPeripheralType()
-    if generics.findPeripheralSide("meBridge") then
+    if Generics.findPeripheralSide("meBridge") then
         return "meBridge"
     end
-    if generics.findPeripheralSide("merequester:requester") then
+    if Generics.findPeripheralSide("merequester:requester") then
         return "merequester:requester"
     end
-    
+
     return nil
 end
 
@@ -20,9 +20,9 @@ function DataProcessing.fetch_items()
 
     -- Get a reference to the peripheral
     if peripheralType == "meBridge" then
-        interface = peripheral.wrap(generics.findPeripheralSide("meBridge"))
+        interface = peripheral.wrap(Generics.findPeripheralSide("meBridge"))
     elseif peripheralType == "merequester:requester" then
-        interface = peripheral.wrap(generics.findPeripheralSide("merequester:requester"))
+        interface = peripheral.wrap(Generics.findPeripheralSide("merequester:requester"))
     else
         error("No compatible peripheral detected.")
     end
@@ -117,7 +117,7 @@ end
 -- Function to fetch fluids from the AE2 system
 function DataProcessing.fetch_fluids()
     -- Get a reference to the peripheral (assuming it's named fluid_requester)
-    local interface = peripheral.wrap(generics.findPeripheralSide("merequester:requester"))
+    local interface = peripheral.wrap(Generics.findPeripheralSide("merequester:requester"))
 
     -- Get fluids
     local allFluids = interface.tanks()
@@ -177,9 +177,9 @@ function DataProcessing.fetch_storage_status()
 
     -- Get a reference to the peripheral
     if peripheralType == "meBridge" then
-        interface = peripheral.wrap(generics.findPeripheralSide("meBridge"))
+        interface = peripheral.wrap(Generics.findPeripheralSide("meBridge"))
     elseif peripheralType == "merequester:requester" then
-        interface = peripheral.wrap(generics.findPeripheralSide("merequester:requester"))
+        interface = peripheral.wrap(Generics.findPeripheralSide("merequester:requester"))
     else
         error("No compatible peripheral detected.")
     end
@@ -200,9 +200,9 @@ function DataProcessing.fetch_storage_cells_details()
 
     -- Get a reference to the peripheral
     if peripheralType == "meBridge" then
-        interface = peripheral.wrap(generics.findPeripheralSide("meBridge"))
+        interface = peripheral.wrap(Generics.findPeripheralSide("meBridge"))
     elseif peripheralType == "merequester:requester" then
-        interface = peripheral.wrap(generics.findPeripheralSide("merequester:requester"))
+        interface = peripheral.wrap(Generics.findPeripheralSide("merequester:requester"))
     else
         error("No compatible peripheral detected.")
     end
