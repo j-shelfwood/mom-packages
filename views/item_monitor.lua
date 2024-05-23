@@ -1,5 +1,5 @@
 -- Include Grid Display API
-local GridDisplay = require('generics/grid_display')
+local GridDisplay = mpm('generics/grid_display')
 
 function findPeripheralSide(name)
     local sides = { "top", "bottom", "left", "right", "front", "back" }
