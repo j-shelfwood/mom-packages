@@ -1,6 +1,6 @@
 -- data_processing.lua
 local DataProcessing = {}
-local Generics = require('generics/generics')
+local Generics = mpm('generics/generics')
 
 function detectPeripheralType()
     if Generics.findPeripheralSide("meBridge") then
