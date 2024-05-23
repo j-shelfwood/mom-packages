@@ -1,5 +1,6 @@
 -- Include Grid Display API
 local GridDisplay = mpm('generics/grid_display')
+local Generics = mpm('generics/generics')
 
 function findPeripheralSide(name)
     local sides = { "top", "bottom", "left", "right", "front", "back" }
@@ -43,7 +44,7 @@ function displayItemInfo(monitorSide, peripheralSide)
     local function format_callback(item)
         local color = item.change == "+" and colors.green or colors.red
         return {
-            lines = { item.name, tostring(item.count), item.change },
+            lines = { Generics.prettifyItemIdentifier(item.name), tostring(item.count), item.change },
             colors = { colors.white, colors.white, color }
         }
     end
