@@ -2,17 +2,17 @@
 -- Include Data Processing and Grid Display APIs
 local DataProcessing = mpm('peripherals/data_processing')
 local GridDisplay = mpm('generics/grid_display')
-local generics = mpm('generics/generics')
+local Generics = mpm('generics/generics')
 
 -- Wrap the monitor
-local monitor = peripheral.wrap(generics.findPeripheralSide('monitor'))
+local monitor = peripheral.wrap(Generics.findPeripheralSide('monitor'))
 local display = GridDisplay.new(monitor)
 
 -- Define a formatting callback for the grid display
 local function format_callback(item)
     local color = item.operation == "+" and colors.green or colors.red
     return {
-        lines = { generics.prettifyItemIdentifier(item.name), tostring(item.count), item.operation .. tostring(item.change) },
+        lines = { Generics.prettifyItemIdentifier(item.name), tostring(item.count), item.operation .. tostring(item.change) },
         colors = { colors.white, colors.white, color }
     }
 end
