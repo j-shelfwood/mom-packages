@@ -1,4 +1,3 @@
-local MonitorDisplay = mpm('views/MonitorDisplay')
 local AEInterface = mpm('peripherals/AEInterface')
 local GridDisplay = mpm('utils/GridDisplay')
 local Text = require('utils/Text')

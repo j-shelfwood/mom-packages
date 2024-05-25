@@ -1,4 +1,3 @@
-local MonitorDisplay = mpm('monitor_display')
 local AEInterface = mpm('peripherals/AEInterface')
 local GridDisplay = mpm('utils/GridDisplay')
 local Text = mpm('utils/Text')

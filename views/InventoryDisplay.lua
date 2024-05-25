@@ -1,4 +1,3 @@
-local MonitorDisplay = mpm('views/MonitorDisplay')
 local GridDisplay = mpm('utils/GridDisplay')
 local Text = mpm('utils/Text')
 

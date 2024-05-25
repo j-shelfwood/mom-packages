@@ -1,18 +1,10 @@
 local views = mpm('views/filelist') -- Load the list of view scripts
 local peripherals = peripheral.getNames()
 
--- Filter out the generic MonitorDisplay class
-local availableViews = {}
-for _, view in ipairs(views) do
-    if view ~= "MonitorDisplay" then
-        table.insert(availableViews, view)
-    end
-end
-
 -- Function to select a view
 local function selectView()
     print("Select a view:")
-    for i, view in ipairs(availableViews) do
+    for i, view in ipairs(views) do
         print(i .. ". " .. view)
     end
     local choice = tonumber(read())

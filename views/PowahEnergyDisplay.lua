@@ -1,4 +1,3 @@
-local MonitorDisplay = mpm('views/MonitorDisplay')
 local wpp = mpm('wpp/wpp')
 local GridDisplay = mpm('utils/GridDisplay')
 
