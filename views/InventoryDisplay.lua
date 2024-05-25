@@ -23,7 +23,7 @@ module = {
     end,
 
     refresh_display = function(self)
-        local items = self.peripheral.listItems()
+        local items = self.peripheral.items()
         for _, item in ipairs(items) do
             item.name = item.displayName
             item.count = item.amount
