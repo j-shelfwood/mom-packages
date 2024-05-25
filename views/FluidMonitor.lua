@@ -3,43 +3,45 @@ local AEInterface = mpm('peripherals/AEInterface')
 local GridDisplay = mpm('utils/GridDisplay')
 local Text = require('utils/Text')
 
-local FluidMonitor = setmetatable({}, {
-    __index = MonitorDisplay
-})
-FluidMonitor.__index = FluidMonitor
+local module
 
-function FluidMonitor.new(monitor, requester)
-    local self = MonitorDisplay.new(monitor)
-    setmetatable(self, FluidMonitor)
-    self.display = GridDisplay.new(monitor)
-    self.interface = AEInterface.new(requester)
-    self.prev_fluids = self.interface:fluids()
-    return self
-end
+module = {
+    new = function(monitor, requester)
+        local self = {
+            monitor = monitor,
+            requester = requester,
+            display = GridDisplay.new(monitor),
+            interface = AEInterface.new(requester),
+            prev_fluids = nil
+        }
+        self.prev_fluids = AEInterface.fluids(self.interface)
+        return self
+    end,
 
-function FluidMonitor:format_callback(fluid)
-    local color = fluid.operation == "+" and colors.green or colors.red
-    local _, _, name = string.find(fluid.name, ":(.+)")
-    name = name:gsub("^%l", string.upper)
-    return {
-        lines = {name, Text.formatFluidAmount(fluid.amount), fluid.operation .. Text.formatFluidAmount(fluid.change)},
-        colors = {colors.white, colors.white, color}
-    }
-end
+    format_callback = function(fluid)
+        local color = fluid.operation == "+" and colors.green or colors.red
+        local _, _, name = string.find(fluid.name, ":(.+)")
+        name = name:gsub("^%l", string.upper)
+        return {
+            lines = {name, Text.formatFluidAmount(fluid.amount), fluid.operation .. Text.formatFluidAmount(fluid.change)},
+            colors = {colors.white, colors.white, color}
+        }
+    end,
 
-function FluidMonitor:render()
-    if self.prev_fluids then
-        local changes = self.interface.fluid_changes(self.prev_fluids)
-        table.sort(changes, function(a, b)
-            return a.change > b.change
-        end)
-        changes = {table.unpack(changes, 1, 30)}
-        self.display:display(changes, function(item)
-            return self:format_callback(item)
-        end)
-        print("Detected " .. #changes .. " changes in fluids")
+    render = function(self)
+        if self.prev_fluids then
+            local changes = AEInterface.fluid_changes(self.interface, self.prev_fluids)
+            table.sort(changes, function(a, b)
+                return a.change > b.change
+            end)
+            changes = {table.unpack(changes, 1, 30)}
+            self.display:display(changes, function(item)
+                return module.format_callback(item)
+            end)
+            print("Detected " .. #changes .. " changes in fluids")
+        end
+        self.prev_fluids = AEInterface.fluids(self.interface)
     end
-    self.prev_fluids = curr_fluids
-end
+}
 
-return FluidMonitor
+return module
