@@ -37,10 +37,10 @@ local function main()
     local monitorName = selectMonitor()
     local monitor = peripheral.wrap(monitorName)
     local ViewClass = mpm('views/' .. selectedView)
-    local viewInstance = ViewClass.new(monitor, peripheral)
+    local viewInstance = ViewClass.new(monitor)
 
     while true do
-        viewInstance:render()
+        ViewClass.render(viewInstance)
         sleep(5)
     end
 end
