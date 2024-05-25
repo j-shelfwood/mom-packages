@@ -4,10 +4,10 @@ local Text = mpm('utils/Text')
 local module
 
 module = {
-    new = function(monitor, peripheral)
+    new = function(monitor)
         local self = {
             monitor = monitor,
-            peripheral = peripheral,
+            peripheral = peripheral.find('merequester:requester'),
             display = GridDisplay.new(monitor),
             prevItems = {}
         }
