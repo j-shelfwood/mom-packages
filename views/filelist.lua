@@ -1,3 +1,3 @@
 -- filelist for views module
-return {"ChestMonitor", "FluidMonitor", "MonitorDisplay", "InventoryChangesDisplay", "InventoryDisplay",
+return {"ChestDisplay", "FluidMonitor", "MonitorDisplay", "InventoryChangesDisplay", "InventoryDisplay",
         "PowahEnergyDisplay", "StorageDashboard"}

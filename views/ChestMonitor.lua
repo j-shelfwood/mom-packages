@@ -2,19 +2,19 @@
 local GridDisplay = mpm('utils/GridDisplay')
 local Text = mpm('utils/Text')
 
--- Define the ChestMonitor class
-local ChestMonitor = {}
-ChestMonitor.__index = ChestMonitor
+-- Define the ChestDisplay class
+local ChestDisplay = {}
+ChestDisplay.__index = ChestDisplay
 
-function ChestMonitor.new(monitor, chests)
-    local self = setmetatable({}, ChestMonitor)
+function ChestDisplay.new(monitor, chests)
+    local self = setmetatable({}, ChestDisplay)
     self.monitor = monitor
     self.chests = chests
     self.display = GridDisplay.new(monitor)
     return self
 end
 
-function ChestMonitor:fetchItemsFromChests()
+function ChestDisplay:fetchItemsFromChests()
     local allItems = {}
     for _, chest in ipairs(self.chests) do
         local items = chest.list()
@@ -48,7 +48,7 @@ function ChestMonitor:fetchItemsFromChests()
     return items
 end
 
-function ChestMonitor:displayItemInfo()
+function ChestDisplay:displayItemInfo()
     local function format_callback(item)
         return {
             lines = {Text.prettifyItemIdentifier(item.name), tostring(item.count)},
@@ -74,4 +74,4 @@ function ChestMonitor:displayItemInfo()
     end
 end
 
-return ChestMonitor
+return ChestDisplay
