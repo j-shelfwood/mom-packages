@@ -26,7 +26,7 @@ module = {
         local items = self.peripheral.items()
         for _, item in ipairs(items) do
             item.name = item.displayName
-            item.count = item.amount
+            item.count = item.count
         end
         table.sort(items, function(a, b)
             return a.count > b.count
