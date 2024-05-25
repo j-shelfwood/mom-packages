@@ -1,47 +1,25 @@
--- data_processing.lua
-local DataProcessing = {}
-local Generics = mpm('generics/generics')
+local AEInterface = {}
+AEInterface.__index = AEInterface
 
-function detectPeripheralType()
-    if Generics.findPeripheralSide("meBridge") then
-        return "meBridge"
-    end
-    if Generics.findPeripheralSide("merequester:requester") then
-        return "merequester:requester"
-    end
-
-    return nil
+-- Constructor
+function AEInterface.new(peripheral)
+    local self = setmetatable({}, AEInterface)
+    self.interface = peripheral
+    return self
 end
 
 -- Function to fetch items from the AE2 system
-function DataProcessing.fetch_items()
-    local peripheralType = detectPeripheralType()
-    local interface
+function AEInterface:items()
+    local allItems = self.interface.items()
 
-    -- Get a reference to the peripheral
-    if peripheralType == "meBridge" then
-        interface = peripheral.wrap(Generics.findPeripheralSide("meBridge"))
-    elseif peripheralType == "merequester:requester" then
-        interface = peripheral.wrap(Generics.findPeripheralSide("merequester:requester"))
-    else
-        error("No compatible peripheral detected.")
+    if not allItems then
+        error("No items detected.")
     end
 
-    local allItems = {}
-    if peripheralType == "meBridge" then
-        allItems = interface.listItems()
-        for _, item in ipairs(allItems) do
-            item.id = item.nbt.id
-            item.name = item.displayName
-            item.count = item.amount
-        end
-    elseif peripheralType == "merequester:requester" then
-        allItems = interface.items()
-        for _, item in ipairs(allItems) do
-            item.id = item.technicalName
-            item.name = item.name
-            item.count = item.count
-        end
+    for _, item in ipairs(allItems) do
+        item.id = item.technicalName
+        item.name = item.name
+        item.count = item.count
     end
 
     -- Consolidate items
@@ -80,7 +58,9 @@ function DataProcessing.fetch_items()
 end
 
 -- Function to calculate the changes between two item lists
-function DataProcessing.calculate_changes(prev_items, curr_items)
+function AEInterface:changes(prev_items)
+    -- Fetch current items
+    local curr_items = self:items()
     -- Convert the previous item list into a dictionary for easier lookup
     local prev_dict = {}
     for _, item in ipairs(prev_items) do
@@ -115,12 +95,9 @@ function DataProcessing.calculate_changes(prev_items, curr_items)
 end
 
 -- Function to fetch fluids from the AE2 system
-function DataProcessing.fetch_fluids()
-    -- Get a reference to the peripheral (assuming it's named fluid_requester)
-    local interface = peripheral.wrap(Generics.findPeripheralSide("merequester:requester"))
-
+function AEInterface:fluids()
     -- Get fluids
-    local allFluids = interface.tanks()
+    local allFluids = self.interface.tanks()
 
     -- Consolidate fluids
     local consolidatedFluids = {}
@@ -145,7 +122,9 @@ function DataProcessing.fetch_fluids()
 end
 
 -- Function to calculate the changes between two fluid lists
-function DataProcessing.calculate_fluid_changes(prev_fluids, curr_fluids)
+function AEInterface:fluid_changes(prev_fluids)
+    -- Fetch current fluids
+    local curr_fluids = self:fluids()
     -- Convert the previous fluid list into a dictionary for easier lookup
     local prev_dict = {}
     for _, fluid in ipairs(prev_fluids) do
@@ -171,55 +150,24 @@ function DataProcessing.calculate_fluid_changes(prev_fluids, curr_fluids)
     return changes
 end
 
-function DataProcessing.fetch_storage_status()
-    local peripheralType = detectPeripheralType()
-    local interface
-
-    -- Get a reference to the peripheral
-    if peripheralType == "meBridge" then
-        interface = peripheral.wrap(Generics.findPeripheralSide("meBridge"))
-    elseif peripheralType == "merequester:requester" then
-        interface = peripheral.wrap(Generics.findPeripheralSide("merequester:requester"))
-    else
-        error("No compatible peripheral detected.")
-    end
-
+function AEInterface:storage_status()
     local storageStatus = {
-        cells = interface.listCells(),
-        usedItemStorage = interface.getUsedItemStorage(),
-        totalItemStorage = interface.getTotalItemStorage(),
-        availableItemStorage = interface.getAvailableItemStorage()
+        cells = self.interface.listCells(),
+        usedItemStorage = self.interface.getUsedItemStorage(),
+        totalItemStorage = self.interface.getTotalItemStorage(),
+        availableItemStorage = self.interface.getAvailableItemStorage()
     }
 
     return storageStatus
 end
 
-function DataProcessing.fetch_storage_cells_details()
-    local peripheralType = detectPeripheralType()
-    local interface
-
-    -- Get a reference to the peripheral
-    if peripheralType == "meBridge" then
-        interface = peripheral.wrap(Generics.findPeripheralSide("meBridge"))
-    elseif peripheralType == "merequester:requester" then
-        interface = peripheral.wrap(Generics.findPeripheralSide("merequester:requester"))
-    else
-        error("No compatible peripheral detected.")
-    end
-
+function AEInterface:cells()
     -- Fetch storage cell details using listCells method
-    if peripheralType == "meBridge" then
-        return interface.listCells()
-    elseif peripheralType == "merequester:requester" then
-        -- If the "merequester:requester" also supports listCells, fetch it, otherwise return an empty table
-        return interface.listCells and interface.listCells() or {}
-    end
-
-    return {}
+    return self.interface.listCells()
 end
 
-function DataProcessing.categorize_storage_cells()
-    local cells = DataProcessing.fetch_storage_cells_details()
+function AEInterface:categorize_cells()
+    local cells = self:cells()
     local categorized = {}
 
     for _, cell in ipairs(cells) do
@@ -235,4 +183,4 @@ function DataProcessing.categorize_storage_cells()
     return categorized
 end
 
-return DataProcessing
+return AEInterface

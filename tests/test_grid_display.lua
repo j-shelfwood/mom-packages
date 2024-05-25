@@ -1,12 +1,10 @@
 -- test_script.lua
-
 -- Include required APIs
-local DataProcessing = require('data_processing')
-local GridDisplay = require('grid_display')
-local generics = require('mpm/packages/generics')
+local AEInterface = mpm('peripherals/AEInterface')
+local GridDisplay = mpm('views/GridDisplay')
 
 -- Detect monitor
-local monitor = peripheral.wrap(generics.findPeripheralSide("monitor"))
+local monitor = peripheral.find("monitor")
 local gridDisplay = GridDisplay.new(monitor)
 
 -- Function to sort items by count (descending)
@@ -31,13 +29,13 @@ local function format_callback(item)
 end
 
 -- Fetch items and sort them
-local items = DataProcessing.fetch_items()
+local items = AEInterface.items()
 sort_items(items)
 
 -- Display items in a grid, increasing the number of items every 10 seconds
 while true do
     for i = 2, 6 do
-        local num_items = 2^i
+        local num_items = 2 ^ i
         local display_items = {}
         for j = 1, num_items do
             table.insert(display_items, items[j])

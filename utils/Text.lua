@@ -1,17 +1,6 @@
-local Generics = {}
+local Text = {}
 
--- Function to find peripheral side
-function Generics.findPeripheralSide(name)
-    local sides = { "top", "bottom", "left", "right", "front", "back" }
-    for _, side in ipairs(sides) do
-        if peripheral.isPresent(side) and peripheral.getType(side) == name then
-            return side
-        end
-    end
-    return nil
-end
-
-function Generics.formatFluidAmount(amount_mB)
+function Text.formatFluidAmount(amount_mB)
     local absAmount_mB = math.abs(amount_mB)
     local absAmount_B = absAmount_mB / 1000
 
@@ -36,7 +25,7 @@ function Generics.formatFluidAmount(amount_mB)
 end
 
 -- Function to prettify an item identifier (minecraft:chest -> Chest)
-function Generics.prettifyItemIdentifier(itemIdentifier)
+function Text.prettifyItemIdentifier(itemIdentifier)
     -- Remove everything before : (including other values than minecraft:)
     local name = itemIdentifier:match(":(.+)$")
     if name then
@@ -49,7 +38,7 @@ function Generics.prettifyItemIdentifier(itemIdentifier)
 end
 
 -- Function to shorten item names if they're too long
-function Generics.shortenName(name, maxLength)
+function Text.shortenName(name, maxLength)
     if #name <= maxLength then
         return name
     else
@@ -58,13 +47,4 @@ function Generics.shortenName(name, maxLength)
     end
 end
 
--- Function to write centered text in a cell
-function Generics.writeCentered(monitor, y, totalWidth, text)
-    local textScale = monitor.getTextScale()
-    local textLength = #text
-    local x = math.floor((totalWidth * textScale - textLength) / 2) + 1
-    monitor.setCursorPos(x, y)
-    monitor.write(text)
-end
-
-return Generics
+return Text

@@ -1,7 +1,6 @@
 -- test_script.lua
-
 -- Include Data Processing API
-local DataProcessing = require('data_processing')
+local AEInterface = require('data_processing')
 
 -- SECTION: Helper functions
 
@@ -53,19 +52,18 @@ local function get_change_by_name(changes, name)
     return nil
 end
 
-
 -- SECTION: Main logic
 
 -- Open the file in write mode
 local file = fs.open("test_output.txt", "w")
 
 -- Fetch items twice with a delay
-local prev_items = DataProcessing.fetch_items()
+local prev_items = AEInterface.items()
 os.sleep(10)
-local curr_items = DataProcessing.fetch_items()
+local curr_items = AEInterface.items()
 
 -- Calculate changes
-local changes = DataProcessing.calculate_changes(prev_items, curr_items)
+local changes = AEInterface.changes(prev_items, curr_items)
 
 -- List of items to monitor
 local items_to_monitor = {"brazier:ash", "minecraft:charcoal", "minecraft:crossbow"}
