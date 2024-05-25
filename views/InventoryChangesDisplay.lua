@@ -5,11 +5,11 @@ local Text = mpm('utils/Text')
 local module
 
 module = {
-    new = function(monitor, requester)
+    new = function(monitor)
         local self = {
             monitor = monitor,
             requester = requester,
-            interface = AEInterface.new(requester),
+            interface = AEInterface.new(peripheral.find('merequester:requester')),
             display = GridDisplay.new(monitor),
             prev_items = nil
         }
