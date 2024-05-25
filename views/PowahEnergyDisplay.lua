@@ -45,18 +45,11 @@ function PowahEnergyDisplay:fetch_energy()
     return energy_data
 end
 
-function PowahEnergyDisplay:refresh_display()
+function PowahEnergyDisplay:render()
     local energy_data = self:fetch_energy()
     self.display:display(energy_data, function(item)
         return self:format_callback(item)
     end)
-end
-
-function PowahEnergyDisplay:render()
-    while true do
-        self:refresh_display()
-        os.sleep(15)
-    end
 end
 
 return PowahEnergyDisplay

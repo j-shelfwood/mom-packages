@@ -48,7 +48,7 @@ function ChestDisplay:fetchItemsFromChests()
     return items
 end
 
-function ChestDisplay:displayItemInfo()
+function ChestDisplay:render()
     local function format_callback(item)
         return {
             lines = {Text.prettifyItemIdentifier(item.name), tostring(item.count)},
@@ -56,21 +56,15 @@ function ChestDisplay:displayItemInfo()
         }
     end
 
-    while true do
-        term.clear()
-        print("Fetching items from chests...")
-        local items = self:fetchItemsFromChests()
+    local items = self:fetchItemsFromChests()
 
-        table.sort(items, function(a, b)
-            return a.count > b.count
-        end)
+    table.sort(items, function(a, b)
+        return a.count > b.count
+    end)
 
-        local success, err = pcall(self.display.display, self.display, items, format_callback)
-        if not success then
-            print("Error displaying items:", err)
-        end
-
-        sleep(1)
+    local success, err = pcall(self.display.display, self.display, items, format_callback)
+    if not success then
+        print("Error displaying items:", err)
     end
 end
 

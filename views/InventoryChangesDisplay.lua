@@ -1,4 +1,4 @@
-local MonitorDisplay = mpm('monitor_display')
+local MonitorDisplay = mpm('views/MonitorDisplay')
 local AEInterface = mpm('peripherals/AEInterface')
 local GridDisplay = mpm('utils/GridDisplay')
 local Text = mpm('utils/Text')
@@ -25,7 +25,7 @@ function InventoryChangesDisplay:format_callback(item)
     }
 end
 
-function InventoryChangesDisplay:refresh_display()
+function InventoryChangesDisplay:render()
     if self.prev_items then
         local changes = self.interface.changes(self.prev_items)
         table.sort(changes, function(a, b)
@@ -45,13 +45,6 @@ function InventoryChangesDisplay:refresh_display()
         print("Detected " .. #changes .. " changes")
     end
     self.prev_items = curr_items
-end
-
-function InventoryChangesDisplay:render()
-    while true do
-        self:refresh_display()
-        os.sleep(15)
-    end
 end
 
 return InventoryChangesDisplay

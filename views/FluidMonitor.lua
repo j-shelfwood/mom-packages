@@ -1,7 +1,7 @@
 local MonitorDisplay = mpm('views/MonitorDisplay')
 local AEInterface = mpm('peripherals/AEInterface')
-local GridDisplay = mpm('utils/grid_display')
-local Text = require('utils/text')
+local GridDisplay = mpm('utils/GridDisplay')
+local Text = require('utils/Text')
 
 local FluidMonitor = setmetatable({}, {
     __index = MonitorDisplay
@@ -27,7 +27,7 @@ function FluidMonitor:format_callback(fluid)
     }
 end
 
-function FluidMonitor:refresh_display()
+function FluidMonitor:render()
     if self.prev_fluids then
         local changes = self.interface.fluid_changes(self.prev_fluids)
         table.sort(changes, function(a, b)
@@ -40,13 +40,6 @@ function FluidMonitor:refresh_display()
         print("Detected " .. #changes .. " changes in fluids")
     end
     self.prev_fluids = curr_fluids
-end
-
-function FluidMonitor:render()
-    while true do
-        self:refresh_display()
-        os.sleep(15)
-    end
 end
 
 return FluidMonitor

@@ -24,7 +24,7 @@ function InventoryDisplay:format_callback(item)
     }
 end
 
-function InventoryDisplay:refresh_display()
+function InventoryDisplay:render()
     local items = self.peripheral.listItems()
     for _, item in ipairs(items) do
         item.name = item.displayName
@@ -58,13 +58,6 @@ function InventoryDisplay:refresh_display()
     self.display:display(currItems, function(item)
         return self:format_callback(item)
     end)
-end
-
-function InventoryDisplay:render()
-    while true do
-        self:refresh_display()
-        os.sleep(0.5)
-    end
 end
 
 return InventoryDisplay

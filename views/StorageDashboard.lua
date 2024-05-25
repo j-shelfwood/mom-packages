@@ -30,7 +30,8 @@ function StorageDashboard:calculateGraphData()
     return heights
 end
 
-function StorageDashboard:drawGraph(heights)
+function StorageDashboard:drawGraph()
+    local heights = self:calculateGraphData()
     self.monitor.clear()
     local titleStartX = math.floor((self.WIDTH - #self.TITLE) / 2) + 1
     self.monitor.setCursorPos(titleStartX, 1)
@@ -54,12 +55,8 @@ function StorageDashboard:drawGraph(heights)
 end
 
 function StorageDashboard:render()
-    while true do
-        self:recordStorageUsage()
-        local graphData = self:calculateGraphData()
-        self:drawGraph(graphData)
-        sleep(5)
-    end
+    self:recordStorageUsage()
+    self:drawGraph()
 end
 
 return StorageDashboard
