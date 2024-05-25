@@ -8,7 +8,7 @@ local function selectView()
         print(i .. ". " .. view)
     end
     local choice = tonumber(read())
-    return availableViews[choice]
+    return views[choice]
 end
 
 -- Function to select a monitor
