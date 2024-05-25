@@ -1,6 +1,6 @@
 -- Include Grid Display API
-local GridDisplay = mpm('generics/grid_display')
-local Generics = mpm('generics/generics')
+local GridDisplay = mpm('utils/GridDisplay')
+local Text = mpm('utils/Text')
 
 -- Define the ChestMonitor class
 local ChestMonitor = {}
@@ -51,7 +51,7 @@ end
 function ChestMonitor:displayItemInfo()
     local function format_callback(item)
         return {
-            lines = {Generics.prettifyItemIdentifier(item.name), tostring(item.count)},
+            lines = {Text.prettifyItemIdentifier(item.name), tostring(item.count)},
             colors = {colors.white, colors.white}
         }
     end
