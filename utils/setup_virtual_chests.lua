@@ -2,17 +2,24 @@
 -- 1. Check if there is a monitor or minecraft:chest peripheral connected
 local monitor = peripheral.find("monitor")
 local chest = peripheral.find("minecraft:chest")
+local modem = peripheral.find("modem")
 
 print("Setting up missing peripherals...\n")
 
-if monitor == nil then
-    print("- No monitor found: Attaching monitor to the right side of the computer.")
-    periphemu.create('right', 'monitor')
+if modem == nil then
+    print("- No modem found: Attaching modem to the back of the computer.")
+    periphemu.create('back', 'modem')
 end
 
-if chest == nil then
-    print("- No chest found: Attaching chest to the left side of the computer.")
-    periphemu.create('top', 'minecraft:chest', false)
+if monitor == nil then
+    print("- No monitors found, adding monitors to the network...")
+    periphemu.create(1, 'monitor')
+    periphemu.create(2, 'monitor')
+end
+
+local function createChest(id)
+    print("- No chests found, adding chests to the network...")
+    periphemu.create(id, 'minecraft:chest', false)
 
     -- Add some items to the chest
     print("- Adding some items to the chest...")
@@ -29,6 +36,11 @@ if chest == nil then
         name = "minecraft:gold_ingot",
         count = 12
     })
+end
+
+if chest == nil then
+    createChest(1)
+    createChest(2)
 end
 
 print("\nSetup complete. \n")

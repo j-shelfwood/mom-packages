@@ -38,9 +38,17 @@ local function main()
         if not monitorName then
             break
         end
+
+        local ViewClass = mpm('views/' .. selectedView)
+        local viewConfig = {}
+        if ViewClass.configure then
+            viewConfig = ViewClass.configure()
+        end
+
         table.insert(config, {
             view = selectedView,
-            monitor = monitorName
+            monitor = monitorName,
+            config = viewConfig
         })
         print("Configured " .. selectedView .. " on " .. monitorName)
         print("Do you want to configure another display? (yes/no)")

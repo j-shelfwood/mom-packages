@@ -30,7 +30,7 @@ module = {
         }
     end,
 
-    refresh_display = function(self)
+    render = function(self)
         local items = self.peripheral.items()
         for _, item in ipairs(items) do
             item.name = item.displayName
@@ -64,13 +64,6 @@ module = {
         self.display:display(currItems, function(item)
             return module.format_callback(item)
         end)
-    end,
-
-    render = function(self)
-        while true do
-            module.refresh_display(self)
-            os.sleep(0.5)
-        end
     end
 }
 
