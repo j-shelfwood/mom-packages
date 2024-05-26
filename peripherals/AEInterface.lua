@@ -16,8 +16,8 @@ module = {
         end
 
         for _, item in ipairs(allItems) do
-            item.id = item.technicalName
-            item.name = item.name
+            item.id = item.name
+            item.name = item.displayName
             item.count = item.count
         end
 
