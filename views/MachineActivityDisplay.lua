@@ -26,11 +26,6 @@ local module = {
         local width, height = monitor.getSize()
         print("Monitor resolution:", width, "x", height) -- Debug output for monitor resolution
 
-        if width ~= 18 or height < 69 then
-            print("Invalid monitor size! Expected: 18x69 or larger")
-            return
-        end
-
         local _, _, machineTypeName = string.find(machine_type, ":(.+)")
         if not machineTypeName then
             print("Error extracting machine type name from:", machine_type)
@@ -113,7 +108,9 @@ local module = {
             monitor.clear()
 
             -- Calculate total grid height based on the number of machines
-            totalGridHeight = math.ceil(#machine_data / 2) * (bar_height + 1) - 1
+            local columns = math.min(2, #machine_data)
+            local rows = math.ceil(#machine_data / columns)
+            local totalGridHeight = rows * (bar_height + 1) - 1
 
             -- Display the title at the top
             monitor.setBackgroundColor(colors.black)
@@ -124,9 +121,9 @@ local module = {
             local topMargin = math.floor((height - totalGridHeight - (2 * linesUsed) - 2) / 2) + linesUsed + 1
 
             for idx, machine in ipairs(machine_data) do
-                local column = (idx - 1) % 2
-                local row = math.ceil(idx / 2)
-                local x = column * (bar_width + (column == 0 and 1 or 2)) + 2 -- Adjust gutter for the second column
+                local column = (idx - 1) % columns
+                local row = math.ceil(idx / columns)
+                local x = column * (bar_width + 2) + 2 -- Adjust gutter for the second column
                 local y = (row - 1) * (bar_height + 1) + topMargin
                 -- Draw a colored bar based on isBusy status
                 if machine.isBusy then
@@ -144,13 +141,12 @@ local module = {
                     y + math.floor(bar_height / 2))
                 monitor.write(machine.name)
             end
-
             -- Display the title at the bottom
             monitor.setBackgroundColor(colors.black)
             monitor.setTextColor(colors.white)
             displayCenteredTitle(height - linesUsed, title)
         end
+        display_machine_status(machine_type)
     end
 }
-
 return module
