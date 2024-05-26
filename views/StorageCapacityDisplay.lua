@@ -11,11 +11,19 @@ module = {
             HEIGHT = select(2, monitor.getSize()),
             MAX_DATA_POINTS = select(1, monitor.getSize()),
             storageData = {},
-            TITLE = "AE2 Storage Capacity Status"
+            TITLE = "AE2 Capacity Status"
         }
         return self
     end,
-
+    mount = function()
+        local peripherals = peripheral.getNames()
+        for _, name in ipairs(peripherals) do
+            if peripheral.getType(name) == "merequester:requester" then
+                return true
+            end
+        end
+        return false
+    end,
     recordStorageUsage = function(self)
         local usedStorage = AEInterface.storage_status(self.interface).usedItemStorage
         table.insert(self.storageData, usedStorage)

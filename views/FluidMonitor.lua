@@ -1,22 +1,29 @@
 local AEInterface = mpm('peripherals/AEInterface')
 local GridDisplay = mpm('utils/GridDisplay')
-local Text = require('utils/Text')
+local Text = mpm('utils/Text')
 
 local module
 
 module = {
-    new = function(monitor, requester)
+    new = function(monitor)
         local self = {
             monitor = monitor,
-            requester = requester,
             display = GridDisplay.new(monitor),
-            interface = AEInterface.new(requester),
+            interface = AEInterface.new(peripheral.find("merequester:requester")),
             prev_fluids = nil
         }
         self.prev_fluids = AEInterface.fluids(self.interface)
         return self
     end,
-
+    mount = function()
+        local peripherals = peripheral.getNames()
+        for _, name in ipairs(peripherals) do
+            if peripheral.getType(name) == "merequester:requester" then
+                return true
+            end
+        end
+        return false
+    end,
     format_callback = function(fluid)
         local color = fluid.operation == "+" and colors.green or colors.red
         local _, _, name = string.find(fluid.name, ":(.+)")

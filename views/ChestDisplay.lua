@@ -12,11 +12,20 @@ module = {
         }
         return self
     end,
+    mount = function()
+        local peripherals = peripheral.getNames()
+        for _, name in ipairs(peripherals) do
+            if peripheral.hasType(name, "inventory") then
+                return true
+            end
+        end
+        return false
+    end,
     resolvePeripherals = function(self)
         local peripherals = peripheral.getNames()
         local chests = {}
         for _, name in ipairs(peripherals) do
-            if peripheral.getType(name) == "minecraft:chest" then
+            if peripheral.hasType(name, "inventory") then
                 table.insert(chests, peripheral.wrap(name))
             end
         end

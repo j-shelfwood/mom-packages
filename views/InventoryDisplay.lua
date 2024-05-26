@@ -13,7 +13,15 @@ module = {
         }
         return self
     end,
-
+    mount = function()
+        local peripherals = peripheral.getNames()
+        for _, name in ipairs(peripherals) do
+            if peripheral.getType(name) == "merequester:requester" then
+                return true
+            end
+        end
+        return false
+    end,
     format_callback = function(item)
         local color = item.change == "+" and colors.green or colors.red
         return {

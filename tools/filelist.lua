@@ -1,2 +1,2 @@
 -- filelist.lua for tools module
-return {"inspect_peripheral", "peripheral_report", "auto_display"}
+return {"inspect_peripheral", "peripheral_report", "setup_views", "start_displays"}

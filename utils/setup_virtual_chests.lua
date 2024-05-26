@@ -12,7 +12,7 @@ end
 
 if chest == nil then
     print("- No chest found: Attaching chest to the left side of the computer.")
-    periphemu.create('left', 'minecraft:chest', false)
+    periphemu.create('top', 'minecraft:chest', false)
 
     -- Add some items to the chest
     print("- Adding some items to the chest...")

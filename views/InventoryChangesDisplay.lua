@@ -8,15 +8,22 @@ module = {
     new = function(monitor)
         local self = {
             monitor = monitor,
-            requester = requester,
-            interface = AEInterface.new(peripheral.find('merequester:requester')),
             display = GridDisplay.new(monitor),
+            interface = AEInterface.new(peripheral.find('merequester:requester')),
             prev_items = nil
         }
         self.prev_items = AEInterface.items(self.interface)
         return self
     end,
-
+    mount = function()
+        local peripherals = peripheral.getNames()
+        for _, name in ipairs(peripherals) do
+            if peripheral.getType(name) == "merequester:requester" then
+                return true
+            end
+        end
+        return false
+    end,
     format_callback = function(item)
         local color = item.operation == "+" and colors.green or colors.red
         return {
