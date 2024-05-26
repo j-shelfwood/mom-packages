@@ -14,48 +14,52 @@ local function selectView()
     return views[choice]
 end
 
--- Function to select a monitor
-local function selectMonitor()
-    print("Select a monitor:")
+-- Function to render monitor identifier
+local function renderMonitorIdentifier(monitorName)
+    local monitor = peripheral.wrap(monitorName)
+    if monitor then
+        monitor.clear()
+        monitor.setCursorPos(1, 1)
+        monitor.write("Monitor: " .. monitorName)
+    end
+end
+
+-- Function to render monitor identifier
+local function renderMonitorIdentifiers()
     for i, name in ipairs(peripherals) do
         if peripheral.getType(name) == "monitor" then
-            print(i .. ". " .. name)
+            renderMonitorIdentifier(name)
         end
     end
-    local choice = tonumber(read())
-    return peripherals[choice]
 end
 
 -- Main function
 local function main()
     local config = {}
-    while true do
-        local selectedView = selectView()
-        if not selectedView then
-            break
-        end
-        local monitorName = selectMonitor()
-        if not monitorName then
-            break
-        end
+    renderMonitorIdentifiers()
+    for i, name in ipairs(peripherals) do
+        if peripheral.getType(name) == "monitor" then
+            print("Configuring monitor: " .. name)
+            local selectedView = selectView()
+            if not selectedView then
+                print("No view selected. Skipping monitor: " .. name)
+                goto continue
+            end
 
-        local ViewClass = mpm('views/' .. selectedView)
-        local viewConfig = {}
-        if ViewClass.configure then
-            viewConfig = ViewClass.configure()
-        end
+            local ViewClass = mpm('views/' .. selectedView)
+            local viewConfig = {}
+            if ViewClass.configure then
+                viewConfig = ViewClass.configure()
+            end
 
-        table.insert(config, {
-            view = selectedView,
-            monitor = monitorName,
-            config = viewConfig
-        })
-        print("Configured " .. selectedView .. " on " .. monitorName)
-        print("Do you want to configure another display? (yes/no)")
-        local answer = read()
-        if answer:lower() ~= "yes" then
-            break
+            table.insert(config, {
+                view = selectedView,
+                monitor = name,
+                config = viewConfig
+            })
+            print("Configured " .. selectedView .. " on " .. name)
         end
+        ::continue::
     end
 
     -- Save configuration to displays.config
