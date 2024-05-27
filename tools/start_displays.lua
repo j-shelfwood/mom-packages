@@ -8,6 +8,5 @@ while true do
             ViewClass.render(viewInstance)
         end)
     end
-    sleep(5)
 end
 
