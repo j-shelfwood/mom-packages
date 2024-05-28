@@ -4,9 +4,11 @@ while true do
         local ViewClass = mpm('views/' .. display.view)
         local monitor = peripheral.wrap(display.monitor)
         local viewInstance = ViewClass.new(monitor, display.config)
-        parallel.waitForAny(function()
+        local status, err = pcall(function()
             ViewClass.render(viewInstance)
         end)
+        if not status then
+            print("Error rendering view: " .. err)
+        end
     end
 end
-
