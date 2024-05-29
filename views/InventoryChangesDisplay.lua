@@ -12,10 +12,12 @@ module = {
             monitor = monitor,
             display = GridDisplay.new(monitor),
             interface = AEInterface.new(peripheral.find('merequester:requester')),
-            prev_items = AEInterface.items(self.interface),
             accumulated_changes = {},
             last_reset_time = os.clock()
         }
+
+        self.prev_items = AEInterface.items(self.interface)
+
         return self
     end,
     mount = function()
