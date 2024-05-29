@@ -70,9 +70,9 @@ function GridDisplay:calculate_cells(num_items)
     self.start_x = 1
     self.start_y = 1
 
-    print("Using minimum scale settings") -- Debugging output
-    print("Monitor Width:", width, "Monitor Height:", height) -- Debugging output
-    print("Columns:", self.columns, "Rows:", self.rows) -- Debugging output
+    -- print("Using minimum scale settings")
+    -- print("Monitor Width:", width, "Monitor Height:", height)
+    -- print("Columns:", self.columns, "Rows:", self.rows)
 end
 
 function GridDisplay:truncateText(text, maxLength)
