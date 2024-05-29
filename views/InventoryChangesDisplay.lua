@@ -16,6 +16,7 @@ module = {
                 updateInterval = 1
             }
         }
+        self.monitor.clear()
         return self
     end,
 
