@@ -71,7 +71,7 @@ module = {
         self.display:display(currItems, function(item)
             return module.format_callback(item)
         end)
-    end,
+    end
 
     resetAccumulation = function(self)
         self.accumulatedChanges = {}
