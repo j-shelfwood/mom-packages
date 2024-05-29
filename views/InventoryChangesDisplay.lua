@@ -60,11 +60,13 @@ module = {
             self.prevItems[itemName] = {
                 count = itemCount
             }
-            currItems[i] = {
-                name = itemName,
-                count = itemCount,
-                change = self.accumulatedChanges[itemName]
-            }
+            if self.accumulatedChanges[itemName] ~= 0 then
+                currItems[#currItems + 1] = {
+                    name = itemName,
+                    count = itemCount,
+                    change = self.accumulatedChanges[itemName]
+                }
+            end
         end
         self.display:display(currItems, function(item)
             return module.format_callback(item)
