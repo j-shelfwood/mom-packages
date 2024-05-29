@@ -1,25 +1,24 @@
-local AEInterface = mpm('peripherals/AEInterface')
 local GridDisplay = mpm('utils/GridDisplay')
 local Text = mpm('utils/Text')
 
 local module
 
 module = {
-    sleepTime = 1, -- Render every second
-    accumulationPeriod = 1800, -- 30 minutes in seconds
-    new = function(monitor)
+    new = function(monitor, config)
         local self = {
             monitor = monitor,
+            peripheral = peripheral.find('merequester:requester'),
             display = GridDisplay.new(monitor),
-            interface = AEInterface.new(peripheral.find('merequester:requester')),
-            accumulated_changes = {},
-            last_reset_time = os.clock()
+            prevItems = {},
+            accumulatedChanges = {},
+            config = config or {
+                accumulationPeriod = 1800,
+                updateInterval = 1
+            }
         }
-
-        self.prev_items = AEInterface.items(self.interface)
-
         return self
     end,
+
     mount = function()
         local peripherals = peripheral.getNames()
         for _, name in ipairs(peripherals) do
@@ -29,54 +28,71 @@ module = {
         end
         return false
     end,
+
     format_callback = function(item)
-        local color = item.operation == "+" and colors.green or colors.red
+        local color = item.change > 0 and colors.green or colors.red
         return {
-            lines = {Text.prettifyItemIdentifier(item.name), tostring(item.count),
-                     item.operation .. tostring(item.change)},
+            lines = {Text.prettifyItemIdentifier(item.name), tostring(item.count), tostring(item.change)},
             colors = {colors.white, colors.white, color}
         }
     end,
+
     render = function(self)
-        local currentTime = os.clock()
-        if currentTime - self.last_reset_time >= self.accumulationPeriod then
-            self.accumulated_changes = {}
-            self.last_reset_time = currentTime
+        local items = self.peripheral.items()
+        for _, item in ipairs(items) do
+            item.name = item.displayName
+            item.count = item.count
         end
-
-        local changes = AEInterface.changes(self.interface, self.prev_items)
-        for _, change in ipairs(changes) do
-            local existing = self.accumulated_changes[change.id]
-            if existing then
-                existing.count = existing.count + change.count
-                existing.change = existing.change + change.change
-            else
-                self.accumulated_changes[change.id] = change
-            end
-        end
-
-        local display_changes = {}
-        for _, change in pairs(self.accumulated_changes) do
-            table.insert(display_changes, change)
-        end
-
-        table.sort(display_changes, function(a, b)
-            return a.change > b.change
+        table.sort(items, function(a, b)
+            return a.count > b.count
         end)
-
-        if #display_changes == 0 then
-            self.monitor.clear()
-            self.monitor.setCursorPos(1, 1)
-            self.monitor.write("No changes detected")
-            print("No changes detected")
-        else
-            self.display:display(display_changes, function(item)
-                return module.format_callback(item)
-            end)
-            print("Detected " .. #display_changes .. " changes")
+        local currItems = {}
+        for i, item in ipairs(items) do
+            local itemName = item.name
+            local itemCount = item.count
+            local itemChange = 0
+            if self.prevItems[itemName] then
+                itemChange = itemCount - self.prevItems[itemName].count
+                self.accumulatedChanges[itemName] = (self.accumulatedChanges[itemName] or 0) + itemChange
+            else
+                self.accumulatedChanges[itemName] = 0
+            end
+            self.prevItems[itemName] = {
+                count = itemCount
+            }
+            currItems[i] = {
+                name = itemName,
+                count = itemCount,
+                change = self.accumulatedChanges[itemName]
+            }
         end
+        self.display:display(currItems, function(item)
+            return module.format_callback(item)
+        end)
+    end,
 
-        self.prev_items = AEInterface.items(self.interface)
+    resetAccumulation = function(self)
+        self.accumulatedChanges = {}
+    end,
+
+    start = function(self)
+        while true do
+            local status, err = pcall(function()
+                self:render()
+            end)
+            if not status then
+                print("Error rendering view: " .. err)
+            end
+            sleep(self.config.updateInterval)
+        end
+    end,
+
+    run = function(self)
+        while true do
+            self:start()
+            sleep(self.config.accumulationPeriod)
+            self:resetAccumulation()
+        end
     end
 }
 
