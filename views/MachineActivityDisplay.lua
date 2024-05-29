@@ -1,4 +1,5 @@
 local module = {
+    sleepTime = 1,
     new = function(monitor, config)
         local self = {
             monitor = monitor,
