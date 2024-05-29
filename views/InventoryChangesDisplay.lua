@@ -5,15 +5,17 @@ local Text = mpm('utils/Text')
 local module
 
 module = {
-    sleepTime = 10, -- Sleep time in seconds
+    sleepTime = 1, -- Render every second
+    accumulationPeriod = 1800, -- 30 minutes in seconds
     new = function(monitor)
         local self = {
             monitor = monitor,
             display = GridDisplay.new(monitor),
             interface = AEInterface.new(peripheral.find('merequester:requester')),
-            prev_items = nil
+            prev_items = AEInterface.items(self.interface),
+            accumulated_changes = {},
+            last_reset_time = os.clock()
         }
-        self.prev_items = AEInterface.items(self.interface)
         return self
     end,
     mount = function()
@@ -33,26 +35,45 @@ module = {
             colors = {colors.white, colors.white, color}
         }
     end,
-
     render = function(self)
-        if self.prev_items then
-            local changes = AEInterface.changes(self.interface, self.prev_items)
-            table.sort(changes, function(a, b)
-                return a.change > b.change
-            end)
-            if #changes == 0 then
-                self.monitor.clear()
-                self.monitor.setCursorPos(1, 1)
-                self.monitor.write("No changes detected")
-                print("No changes detected")
-                return
+        local currentTime = os.clock()
+        if currentTime - self.last_reset_time >= self.accumulationPeriod then
+            self.accumulated_changes = {}
+            self.last_reset_time = currentTime
+        end
+
+        local changes = AEInterface.changes(self.interface, self.prev_items)
+        for _, change in ipairs(changes) do
+            local existing = self.accumulated_changes[change.id]
+            if existing then
+                existing.count = existing.count + change.count
+                existing.change = existing.change + change.change
+            else
+                self.accumulated_changes[change.id] = change
             end
-            changes = {table.unpack(changes, 1, 30)}
-            self.display:display(changes, function(item)
+        end
+
+        local display_changes = {}
+        for _, change in pairs(self.accumulated_changes) do
+            table.insert(display_changes, change)
+        end
+
+        table.sort(display_changes, function(a, b)
+            return a.change > b.change
+        end)
+
+        if #display_changes == 0 then
+            self.monitor.clear()
+            self.monitor.setCursorPos(1, 1)
+            self.monitor.write("No changes detected")
+            print("No changes detected")
+        else
+            self.display:display(display_changes, function(item)
                 return module.format_callback(item)
             end)
-            print("Detected " .. #changes .. " changes")
+            print("Detected " .. #display_changes .. " changes")
         end
+
         self.prev_items = AEInterface.items(self.interface)
     end
 }
