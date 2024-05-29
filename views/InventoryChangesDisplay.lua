@@ -5,6 +5,7 @@ local Text = mpm('utils/Text')
 local module
 
 module = {
+    sleepTime = 10, -- Sleep time in seconds
     new = function(monitor)
         local self = {
             monitor = monitor,
