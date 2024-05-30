@@ -3,6 +3,13 @@ local Text = mpm('utils/Text')
 
 local module
 
+--[[ 
+    This view displays the inventory changes of the requester over the last 30 minutes.
+
+    - It displays any inventory changes counting over 5 items. 
+    - It updates every second.
+]]
+
 module = {
     new = function(monitor, config)
         local self = {
@@ -17,85 +24,73 @@ module = {
             }
         }
         self.monitor.clear()
+        startTimer()
+        self.prevItems = self.peripheral.items()
         return self
     end,
 
+    -- The timer clears the state every 30 minutes
+    startTimer = function(self)
+        os.startTimer(function()
+            self:clearState()
+        end, self.config.accumulationPeriod)
+    end,
+
+    -- When the state is cleared we reset the self.accumulatedChanges
+    clearState = function(self)
+        self.accumulatedChanges = {}
+    end,
+
     mount = function()
-        local peripherals = peripheral.getNames()
-        for _, name in ipairs(peripherals) do
-            if peripheral.getType(name) == "merequester:requester" then
-                return true
-            end
+        if peripheral.find('merequester:requester') then
+            return true
         end
         return false
     end,
 
-    format_callback = function(item)
-        local color = item.change > 0 and colors.green or colors.red
+    format_callback = function(key, value)
+        local color = value > 0 and colors.green or colors.red
         return {
-            lines = {Text.prettifyItemIdentifier(item.name), tostring(item.count), tostring(item.change)},
+            lines = {Text.prettifyItemIdentifier(key), tostring(value), tostring(value)},
             colors = {colors.white, colors.white, color}
         }
     end,
 
     render = function(self)
-        local items = self.peripheral.items()
-        for _, item in ipairs(items) do
-            item.name = item.displayName
-            item.count = item.count
-        end
-        table.sort(items, function(a, b)
-            return a.count > b.count
-        end)
-        local currItems = {}
-        for i, item in ipairs(items) do
-            local itemName = item.name
-            local itemCount = item.count
-            local itemChange = 0
-            if self.prevItems[itemName] then
-                itemChange = itemCount - self.prevItems[itemName].count
-                self.accumulatedChanges[itemName] = (self.accumulatedChanges[itemName] or 0) + itemChange
-            else
-                self.accumulatedChanges[itemName] = 0
-            end
-            self.prevItems[itemName] = {
-                count = itemCount
-            }
-            if self.accumulatedChanges[itemName] ~= 0 then
-                currItems[#currItems + 1] = {
-                    name = itemName,
-                    count = itemCount,
-                    change = self.accumulatedChanges[itemName]
-                }
-            end
-        end
-        self.display:display(currItems, function(item)
-            return module.format_callback(item)
+        updateAccumulatedChanges(self)
+
+        self.prevItems = currItems
+
+        self.display:display(self.accumulatedChanges, function(key, value)
+            return module.format_callback(key, value)
         end)
     end,
 
-    resetAccumulation = function(self)
-        self.accumulatedChanges = {}
-    end,
-
-    start = function(self)
-        while true do
-            local status, err = pcall(function()
-                self:render()
-            end)
-            if not status then
-                print("Error rendering view: " .. err)
+    -- {1 = {"tags" = {"techreborn:raw_metals" = true, "c:raw_ores" = true, "c:raw_iridium_ores" = true}, "name" = "techreborn:raw_iridium", "itemGroups" = {}, "rawName" = "item.techreborn.raw_iridium", "count" = 2, "maxCount" = 64, "displayName" = "Raw Iridium"}}
+    -- We first remove the duplicates, then we record the changes
+    updateAccumulatedChanges = function(self, currItems)
+        local currItems = cleanDuplicates(self.peripheral.items())
+        -- Compare the amounts of items that have changed by subtracting the previous count from the current count. 
+        -- If the value is not zero it had a change and we add the item.
+        for _, item in pairs(currItems) do
+            if self.prevItems[item.displayName] ~= item.count then
+                self.accumulatedChanges[item] = self.accumulatedChanges[item] +
+                                                    (item.count - self.prevItems[item.displayName])
             end
-            sleep(self.config.updateInterval)
+            -- If the value is now 0 we remove the item from the accumulated changes.
+            if item.count == 0 then
+                self.accumulatedChanges[item] = nil
+            end
         end
     end,
 
-    run = function(self)
-        while true do
-            self:start()
-            sleep(self.config.accumulationPeriod)
-            self:resetAccumulation()
+    cleanDuplicates = function(items)
+        local cleanedItems = {}
+        for _, item in pairs(items) do
+            cleanedItems[item] = cleanedItems[item] or 0
+            cleanedItems[item] = cleanedItems[item] + item.count
         end
+        return cleanedItems
     end
 }
 
