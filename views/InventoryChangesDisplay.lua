@@ -24,16 +24,15 @@ module = {
             }
         }
         self.monitor.clear()
-        startTimer()
+        self:startTimer()
         self.prevItems = self.peripheral.items()
         return self
     end,
 
     -- The timer clears the state every 30 minutes
     startTimer = function(self)
-        os.startTimer(function()
-            self:clearState()
-        end, self.config.accumulationPeriod)
+        os.startTimer(self.config.accumulationPeriod)
+        self:clearState()
     end,
 
     -- When the state is cleared we reset the self.accumulatedChanges
@@ -57,8 +56,8 @@ module = {
     end,
 
     render = function(self)
-        updateAccumulatedChanges(self)
-
+        self:updateAccumulatedChanges()
+        local currItems = self.peripheral.items()
         self.prevItems = currItems
 
         self.display:display(self.accumulatedChanges, function(key, value)
@@ -68,18 +67,19 @@ module = {
 
     -- {1 = {"tags" = {"techreborn:raw_metals" = true, "c:raw_ores" = true, "c:raw_iridium_ores" = true}, "name" = "techreborn:raw_iridium", "itemGroups" = {}, "rawName" = "item.techreborn.raw_iridium", "count" = 2, "maxCount" = 64, "displayName" = "Raw Iridium"}}
     -- We first remove the duplicates, then we record the changes
-    updateAccumulatedChanges = function(self, currItems)
-        local currItems = cleanDuplicates(self.peripheral.items())
+    updateAccumulatedChanges = function(self)
+        local currItems = self:cleanDuplicates(self.peripheral.items())
         -- Compare the amounts of items that have changed by subtracting the previous count from the current count. 
         -- If the value is not zero it had a change and we add the item.
         for _, item in pairs(currItems) do
-            if self.prevItems[item.displayName] ~= item.count then
-                self.accumulatedChanges[item] = self.accumulatedChanges[item] +
-                                                    (item.count - self.prevItems[item.displayName])
+            local prevCount = self.prevItems[item.displayName] or 0
+            local change = item.count - prevCount
+            if change ~= 0 then
+                self.accumulatedChanges[item.displayName] = (self.accumulatedChanges[item.displayName] or 0) + change
             end
             -- If the value is now 0 we remove the item from the accumulated changes.
             if item.count == 0 then
-                self.accumulatedChanges[item] = nil
+                self.accumulatedChanges[item.displayName] = nil
             end
         end
     end,
@@ -87,8 +87,8 @@ module = {
     cleanDuplicates = function(items)
         local cleanedItems = {}
         for _, item in pairs(items) do
-            cleanedItems[item] = cleanedItems[item] or 0
-            cleanedItems[item] = cleanedItems[item] + item.count
+            cleanedItems[item.displayName] = cleanedItems[item.displayName] or 0
+            cleanedItems[item.displayName] = cleanedItems[item.displayName] + item.count
         end
         return cleanedItems
     end

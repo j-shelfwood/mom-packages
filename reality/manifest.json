@@ -1,0 +1,5 @@
+{
+  "name": "reality",
+  "description": "Reality management package - Manage and interact with the virtual world",
+  "modules": ["door.lua"]
+}
