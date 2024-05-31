@@ -1,5 +1,12 @@
-local views = mpm('views/filelist') -- Load the list of view scripts
 local peripherals = peripheral.getNames()
+local views = getManifest()
+
+local function getManifest()
+    local file = fs.open("/mpm/packages/views/manifest.json", "r")
+    local manifest = textutils.unserialiseJSON(file.readAll())
+    file.close()
+    return manifest
+end
 
 -- Function to select a view
 local function selectView()
