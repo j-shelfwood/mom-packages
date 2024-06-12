@@ -1,5 +1,5 @@
 {
   "name": "peripherals",
   "description": "Peripheral management package - Interface and manage various peripherals",
-  "modules": ["AEInterface.lua"]
+  "files": ["AEInterface.lua"]
 }

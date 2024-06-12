@@ -1,5 +1,12 @@
 {
   "name": "views",
   "description": "Views package - Display modules for various types of data visualization",
-  "modules": ["ChestDisplay.lua", "FluidMonitor.lua", "InventoryChangesDisplay.lua", "InventoryDisplay.lua", "MachineActivityDisplay.lua", "StorageCapacityDisplay.lua"]
+  "files": [
+    "ChestDisplay.lua",
+    "FluidMonitor.lua",
+    "InventoryChangesDisplay.lua",
+    "InventoryDisplay.lua",
+    "MachineActivityDisplay.lua",
+    "StorageCapacityDisplay.lua"
+  ]
 }
