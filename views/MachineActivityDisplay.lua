@@ -1,13 +1,29 @@
-local module = {
+local this
+
+this = {
     sleepTime = 1,
     new = function(monitor, config)
         local self = {
             monitor = monitor,
-            machine_type = config.machine_type or "modern_industrialization:electrolyzer"
+            machine_type = config.machine_type or "modern_industrialization:electrolyzer",
+            bar_width = 7,
+            bar_height = 4
         }
+        local _, _, machineTypeName = string.find(machine_type, ":(.+)")
+
+        if not machineTypeName then
+            print("Error extracting machine type name from:", machine_type)
+            return
+        end
+        machineTypeName = machineTypeName:gsub("_", " ") -- Replace underscores with spaces
+        self.title = string.upper(string.sub(machineTypeName, 1, 1)) .. string.sub(machineTypeName, 2) -- Capitalize the first letter
+
+        local width, height = monitor.getSize()
+        self.width = width
+        self.height = height
+
         return self
     end,
-
     mount = function()
         return true
     end,
@@ -21,133 +37,110 @@ local module = {
     end,
 
     render = function(self)
-        local monitor = self.monitor
-        local machine_type = self.machine_type
+        self.monitor.setTextScale(1)
 
-        local width, height = monitor.getSize()
-        print("Monitor resolution:", width, "x", height) -- Debug output for monitor resolution
+        this.displayMachineStatus(self)
+    end,
+    fetchData = function(self)
+        local machine_data = {}
+        local peripherals = peripheral.getNames()
 
-        local _, _, machineTypeName = string.find(machine_type, ":(.+)")
-        if not machineTypeName then
-            print("Error extracting machine type name from:", machine_type)
-            return
-        end
-        machineTypeName = machineTypeName:gsub("_", " ") -- Replace underscores with spaces
-        local title = string.upper(string.sub(machineTypeName, 1, 1)) .. string.sub(machineTypeName, 2) -- Capitalize the first letter
+        for _, name in ipairs(peripherals) do
+            local machine = peripheral.wrap(name)
 
-        monitor.setTextScale(1)
+            if string.find(name, self.machine_type) then
+                print("Fetching data for " .. name)
 
-        -- Fixed box sizes and borders
-        local bar_width = 7 -- 18 width minus 1 for left, 1 for right, 1 for middle, and 7 for the second column
-        local bar_height = 4 -- (69 - 25) / 24
+                -- Extract the name
+                local _, _, name = string.find(name, self.machine_type .. "_(.+)")
 
-        -- Function to fetch machine data
-        local function fetch_data(machine_type)
-            local machine_data = {}
-            local peripherals = peripheral.getNames()
-
-            for _, name in ipairs(peripherals) do
-                local machine = peripheral.wrap(name)
-
-                if string.find(name, machine_type) then
-                    print("Fetching data for " .. name)
-
-                    -- Extract the name
-                    local _, _, name = string.find(name, machine_type .. "_(.+)")
-
-                    -- Call the machine.items using pcall so we have no fail 
-                    local ok, itemsList = pcall(machine.items)
-                    if not ok then
-                        itemsList = {}
-                    end
-
-                    table.insert(machine_data, {
-                        name = name,
-                        items = itemsList,
-                        isBusy = machine.isBusy()
-                    })
+                -- Call the machine.items using pcall so we have no fail 
+                local ok, itemsList = pcall(machine.items)
+                if not ok then
+                    itemsList = {}
                 end
-            end
 
-            return machine_data
+                table.insert(machine_data, {
+                    name = name,
+                    items = itemsList,
+                    isBusy = machine.isBusy()
+                })
+            end
         end
 
-        local function displayCenteredTitle(yPos, title)
-            -- Split title at spaces
-            local titleParts = {}
-            for part in string.gmatch(title, "%S+") do
-                table.insert(titleParts, part)
+        return machine_data
+    end,
+    displayMachineStatus = function(self)
+        local machine_data = this.fetch_data(self)
+
+        -- Calculate total grid height based on the number of machines
+        local columns = math.min(2, #machine_data)
+        local rows = math.ceil(#machine_data / columns)
+        local totalGridHeight = rows * (self.bar_height + 1) - 1
+
+        -- Display the title at the top
+        self.monitor.setBackgroundColor(colors.black)
+        self.monitor.setTextColor(colors.white)
+        local linesUsed = self.displayCenteredTitle(2, self.title)
+
+        -- Adjust the topMargin based on the number of lines used by the title
+        local topMargin = math.floor((self.height - totalGridHeight - (2 * linesUsed) - 2) / 2) + linesUsed + 1
+
+        for idx, machine in ipairs(machine_data) do
+            local column = (idx - 1) % columns
+            local row = math.ceil(idx / columns)
+            local x = column * (self.bar_width + 2) + 2 -- Adjust gutter for the second column
+            local y = (row - 1) * (self.bar_height + 1) + topMargin
+            -- Draw a colored bar based on isBusy status
+            if machine.isBusy then
+                self.monitor.setBackgroundColor(colors.green)
+            else
+                self.monitor.setBackgroundColor(colors.gray)
             end
-
-            local currentTitle = titleParts[1]
-            local lineCount = 1
-
-            for i = 2, #titleParts do
-                -- Check if adding the next word exceeds the width
-                if string.len(currentTitle .. " " .. titleParts[i]) <= width then
-                    currentTitle = currentTitle .. " " .. titleParts[i]
-                else
-                    -- Display the current title and reset for next line
-                    monitor.setCursorPos(math.floor((width - string.len(currentTitle)) / 2) + 1, yPos)
-                    monitor.write(currentTitle)
-                    yPos = yPos + 1
-                    currentTitle = titleParts[i]
-                    lineCount = lineCount + 1
-                end
+            for i = 0, self.bar_height - 1 do
+                self.monitor.setCursorPos(x, y + i)
+                self.monitor.write(string.rep(" ", self.bar_width))
             end
-
-            -- Display the last part of the title
-            monitor.setCursorPos(math.floor((width - string.len(currentTitle)) / 2) + 1, yPos)
-            monitor.write(currentTitle)
-
-            return lineCount
+            -- Write the machine number centered in the bar
+            self.monitor.setTextColor(colors.black)
+            self.monitor.setCursorPos(x + math.floor((self.bar_width - string.len(machine.name)) / 2),
+                y + math.floor(self.bar_height / 2))
+            self.monitor.write(machine.name)
+        end
+        -- Display the title at the bottom
+        self.monitor.setBackgroundColor(colors.black)
+        self.monitor.setTextColor(colors.white)
+        self.displayCenteredTitle(self.height - linesUsed, self.title)
+    end,
+    displayCenteredTitle = function(self, yPos, title)
+        -- Split title at spaces
+        local titleParts = {}
+        for part in string.gmatch(title, "%S+") do
+            table.insert(titleParts, part)
         end
 
-        local function display_machine_status(machine_type)
-            local machine_data = fetch_data(machine_type)
-            print("Found", #machine_data, "machines") -- Debug output for number of machines found
-            monitor.clear()
+        local currentTitle = titleParts[1]
+        local lineCount = 1
 
-            -- Calculate total grid height based on the number of machines
-            local columns = math.min(2, #machine_data)
-            local rows = math.ceil(#machine_data / columns)
-            local totalGridHeight = rows * (bar_height + 1) - 1
-
-            -- Display the title at the top
-            monitor.setBackgroundColor(colors.black)
-            monitor.setTextColor(colors.white)
-            local linesUsed = displayCenteredTitle(2, title)
-
-            -- Adjust the topMargin based on the number of lines used by the title
-            local topMargin = math.floor((height - totalGridHeight - (2 * linesUsed) - 2) / 2) + linesUsed + 1
-
-            for idx, machine in ipairs(machine_data) do
-                local column = (idx - 1) % columns
-                local row = math.ceil(idx / columns)
-                local x = column * (bar_width + 2) + 2 -- Adjust gutter for the second column
-                local y = (row - 1) * (bar_height + 1) + topMargin
-                -- Draw a colored bar based on isBusy status
-                if machine.isBusy then
-                    monitor.setBackgroundColor(colors.green)
-                else
-                    monitor.setBackgroundColor(colors.gray)
-                end
-                for i = 0, bar_height - 1 do
-                    monitor.setCursorPos(x, y + i)
-                    monitor.write(string.rep(" ", bar_width))
-                end
-                -- Write the machine number centered in the bar
-                monitor.setTextColor(colors.black)
-                monitor.setCursorPos(x + math.floor((bar_width - string.len(machine.name)) / 2),
-                    y + math.floor(bar_height / 2))
-                monitor.write(machine.name)
+        for i = 2, #titleParts do
+            -- Check if adding the next word exceeds the width
+            if string.len(currentTitle .. " " .. titleParts[i]) <= self.width then
+                currentTitle = currentTitle .. " " .. titleParts[i]
+            else
+                -- Display the current title and reset for next line
+                self.monitor.setCursorPos(math.floor((self.width - string.len(currentTitle)) / 2) + 1, yPos)
+                self.monitor.write(currentTitle)
+                yPos = yPos + 1
+                currentTitle = titleParts[i]
+                lineCount = lineCount + 1
             end
-            -- Display the title at the bottom
-            monitor.setBackgroundColor(colors.black)
-            monitor.setTextColor(colors.white)
-            displayCenteredTitle(height - linesUsed, title)
         end
-        display_machine_status(machine_type)
+
+        -- Display the last part of the title
+        self.monitor.setCursorPos(math.floor((self.width - string.len(currentTitle)) / 2) + 1, yPos)
+        self.monitor.write(currentTitle)
+
+        return lineCount
     end
 }
-return module
+return this
