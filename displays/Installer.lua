@@ -1,9 +1,9 @@
+local PeripheralManager = mpm('utils/PeripheralManager')
+
 local this
 
 this = {
     run = function()
-        local PeripheralManager = mpm('utils/PeripheralManager')
-
         local existingConfig = mpm('displays/config').loadConfig()
         local file = fs.open("/mpm/packages/views/manifest.json", "r")
         local views = textutils.unserialiseJSON(file.readAll()).files
