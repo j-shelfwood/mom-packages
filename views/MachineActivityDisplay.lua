@@ -7,7 +7,8 @@ this = {
             monitor = monitor,
             machine_type = config.machine_type or "modern_industrialization:electrolyzer",
             bar_width = 7,
-            bar_height = 4
+            bar_height = 4,
+            peripherals = PeripheralManager.getPeripherals() -- Fetch peripherals once
         }
         local _, _, machineTypeName = string.find(machine_type, ":(.+)")
 
@@ -42,19 +43,16 @@ this = {
         this.displayMachineStatus(self)
     end,
     fetchData = function(self)
-        local machine_data = {}
-        local peripherals = peripheral.getNames()
+        local PeripheralManager = mpm('utils/PeripheralManager')
 
-        for _, name in ipairs(peripherals) do
-            local machine = peripheral.wrap(name)
+        local machine_data = {}
+        for _, name in ipairs(self.peripherals) do
+            local machine = PeripheralManager.wrapPeripheral(name)
 
             if string.find(name, self.machine_type) then
                 print("Fetching data for " .. name)
 
-                -- Extract the name
                 local _, _, name = string.find(name, self.machine_type .. "_(.+)")
-
-                -- Call the machine.items using pcall so we have no fail 
                 local ok, itemsList = pcall(machine.items)
                 if not ok then
                     itemsList = {}

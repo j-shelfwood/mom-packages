@@ -1,9 +1,11 @@
+-- This module is the core system responsible for running the different displays and their configured views.
 local this
 
 this = {
     manageDisplay = function(display)
+        local PeripheralManager = mpm('utils/PeripheralManager')
         local ViewClass = mpm('views/' .. display.view)
-        local monitor = peripheral.wrap(display.monitor)
+        local monitor = PeripheralManager.wrapPeripheral(display.monitor)
         local viewInstance = ViewClass.new(monitor, display.config)
 
         while true do
