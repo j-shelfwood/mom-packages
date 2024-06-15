@@ -1,5 +1,10 @@
 {
   "name": "utils",
   "description": "Utility scripts package - Helper scripts for various functionalities",
-  "files": ["GridDisplay.lua", "Text.lua", "setup_virtual_chests.lua"]
+  "files": [
+    "GridDisplay.lua",
+    "Text.lua",
+    "setup_virtual_chests.lua",
+    "PeripheralManager.lua"
+  ]
 }

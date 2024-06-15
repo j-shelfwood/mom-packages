@@ -6,7 +6,6 @@
     "start.lua",
     "Config.lua",
     "Installer.lua",
-    "System.lua",
-    "PeripheralManager.lua"
+    "System.lua"
   ]
 }
