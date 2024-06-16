@@ -53,7 +53,7 @@ this = {
         file.close()
 
         -- Generate or update startup.lua
-        local startup = [[shell.run('mpm run tools/start_displays')]]
+        local startup = [[shell.run('mpm run displays/start')]]
         local startupFile = fs.open("startup.lua", "w")
         startupFile.write(startup)
         startupFile.close()
