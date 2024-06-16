@@ -28,8 +28,9 @@ module = {
         local color = fluid.operation == "+" and colors.green or fluid.operation == "-" and colors.red or colors.white
         local _, _, name = string.find(fluid.name, ":(.+)")
         name = name:gsub("^%l", string.upper)
+        local change = fluid.change ~= 0 and fluid.operation .. Text.formatFluidAmount(fluid.change) or ""
         return {
-            lines = {name, Text.formatFluidAmount(fluid.amount), fluid.operation .. Text.formatFluidAmount(fluid.change)},
+            lines = {name, Text.formatFluidAmount(fluid.amount), change},
             colors = {colors.white, colors.white, color}
         }
     end,
@@ -52,13 +53,14 @@ module = {
                     name = fluid.name,
                     amount = fluid.amount,
                     change = 0,
-                    operation = "="
+                    operation = ""
                 })
             end
         end
 
+        -- Sort by fluid.amount in descending order
         table.sort(changes, function(a, b)
-            return a.change > b.change
+            return a.amount > b.amount
         end)
         changes = {table.unpack(changes, 1, 30)}
         self.display:display(changes, function(item)
