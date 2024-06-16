@@ -1,3 +1,3 @@
-local installer = mpm('displays/installer')
+local installer = mpm('displays/Installer')
 
 installer.run()

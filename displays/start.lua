@@ -1,3 +1,3 @@
-local system = mpm('displays/system')
+local system = mpm('displays/System')
 
 system.run()
