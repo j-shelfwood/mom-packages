@@ -16,7 +16,7 @@ this = {
             configuredMonitors[entry.monitor] = true
         end
 
-        mpm('displays/system').renderIdentifiers()
+        mpm('displays/System').renderIdentifiers()
 
         local newConfig = {}
         for i, name in ipairs(peripherals) do
