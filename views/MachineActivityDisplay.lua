@@ -55,6 +55,7 @@ this = {
     fetchData = function(self)
         local machine_data = {}
         for _, machine in ipairs(self.peripherals) do
+            local name = peripheral.getName(machine)
             print("Fetching data for " .. name)
 
             local _, _, name = string.find(name, self.machine_type .. "_(.+)")
