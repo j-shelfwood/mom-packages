@@ -7,6 +7,7 @@ this = {
         local peripherals = peripheral.getNames()
         local proxy = peripheral.find("peripheral_proxy")
         if proxy then
+            print("Proxy found")
             local proxyPeripherals = proxy.getNamesRemote()
             for _, name in ipairs(proxyPeripherals) do
                 table.insert(peripherals, name)
