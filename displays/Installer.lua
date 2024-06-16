@@ -16,7 +16,7 @@ this = {
             configuredMonitors[entry.monitor] = true
         end
 
-        mpm('displays/System').renderIdentifiers()
+        this.renderIdentifiers()
 
         local newConfig = {}
         for i, name in ipairs(peripherals) do
@@ -72,6 +72,17 @@ this = {
         end
         local choice = tonumber(read())
         return views[choice]
+    end,
+    renderIdentifiers = function()
+        local monitors = PeripheralManager.getPeripherals()
+        for i, name in ipairs(monitors) do
+            if peripheral.getType(name) == "monitor" then
+                local monitor = peripheral.wrap(name)
+                monitor.clear()
+                monitor.setCursorPos(1, 1)
+                monitor.write("Monitor: " .. name)
+            end
+        end
     end
 }
 
