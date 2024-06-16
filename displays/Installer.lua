@@ -4,7 +4,7 @@ local this
 
 this = {
     run = function()
-        local existingConfig = mpm('displays/config').loadConfig()
+        local existingConfig = mpm('displays/Config').loadConfig()
         local file = fs.open("/mpm/packages/views/manifest.json", "r")
         local views = textutils.unserialiseJSON(file.readAll()).files
         file.close()
