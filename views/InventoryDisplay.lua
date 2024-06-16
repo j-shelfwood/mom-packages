@@ -1,6 +1,5 @@
 local GridDisplay = mpm('utils/GridDisplay')
 local Text = mpm('utils/Text')
-local PeripheralManager = mpm('utils/PeripheralManager')
 
 local module
 
@@ -8,14 +7,14 @@ module = {
     new = function(monitor)
         local self = {
             monitor = monitor,
-            peripheral = PeripheralManager.findPeripheral('merequester:requester'),
+            peripheral = peripheral.find('merequester:requester'),
             display = GridDisplay.new(monitor),
             prevItems = {}
         }
         return self
     end,
     mount = function()
-        return PeripheralManager.findPeripheral('merequester:requester') ~= nil
+        return peripheral.find('merequester:requester') ~= nil
     end,
     format_callback = function(item)
         local color = item.change == "+" and colors.green or colors.red

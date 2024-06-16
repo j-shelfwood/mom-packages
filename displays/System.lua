@@ -3,9 +3,8 @@ local this
 
 this = {
     manageDisplay = function(display)
-        local PeripheralManager = mpm('utils/PeripheralManager')
         local ViewClass = mpm('views/' .. display.view)
-        local monitor = PeripheralManager.wrapPeripheral(display.monitor)
+        local monitor = peripheral.wrap(display.monitor)
         local viewInstance = ViewClass.new(monitor, display.config)
 
         while true do

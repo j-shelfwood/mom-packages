@@ -1,5 +1,3 @@
-local PeripheralManager = mpm('utils/PeripheralManager')
-
 local this
 
 this = {
@@ -9,7 +7,7 @@ this = {
         local views = textutils.unserialiseJSON(file.readAll()).files
         file.close()
 
-        local peripherals = PeripheralManager.getPeripherals()
+        local peripherals = peripheral.getNames()
 
         local configuredMonitors = {}
         for _, entry in ipairs(existingConfig) do
@@ -74,7 +72,7 @@ this = {
         return views[choice]
     end,
     renderIdentifiers = function()
-        local monitors = PeripheralManager.getPeripherals()
+        local monitors = peripheral.getNames()
         for i, name in ipairs(monitors) do
             if peripheral.getType(name) == "monitor" then
                 local monitor = peripheral.wrap(name)

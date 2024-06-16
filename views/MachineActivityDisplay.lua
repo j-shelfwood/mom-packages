@@ -7,8 +7,7 @@ this = {
             monitor = monitor,
             machine_type = config.machine_type or "modern_industrialization:electrolyzer",
             bar_width = 7,
-            bar_height = 4,
-            peripherals = PeripheralManager.getPeripherals() -- Fetch peripherals once
+            bar_height = 4
         }
         local _, _, machineTypeName = string.find(machine_type, ":(.+)")
 
@@ -22,6 +21,17 @@ this = {
         local width, height = monitor.getSize()
         self.width = width
         self.height = height
+
+        local names = peripheral.getNames()
+
+        self.peripherals = {}
+
+        -- Here we make sure that self.peripherals contain all machine_type peripherals found already wrapped
+        for _, name in ipairs(names) do
+            if peripheral.getType(name) == self.machine_type then
+                table.insert(self.peripherals, peripheral.wrap(name))
+            end
+        end
 
         return self
     end,
@@ -43,27 +53,21 @@ this = {
         this.displayMachineStatus(self)
     end,
     fetchData = function(self)
-        local PeripheralManager = mpm('utils/PeripheralManager')
-
         local machine_data = {}
-        for _, name in ipairs(self.peripherals) do
-            local machine = PeripheralManager.wrapPeripheral(name)
+        for _, machine in ipairs(self.peripherals) do
+            print("Fetching data for " .. name)
 
-            if string.find(name, self.machine_type) then
-                print("Fetching data for " .. name)
-
-                local _, _, name = string.find(name, self.machine_type .. "_(.+)")
-                local ok, itemsList = pcall(machine.items)
-                if not ok then
-                    itemsList = {}
-                end
-
-                table.insert(machine_data, {
-                    name = name,
-                    items = itemsList,
-                    isBusy = machine.isBusy()
-                })
+            local _, _, name = string.find(name, self.machine_type .. "_(.+)")
+            local ok, itemsList = pcall(machine.items)
+            if not ok then
+                itemsList = {}
             end
+
+            table.insert(machine_data, {
+                name = name,
+                items = itemsList,
+                isBusy = machine.isBusy()
+            })
         end
 
         return machine_data
