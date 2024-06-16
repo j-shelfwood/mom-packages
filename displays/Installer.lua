@@ -63,9 +63,7 @@ this = {
     selectView = function(views)
         print("Select a view:")
         for i, view in ipairs(views) do
-            -- Remove .lua from the view name
-            local name = string.gsub(view, ".lua", "")
-            local ViewClass = mpm('views/' .. name)
+            local ViewClass = mpm('views/' .. view)
             if ViewClass.mount() then
                 print(i .. ". " .. view)
             end
