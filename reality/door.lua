@@ -16,7 +16,7 @@ This is a simple door script using a few peripherals from Unlimited Peripheral W
 
 It should have a door.config containing player names of people the door should automatically open for. It should also configure the block used to change the anchor's into.
 ]] -- Load required peripherals
-local realityForger = peripheral.wrap("reality_forger")
+local realityForger = peripheral.find("reality_forger")
 if not realityForger then
     error("Reality Forger peripheral not found")
 end
