@@ -35,15 +35,16 @@ end
 
 -- Define the block state for open and closed door
 local openBlockState = {
-    name = "minecraft:air"
+    block = "minecraft:air"
 }
 local closedBlockState = {
-    name = "minecraft:iron_door[block_half=lower]"
-} -- Example block state
+    block = "minecraft:bedrock"
+}
+
+local anchors = realityForger.detectAnchors()
 
 -- Function to detect anchors and forge reality
 local function modifyDoor(state)
-    local anchors = realityForger.detectAnchors()
     if not anchors then
         print("No anchors detected")
         return
