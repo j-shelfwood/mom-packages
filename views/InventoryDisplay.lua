@@ -26,6 +26,11 @@ module = {
 
     render = function(self)
         local items = self.peripheral.items()
+        -- If there are no items, print a message
+        if #items == 0 then
+            print("No items in inventory")
+            return
+        end
         for _, item in ipairs(items) do
             item.name = item.displayName
             item.count = item.count
