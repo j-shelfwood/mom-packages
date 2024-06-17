@@ -41,6 +41,7 @@ local closedBlockState = {
     block = "minecraft:bedrock"
 }
 
+print("Detecting anchors...")
 local anchors = realityForger.detectAnchors()
 
 -- Function to detect anchors and forge reality
@@ -53,6 +54,7 @@ local function modifyDoor(state)
     for _, anchor in pairs(anchors) do
         table.insert(coordinates, anchor)
     end
+    print("Forging reality...")
     realityForger.forgeRealityPieces(coordinates, state)
 end
 
