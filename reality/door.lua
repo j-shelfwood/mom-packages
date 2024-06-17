@@ -38,7 +38,8 @@ print("Loaded configuration:", textutils.serialize(config))
 
 -- Define the block state for open and closed door
 local openBlockState = {
-    block = "minecraft:air"
+    invisible = true,
+    playerPassable = true
 }
 local closedBlockState = {
     block = "minecraft:bedrock"
