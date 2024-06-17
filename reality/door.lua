@@ -78,9 +78,11 @@ local function controlDoor()
     end
 
     if doorShouldBeOpen then
+        print("Opening door...")
         modifyDoor(openBlockState)
-        print("Door opened for authorized access")
+        print("Door opened for authorized access!")
     else
+        print("Closing door...")
         modifyDoor(closedBlockState)
         print("Door closed")
     end
