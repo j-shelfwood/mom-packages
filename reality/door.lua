@@ -73,10 +73,12 @@ local function controlDoor()
     local players = scanner.scan("player", config.scanRadius or 5)
     local doorShouldBeOpen = false
 
-    for _, player in ipairs(players) do
-        if isAuthorized(player.name) then
-            doorShouldBeOpen = true
-            break
+    if players then
+        for _, player in ipairs(players) do
+            if isAuthorized(player.name) then
+                doorShouldBeOpen = true
+                break
+            end
         end
     end
 
