@@ -25,8 +25,10 @@ if not scanner then
     error("Universal Scanner peripheral not found")
 end
 
+local configFile = fs.open("door.config", "r")
 -- Load configuration
-local config = require("door.config")
+local config = textutils.unserializeJSON(configFile.readAll())
+configFile.close()
 if not config then
     error("Configuration file not loaded")
 end
