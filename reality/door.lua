@@ -33,6 +33,9 @@ if not config then
     error("Configuration file not loaded")
 end
 
+-- Debug: Print loaded configuration
+print("Loaded configuration:", textutils.serialize(config))
+
 -- Define the block state for open and closed door
 local openBlockState = {
     block = "minecraft:air"
@@ -73,8 +76,13 @@ local function controlDoor()
     local players = scanner.scan("player", config.scanRadius or 5)
     local doorShouldBeOpen = false
 
+    -- Debug: Print detected players
+    print("Detected players:", textutils.serialize(players))
+
     if players then
         for _, player in ipairs(players) do
+            -- Debug: Print player name being checked
+            print("Checking player:", player.name)
             if isAuthorized(player.name) then
                 doorShouldBeOpen = true
                 break
