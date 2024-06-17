@@ -20,7 +20,7 @@ local realityForger = peripheral.find("reality_forger")
 if not realityForger then
     error("Reality Forger peripheral not found")
 end
-local scanner = peripheral.wrap("universal_scanner")
+local scanner = peripheral.find("universal_scanner")
 if not scanner then
     error("Universal Scanner peripheral not found")
 end
