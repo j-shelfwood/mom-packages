@@ -82,8 +82,8 @@ local function controlDoor()
     if players then
         for _, player in ipairs(players) do
             -- Debug: Print player name being checked
-            print("Checking player:", player.name)
-            if isAuthorized(player.name) then
+            print("Checking player:", player.displayName)
+            if isAuthorized(player.displayName) then
                 doorShouldBeOpen = true
                 break
             end
