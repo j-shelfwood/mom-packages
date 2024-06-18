@@ -13,45 +13,50 @@ The computer will allow the user to:
 - Change the block type used to change the Reality Anchors into (create the forcefield)
 ]] local this
 
+local Monitor = mpm('forcefield/Monitor')
+local Configuration = mpm('forcefield/Configuration')
+local Anchors = mpm('forcefield/Anchors')
+
 this = {
     forger = nil,
     anchors = {},
-    configuration = {
-        enabled = false,
-        block = "rechiseled:obsidian_dark_connecting"
-    },
+    configuration = Configuration.load(),
     start = function()
         print('Starting forcefield system...')
         -- Check if we have a reality forger
         this.findPeripherals()
         -- Get the relevant anchors from the `anchors.json` file or detect them
-        this.findAnchors()
+        Anchors.find()
         this.startCLI()
     end,
-    bootForcefield = function()
-        print('Booting forcefield...')
-        -- Use the forger to forge the forcefield using the anchors
-        this.forger.forgeRealityPieces(this.anchors, {
-            block = this.configuration.block,
-            invisible = false,
-            playerPassable = false,
-            skyLightPassable = true,
-            lightPassable = true
-        })
+    forgeState = function(overrides)
+        -- Loop over the overrides and assign them to this.configuration.options.state
+        for k, v in pairs(overrides) do
+            this.configuration.options.state[k] = v
+        end
+        this.forger.forgeRealityPieces(this.anchors, this.configuration.options.state)
     end,
-    disableForcefield = function()
+    enable = function(invisible)
+        print('Booting forcefield...')
+        this.forgeState({
+            invisible = invisible or false,
+            playerPassable = false
+        })
+        this.saveState()
+    end,
+    disable = function()
         print('Disabling forcefield...')
-        -- Forge all the anchors to be invisible and playerPassable
-        this.forger.forgeRealityPieces(this.anchors, {
-            block = this.configuration.block,
+        this.forgeState({
             invisible = true,
             playerPassable = true
         })
+        this.saveState()
     end,
-    changeBlockType = function()
+    changeBlock = function()
         print("Enter a block identifier to use for the forcefield (e.g. 'minecraft:bedrock'): ")
         local block = read()
         this.configuration.block = block
+        this.saveState()
     end,
     findPeripherals = function()
         print('Finding peripherals...')
@@ -65,49 +70,25 @@ this = {
         print('Reality Forger found!')
         this.forger = forger
     end,
-    findAnchors = function()
-        -- Check if the `anchors.json` file exists
-        if not fs.exists("anchors.json") then
-            print('No `anchors.json` file found, detecting anchors...')
-            this.anchors = this.detectAnchors()
-        else
-            print('Loading anchors from `anchors.json`...')
-            this.anchors = this.loadAnchors()
-        end
-    end,
-    detectAnchors = function()
-        print('Detecting anchors...')
-        local anchors = this.forger.detectAnchors()
-
-        -- Save the anchors to the `anchors.json` file
-        local file = fs.open("anchors.json", "w")
-        file.write(textutils.serializeJSON(anchors))
-        file.close()
-        print('Anchors saved to `anchors.json`!')
-        return anchors
-    end,
-    loadAnchors = function()
-        print('Loading anchors...')
-        local file = fs.open("anchors.json", "r")
-        local anchors = textutils.unserializeJSON(file.readAll())
-        file.close()
-        return anchors
-    end,
     startCLI = function()
-        print("Forcefield system ready. Enter command (enable, disable, change block or exit):")
+        print("Forcefield system ready. Enter command (enable, disable, change block, invisible, visible, or exit):")
         while true do
             local input = read()
             if input == "exit" then
                 print("Exiting...")
                 break
             elseif input == "enable" then
-                this.bootForcefield()
+                this.enable()
             elseif input == "disable" then
-                this.disableForcefield()
+                this.disable()
             elseif input == "change block" then
-                this.changeBlockType()
+                this.changeBlock()
+            elseif input == "invisible" then
+                this.enable(true)
+            elseif input == "visible" then
+                this.enable(false)
             else
-                print("Unknown command. Available commands: enable, disable, change block, exit")
+                print("Unknown command. Available commands: enable, disable, change block, invisible, visible, exit")
             end
         end
     end
