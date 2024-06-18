@@ -1,7 +1,9 @@
 local this
 
 this = {
-    find = function()
+    forger = {},
+    find = function(forger)
+        this.forger = forger
         -- Check if the `anchors.json` file exists
         if not fs.exists("anchors.json") then
             print('No `anchors.json` file found, detecting anchors...')
