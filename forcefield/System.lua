@@ -95,8 +95,8 @@ this = {
     startCLI = function()
         print("Forcefield system ready. Enter commands:")
         while true do
-            io.write("> ")
-            local input = io.read()
+            io.stdout:write("> ")
+            local input = io.stdin:read()
             if input == "exit" then
                 print("Exiting...")
                 break
