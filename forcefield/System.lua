@@ -49,7 +49,7 @@ this = {
     changeBlockType = function()
         print('Changing block type...')
         -- Ask the user to input a block identifier to use for the forcefield
-        local block = io.read("Enter a block identifier to use for the forcefield: ")
+        local block = read("Enter a block identifier to use for the forcefield: ")
         this.configuration.block = block
     end,
     findPeripherals = function()
