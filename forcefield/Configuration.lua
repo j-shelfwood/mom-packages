@@ -12,11 +12,8 @@ this = {
         }
     },
     save = function()
-        local state = {
-            options = this.options
-        }
         local file = fs.open("forcefield.json", "w")
-        file.write(textutils.serializeJSON(state))
+        file.write(textutils.serializeJSON(this.options))
         file.close()
     end,
     load = function()
