@@ -43,7 +43,9 @@ local openBlockState = {
     playerPassable = true
 }
 local closedBlockState = {
-    block = "minecraft:bedrock"
+    block = "minecraft:bedrock",
+    invisible = false,
+    playerPassable = false
 }
 
 print("Detecting anchors...")
