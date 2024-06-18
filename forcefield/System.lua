@@ -93,10 +93,9 @@ this = {
         return anchors
     end,
     startCLI = function()
-        print("Forcefield system ready. Enter commands:")
+        print("Forcefield system ready. Enter command (enable, disable, change block or exit):")
         while true do
-            io.stdout:write("> ")
-            local input = io.stdin:read()
+            local input = read()
             if input == "exit" then
                 print("Exiting...")
                 break
