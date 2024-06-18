@@ -15,7 +15,12 @@ this = {
     end,
     detect = function()
         print('Detecting anchors...')
+        -- Start tracking time 
+        local startTime = os.clock()
         local anchors = this.forger.detectAnchors()
+        -- Stop tracking time
+        local endTime = os.clock()
+        print(#anchors .. 'anchors detected in ' .. endTime - startTime .. ' seconds!')
 
         -- Save the anchors to the `anchors.json` file
         local file = fs.open("anchors.json", "w")
