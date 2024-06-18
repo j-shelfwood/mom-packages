@@ -26,6 +26,7 @@ this = {
         this.findPeripherals()
         -- Get the relevant anchors from the `anchors.json` file or detect them
         this.findAnchors()
+        this.startCLI()
     end,
     bootForcefield = function()
         print('Booting forcefield...')
