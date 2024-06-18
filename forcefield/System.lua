@@ -47,9 +47,8 @@ this = {
         })
     end,
     changeBlockType = function()
-        print('Changing block type...')
-        -- Ask the user to input a block identifier to use for the forcefield
-        local block = read("Enter a block identifier to use for the forcefield: ")
+        print("Enter a block identifier to use for the forcefield (e.g. 'minecraft:bedrock'): ")
+        local block = read()
         this.configuration.block = block
     end,
     findPeripherals = function()
