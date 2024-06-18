@@ -5,10 +5,10 @@ this = {
         -- Check if the `anchors.json` file exists
         if not fs.exists("anchors.json") then
             print('No `anchors.json` file found, detecting anchors...')
-            this.anchors = this.detectAnchors()
+            return this.detect()
         else
             print('Loading anchors from `anchors.json`...')
-            this.anchors = this.loadAnchors()
+            return this.load()
         end
     end,
     detect = function()
