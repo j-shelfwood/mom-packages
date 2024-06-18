@@ -88,7 +88,7 @@ this = {
     loadAnchors = function()
         print('Loading anchors...')
         local file = fs.open("anchors.json", "r")
-        local anchors = textutils.deserializeJSON(file.readAll())
+        local anchors = textutils.unserializeJSON(file.readAll())
         file.close()
         return anchors
     end,
