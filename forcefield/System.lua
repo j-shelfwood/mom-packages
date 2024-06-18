@@ -29,35 +29,6 @@ this = {
         Anchors.find()
         this.startCLI()
     end,
-    forgeState = function(overrides)
-        -- Loop over the overrides and assign them to this.configuration.options.state
-        for k, v in pairs(overrides) do
-            this.configuration.options.state[k] = v
-        end
-        this.forger.forgeRealityPieces(this.anchors, this.configuration.options.state)
-    end,
-    enable = function(invisible)
-        print('Booting forcefield...')
-        this.forgeState({
-            invisible = invisible or false,
-            playerPassable = false
-        })
-        this.configuration.save()
-    end,
-    disable = function()
-        print('Disabling forcefield...')
-        this.forgeState({
-            invisible = true,
-            playerPassable = true
-        })
-        this.configuration.save()
-    end,
-    changeBlock = function()
-        print("Enter a block identifier to use for the forcefield (e.g. 'minecraft:bedrock'): ")
-        local block = read()
-        this.configuration.block = block
-        this.configuration.save()
-    end,
     findPeripherals = function()
         print('Finding peripherals...')
         local forger = peripheral.find("reality_forger")
@@ -91,6 +62,35 @@ this = {
                 print("Unknown command. Available commands: enable, disable, change block, invisible, visible, exit")
             end
         end
+    end,
+    enable = function(invisible)
+        print('Booting forcefield...')
+        this.forgeState({
+            invisible = invisible or false,
+            playerPassable = false
+        })
+        this.configuration.save()
+    end,
+    disable = function()
+        print('Disabling forcefield...')
+        this.forgeState({
+            invisible = true,
+            playerPassable = true
+        })
+        this.configuration.save()
+    end,
+    changeBlock = function()
+        print("Enter a block identifier to use for the forcefield (e.g. 'minecraft:bedrock'): ")
+        local block = read()
+        this.configuration.options.state.block = block
+        this.configuration.save()
+    end,
+    forgeState = function(overrides)
+        -- Loop over the overrides and assign them to this.configuration.options.state
+        for k, v in pairs(overrides) do
+            this.configuration.options.state[k] = v
+        end
+        this.forger.forgeRealityPieces(this.anchors, this.configuration.options.state)
     end
 }
 
