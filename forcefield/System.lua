@@ -78,7 +78,7 @@ this = {
         local anchors = this.forger.detectAnchors()
 
         -- Save the anchors to the `anchors.json` file
-        fs.write("anchors.json", textutils.serializeJSON(anchors))
+        fs.open("anchors.json", "w").write(textutils.serializeJSON(anchors))
         print('Anchors saved to `anchors.json`!')
         return anchors
     end,
