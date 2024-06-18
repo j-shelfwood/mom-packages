@@ -90,6 +90,7 @@ this = {
         for k, v in pairs(overrides) do
             this.configuration.options.state[k] = v
         end
+        print(textutils.serializeJSON(this.configuration.options.state))
         this.forger.forgeRealityPieces(this.anchors, this.configuration.options.state)
     end
 }
