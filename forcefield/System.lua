@@ -18,7 +18,7 @@ this = {
     anchors = {},
     configuration = {
         enabled = false,
-        block = "minecraft:bedrock"
+        block = "rechiseled:obsidian_dark_connecting"
     },
     start = function()
         print('Starting forcefield system...')
@@ -34,7 +34,9 @@ this = {
         this.forger.forgeRealityPieces(this.anchors, {
             block = this.configuration.block,
             invisible = false,
-            player_passable = false
+            playerPassable = false,
+            skyLightPassable = true,
+            lightPassable = true
         })
     end,
     disableForcefield = function()
@@ -43,7 +45,7 @@ this = {
         this.forger.forgeRealityPieces(this.anchors, {
             block = this.configuration.block,
             invisible = true,
-            player_passable = true
+            playerPassable = true
         })
     end,
     changeBlockType = function()
