@@ -42,7 +42,7 @@ this = {
             invisible = invisible or false,
             playerPassable = false
         })
-        this.saveState()
+        this.configuration.save()
     end,
     disable = function()
         print('Disabling forcefield...')
@@ -50,13 +50,13 @@ this = {
             invisible = true,
             playerPassable = true
         })
-        this.saveState()
+        this.configuration.save()
     end,
     changeBlock = function()
         print("Enter a block identifier to use for the forcefield (e.g. 'minecraft:bedrock'): ")
         local block = read()
         this.configuration.block = block
-        this.saveState()
+        this.configuration.save()
     end,
     findPeripherals = function()
         print('Finding peripherals...')
