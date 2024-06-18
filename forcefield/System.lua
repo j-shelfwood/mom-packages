@@ -26,7 +26,7 @@ this = {
         -- Check if we have a reality forger
         this.findPeripherals()
         -- Get the relevant anchors from the `anchors.json` file or detect them
-        Anchors.find()
+        this.anchors = Anchors.find()
         this.startCLI()
     end,
     findPeripherals = function()
