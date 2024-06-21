@@ -6,6 +6,7 @@
     "System/Bootstrap.lua",
     "System/Monitor.lua",
     "System/Configuration.lua",
-    "System/Anchors.lua"
+    "System/Anchors.lua",
+    "System/CommandLine.lua"
   ]
 }
