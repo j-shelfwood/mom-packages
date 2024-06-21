@@ -16,6 +16,9 @@ this = {
         this.monitor.setCursorPos(1, 1)
     end,
     render = function(status)
+        if not this.monitor then
+            return
+        end
         this.clear()
         this.monitor.write("Forcefield Status: " .. (status.enabled and "Enabled" or "Disabled"))
         this.monitor.setCursorPos(1, 2)
