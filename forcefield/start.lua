@@ -1,4 +1,4 @@
 -- This script starts the forcefield system
-local System = mpm("forcefield/System/System")
+local Bootstrap = mpm("forcefield/System/Bootstrap")
 
-System.start()
+Bootstrap.start()
