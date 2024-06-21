@@ -1,6 +1,6 @@
 --[[ 
 
-This script is used to create a forcefield using:
+This module is used to create a forcefield using:
 
 Reality Forger (and Reality Anchors to form the magic door)
     detectAnchors()	table	Returns list of all surrounding anchors with relative coordinates
@@ -13,9 +13,9 @@ The computer will allow the user to:
 - Change the block type used to change the Reality Anchors into (create the forcefield)
 ]] local this
 
-local Monitor = mpm('forcefield/Monitor')
-local Configuration = mpm('forcefield/Configuration')
-local Anchors = mpm('forcefield/Anchors')
+local Monitor = mpm('forcefield/System/Monitor')
+local Configuration = mpm('forcefield/System/Configuration')
+local Anchors = mpm('forcefield/System/Anchors')
 
 this = {
     forger = nil,

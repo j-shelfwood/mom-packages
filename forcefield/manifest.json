@@ -3,9 +3,9 @@
   "description": "Forcefield system for use with the Reality Forger & Reality anchors",
   "files": [
     "start.lua",
-    "System.lua",
-    "Monitor.lua",
-    "Configuration.lua",
-    "Anchors.lua"
+    "System/Bootstrap.lua",
+    "System/Monitor.lua",
+    "System/Configuration.lua",
+    "System/Anchors.lua"
   ]
 }
