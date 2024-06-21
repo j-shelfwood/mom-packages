@@ -18,24 +18,24 @@ this = {
         return input
     end,
     processCommand = function(command)
-        if input == "exit" then
+        if command == "exit" then
             print("Exiting...")
             this.shouldExit = true
             return
         end
-        if input == "enable" then
+        if command == "enable" then
             return system.enable()
         end
-        if input == "disable" then
+        if command == "disable" then
             return system.disable()
         end
-        if input == "change block" then
+        if command == "change block" then
             return system.changeBlock()
         end
-        if input == "invisible" then
+        if command == "invisible" then
             return system.enable(true)
         end
-        if input == "visible" then
+        if command == "visible" then
             return system.enable(false)
         end
 
