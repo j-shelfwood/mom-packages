@@ -16,6 +16,7 @@ The computer will allow the user to:
 local Monitor = mpm('forcefield/System/Monitor')
 local Configuration = mpm('forcefield/System/Configuration')
 local Anchors = mpm('forcefield/System/Anchors')
+local CommandLine = mpm('forcefield/System/CommandLine')
 
 this = {
     forger = nil,
@@ -27,7 +28,10 @@ this = {
         this.findPeripherals()
         -- Get the relevant anchors from the `anchors.json` file or detect them
         this.anchors = Anchors.find(this.forger)
-        this.startCLI()
+        -- Initialize the monitor
+        Monitor.init()
+        -- Start the command line interface
+        CommandLine.start(this)
     end,
     findPeripherals = function()
         print('Finding peripherals...')
@@ -41,28 +45,6 @@ this = {
         print('Reality Forger found!')
         this.forger = forger
     end,
-    startCLI = function()
-        print("Forcefield system ready. Enter command (enable, disable, change block, invisible, visible, or exit):")
-        while true do
-            local input = read()
-            if input == "exit" then
-                print("Exiting...")
-                break
-            elseif input == "enable" then
-                this.enable()
-            elseif input == "disable" then
-                this.disable()
-            elseif input == "change block" then
-                this.changeBlock()
-            elseif input == "invisible" then
-                this.enable(true)
-            elseif input == "visible" then
-                this.enable(false)
-            else
-                print("Unknown command. Available commands: enable, disable, change block, invisible, visible, exit")
-            end
-        end
-    end,
     enable = function(invisible)
         print('Booting forcefield...')
         this.forgeState({
@@ -70,6 +52,7 @@ this = {
             playerPassable = false
         })
         this.configuration.save()
+        Monitor.render(this.configuration.options.state)
     end,
     disable = function()
         print('Disabling forcefield...')
@@ -78,12 +61,14 @@ this = {
             playerPassable = true
         })
         this.configuration.save()
+        Monitor.render(this.configuration.options.state)
     end,
     changeBlock = function()
         print("Enter a block identifier to use for the forcefield (e.g. 'minecraft:bedrock'): ")
         local block = read()
         this.configuration.options.state.block = block
         this.configuration.save()
+        Monitor.render(this.configuration.options.state)
     end,
     forgeState = function(overrides)
         -- Loop over the overrides and assign them to this.configuration.options.state
