@@ -5,8 +5,8 @@ this = {
     start = function(system)
         print("Forcefield system ready. Enter command (enable, disable, change block, invisible, visible, or exit):")
         while true do
-            local input = this.waitForCommand()
-            this.processCommand(input)
+            local command = this.waitForCommand()
+            this.processCommand(command, system)
             if this.shouldExit then
                 break
             end
@@ -14,10 +14,9 @@ this = {
         print("Forcefield system exiting...")
     end,
     waitForCommand = function()
-        local input = read()
-        return input
+        return read()
     end,
-    processCommand = function(command)
+    processCommand = function(command, system)
         if command == "exit" then
             print("Exiting...")
             this.shouldExit = true
